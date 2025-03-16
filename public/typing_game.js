@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function checkInput(event) {
         const targetWord = words[currentWordIndex];
         const input = inputField.value;
+        const correctChar = targetWord[input.length - 1]; // 正しく押すべきキー
 
         if (targetWord.startsWith(input)) {
             if (input === targetWord) {
@@ -42,8 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateWord();
             }
         } else {
-            if (event.data) {
-                incorrectKeys[event.data] = (incorrectKeys[event.data] || 0) + 1;
+            if (correctChar) {
+                incorrectKeys[correctChar] = (incorrectKeys[correctChar] || 0) + 1; // 正しいキーのカウントを増やす
                 updateIncorrectKeysDisplay();
             }
             inputField.value = input.slice(0, -1); // 最後の文字を削除して戻す
