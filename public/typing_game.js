@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch("/get-words", { method: "POST" });
             const data = await response.json();
             words = data.words;
-        } catch (error) {
+        } catch (error) { // エラーが発生した場合、デフォルトの単語リストを使用
             console.error("Error fetching words:", error);
             words = ["apple", "banana", "cherry", "dog", "elephant", "pineapple", "orange", "grape", "kiwi", "lemon"];
         }
