@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function checkInput(event) {
+    function checkInput(event) { // キー入力の正誤判定
         const targetWord = words[currentWordIndex];
         const input = inputField.value;
         const correctChar = targetWord[input.length - 1]; 
