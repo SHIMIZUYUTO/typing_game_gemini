@@ -1,13 +1,13 @@
-require("dotenv").config();
+require("dotenv").config(); // APIキーを環境変数から読み込む
 const express = require("express");
-const fetch = require("node-fetch");
+const fetch = require("node-fetch"); // APIリクエストを送るため
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
-app.use(express.static("public")); // publicフォルダのファイルを配信
+app.use(express.static("public"));
 
-app.get("/", (req, res) => {
+app.get("/", (req, res) => { // /にアクセスしたらindex.htmlを返す
     res.sendFile(__dirname + "/public/index.html");
 });
 
@@ -18,10 +18,10 @@ app.post("/get-words", async (req, res) => {
             throw new Error("❌ APIキーが設定されていません！");
         }
 
-        // ✅ 最新の Gemini-2.0 Flash API を使用
+        // Gemini-2.0 Flash API を使用
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        // ✅ 変更したプロンプト
+        // Geminiへのプロンプト（単語と改行のみを生成してもらう）
         const promptText = "Output exactly 10 random English words. Each word must be at most 15 letters long. No numbering, no explanations, no punctuation, and all words should be lowercase.";
 
         const response = await fetch(apiUrl, {

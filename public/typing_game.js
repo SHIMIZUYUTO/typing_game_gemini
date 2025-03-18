@@ -1,17 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const startButton = document.getElementById("start-button");
-    const wordDisplay = document.getElementById("word-display");
-    const inputField = document.getElementById("input-field");
-    const scoreDisplay = document.getElementById("score-display");
-    const resultDisplay = document.getElementById("result-display");
-    const incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
+    const startButton = document.getElementById("start-button"); // スタートボタン
+    const wordDisplay = document.getElementById("word-display"); // 現在の単語
+    const inputField = document.getElementById("input-field"); // 入力欄 
+    const resultDisplay = document.getElementById("result-display"); // 結果表示
+    const incorrectKeysDisplay = document.getElementById("incorrect-keys-display"); // 間違ったキー表示
 
     let words = [];
     let currentWordIndex = 0;
     let incorrectKeys = {};
     let startTime;
 
-    async function fetchWords() {
+    async function fetchWords() { // Gemini APIから単語のリストを取得
         try {
             const response = await fetch("/get-words", { method: "POST" });
             const data = await response.json();
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function updateWord() {
+    function updateWord() { // 次の単語を表示
         if (currentWordIndex < words.length) {
             wordDisplay.textContent = words[currentWordIndex];
             inputField.value = "";
@@ -35,16 +34,16 @@ document.addEventListener("DOMContentLoaded", () => {
     function checkInput(event) {
         const targetWord = words[currentWordIndex];
         const input = inputField.value;
-        const correctChar = targetWord[input.length - 1]; // 正しく押すべきキー
+        const correctChar = targetWord[input.length - 1]; 
 
-        if (targetWord.startsWith(input)) {
+        if (targetWord.startsWith(input)) { // 正しく入力された場合、そのまま継続
             if (input === targetWord) {
                 currentWordIndex++;
                 updateWord();
             }
-        } else {
+        } else { // 間違った場合、correctCharをキーとしてincorrectKeysに追加
             if (correctChar) {
-                incorrectKeys[correctChar] = (incorrectKeys[correctChar] || 0) + 1; // 正しいキーのカウントを増やす
+                incorrectKeys[correctChar] = (incorrectKeys[correctChar] || 0) + 1; 
                 updateIncorrectKeysDisplay();
             }
             inputField.value = input.slice(0, -1); // 最後の文字を削除して戻す
