@@ -12,12 +12,11 @@ app.get("/", (req, res) => { // /にアクセスしたらindex.htmlを返す
 });
 
 const promptText = `
-Generate exactly 1 simple and random C programming code snippets for beginners,outputting only the code as text.
+Generate exactly 1 random C programming code snippets for beginners,outputting only the code as text.
 Each snippet should:
 - Output content is program only.
 - Never output markdown syntax.
 - Be at most 10 lines long.
-- Focus on basic syntax such as variable declaration, loops, conditionals, or functions.
 - Be properly formatted with proper indentation and line breaks.
 - Avoid unnecessary lines (e.g., no '#include' or other boilerplate code).
 - Never output explanations, comments, or markdown syntax (such as \`\`\`c).
@@ -58,8 +57,8 @@ app.post("/get-words", async (req, res) => {
         }
 
         let codeText = data.candidates[0].content.parts[0].text.trim(); // 生成されたコードテキスト
-        codeText = codeText.replace(/```c/g, "");
-        codeText = codeText.replace(/```\n/g, "");
+        codeText = codeText.replace(/```c\n/g, "");
+        codeText = codeText.replace(/```/g, "");
         codeText = codeText.replace(/\n\n/g, "\n"); // 二重改行を単一改行に置換
         const codeSnippets = codeText.split("\n").slice(0, 10); // 改行で区切り、最大10個取得
 
