@@ -12,7 +12,7 @@ app.get("/", (req, res) => { // /にアクセスしたらindex.htmlを返す
 });
 
 const promptText = `
-Generate exactly 1 simple and random C programming code snippets for beginners.
+Generate exactly 1 simple and random C programming code snippets for beginners,outputting only the code as text.
 Each snippet should:
 - Output content is program only.
 - Never output markdown syntax.
@@ -57,16 +57,19 @@ app.post("/get-words", async (req, res) => {
             throw new Error("❌ APIのレスポンスが不正です！");
         }
 
-        const codeText = data.candidates[0].content.parts[0].text.trim(); // 生成されたコードテキスト
+        let codeText = data.candidates[0].content.parts[0].text.trim(); // 生成されたコードテキスト
+        codeText = codeText.replace(/```c/g, "");
+        codeText = codeText.replace(/```\n/g, "");
+        codeText = codeText.replace(/\n\n/g, "\n"); // 二重改行を単一改行に置換
         const codeSnippets = codeText.split("\n").slice(0, 10); // 改行で区切り、最大10個取得
 
         // 各コードスニペット内の行を改行で区切り、適切に整形
         const formattedCodeSnippets = codeSnippets.map(snippet => {
-            // 行末に余分なスペースを取り除き、適切な改行を維持する
             return snippet
-                .split("\n") // 各行で分割
-                .map(line => line.trim()) // 行ごとに余分な空白を取り除く
-                .join("\n"); // 改行を適切に保持
+                .split("\n")
+                .map(line => line.trim())
+                .filter(line => line.length > 0) // 空行を削除
+                .join("\n");
         });
 
         res.json({ codeSnippets: formattedCodeSnippets });
