@@ -11,6 +11,19 @@ app.get("/", (req, res) => { // /にアクセスしたらindex.htmlを返す
     res.sendFile(__dirname + "/public/index.html");
 });
 
+const promptText = `
+Generate exactly 5 simple C programming code snippets for beginners. 
+Each snippet should:
+- Be at most 5 lines long.
+- Focus on basic syntax such as variable declaration, loops, conditionals, or functions.
+- Be properly formatted with proper indentation and line breaks.
+- Avoid unnecessary lines (e.g., no '#include' or other boilerplate code).
+- Not include explanations, comments, or markdown syntax (such as \`\`\`c).
+- Ensure that each statement ends with a semicolon and no space follows the semicolon.
+- Ensure proper indentation for code blocks such as "if", "else", "for", "while", and "functions".
+Each snippet should have proper line breaks between the statements.
+`;
+
 app.post("/get-words", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
@@ -20,9 +33,6 @@ app.post("/get-words", async (req, res) => {
 
         // Gemini-2.0 Flash API を使用
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-        // Geminiへのプロンプト（単語と改行のみを生成してもらう）
-        const promptText = "Output exactly 10 random English words. Each word must be at most 15 letters long. No numbering, no explanations, no punctuation, and all words should be lowercase.";
 
         const response = await fetch(apiUrl, {
             method: "POST",
@@ -39,18 +49,27 @@ app.post("/get-words", async (req, res) => {
         const data = await response.json();
         console.log("Gemini API Response:", JSON.stringify(data, null, 2)); // APIレスポンスを確認
 
-        // APIレスポンスから単語を抽出
+        // APIレスポンスからC言語コードを抽出
         if (!data || !data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts) {
             throw new Error("❌ APIのレスポンスが不正です！");
         }
 
-        const wordsText = data.candidates[0].content.parts[0].text; // 生成されたテキスト
-        const words = wordsText.trim().split(/\s+/).slice(0, 10); // 単語を抽出（10個に制限）
+        const codeText = data.candidates[0].content.parts[0].text.trim(); // 生成されたコードテキスト
+        const codeSnippets = codeText.split("\n").slice(0, 5); // 改行で区切り、最大5個取得
 
-        res.json({ words });
+        // 各コードスニペット内の行を改行で区切り、適切に整形
+        const formattedCodeSnippets = codeSnippets.map(snippet => {
+            // 行末に余分なスペースを取り除き、適切な改行を維持する
+            return snippet
+                .split("\n") // 各行で分割
+                .map(line => line.trim()) // 行ごとに余分な空白を取り除く
+                .join("\n"); // 改行を適切に保持
+        });
+
+        res.json({ codeSnippets: formattedCodeSnippets });
 
     } catch (error) {
-        console.error("Error fetching words:", error.message);
+        console.error("Error fetching C snippets:", error.message);
         res.status(500).json({ error: error.message });
     }
 });

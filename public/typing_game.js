@@ -10,14 +10,20 @@ document.addEventListener("DOMContentLoaded", () => {
     let incorrectKeys = {};
     let startTime;
 
-    async function fetchWords() { // Gemini APIから単語のリストを取得
+    async function fetchWords() {
         try {
             const response = await fetch("/get-words", { method: "POST" });
             const data = await response.json();
-            words = data.words;
-        } catch (error) { // エラーが発生した場合、デフォルトの単語リストを使用
+            words = data.codeSnippets || []; // codeSnippets を使う
+        } catch (error) {
             console.error("Error fetching words:", error);
-            words = ["apple", "banana", "cherry", "dog", "elephant", "pineapple", "orange", "grape", "kiwi", "lemon"];
+            words = [
+                "#include <stdio.h>\nint main() { return 0; }",
+                "int sum(int a, int b) { return a + b; }",
+                "for (int i = 0; i < 10; i++) { printf(\"%d\", i); }",
+                "if (x > 0) { printf(\"Positive\"); }",
+                "while (n > 0) { n--; }"
+            ]; // デフォルトの C コードスニペット
         }
     }
 
