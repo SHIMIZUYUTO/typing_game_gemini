@@ -57,7 +57,7 @@ app.post("/get-words", async (req, res) => {
         }
 
         let codeText = data.candidates[0].content.parts[0].text.trim(); // 生成されたコードテキスト
-        codeText = codeText.replace(/```c\n/g, "");
+        codeText = codeText.replace(/```c\n/g, ""); // マークダウン問題を解決
         codeText = codeText.replace(/```/g, "");
         codeText = codeText.replace(/\n\n/g, "\n"); // 二重改行を単一改行に置換
         const codeSnippets = codeText.split("\n").slice(0, 10); // 改行で区切り、最大10個取得
