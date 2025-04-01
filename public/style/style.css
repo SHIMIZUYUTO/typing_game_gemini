@@ -7,7 +7,7 @@
     border-radius: 5px;
     background-color: rgba(240, 240, 240, 0.8);
     resize: none;
-    white-space: pre-wrap; /* ← ここが重要！ */
+    white-space: pre-wrap;
 }
 
 
