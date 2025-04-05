@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const startButton = document.getElementById("start-button"); 
+    const startButton = document.getElementById("start-button");
+    const placeholderField = document.getElementById("placeholder-field"); 
     const inputField = document.getElementById("input-field");  
     const resultDisplay = document.getElementById("result-display"); 
     const incorrectKeysDisplay = document.getElementById("incorrect-keys-display"); 
@@ -15,9 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             codeLines = data.codeSnippets || [];
     
-            // プレースホルダーとして全体のコードを表示（改行対応）
-            inputField.setAttribute("placeholder", codeLines.join("\n"));
-            inputField.value = codeLines.join("\n"); // 実際の値も改行付きに
+            // プレースホルダー div に表示
+            placeholderField.textContent = codeLines.join("\n");
         } catch (error) {
             console.error("Error fetching words:", error);
         }
