@@ -59,8 +59,15 @@ app.post("/get-words", async (req, res) => {
         let codeText = data.candidates[0].content.parts[0].text.trim(); // 生成されたコードテキスト
         codeText = codeText.replace(/```c\n/g, ""); // マークダウン問題を解決
         codeText = codeText.replace(/```/g, "");
-        codeText = codeText.replace(/\n\n/g, "\n"); // 二重改行を単一改行に置換
-        const codeSnippets = codeText.split("\n").slice(0, 10); // 改行で区切り、最大10個取得
+        codeText = codeText.replace(/\t/g, "  "); // タブ → 半角スペース2つ
+        codeText = codeText.replace(/\r\n/g, "\n"); // Windows改行 → Unix改行
+        codeText = codeText.replace(/\n{2,}/g, "\n"); // 二重改行以上 → 単一改行
+        const codeSnippets = codeText
+        .split("\n")
+        .map(line => line.trim())
+        .filter(line => line.length > 0) // 空行除去
+        .slice(0, 10);
+      
 
         // 各コードスニペット内の行を改行で区切り、適切に整形
         const formattedCodeSnippets = codeSnippets.map(snippet => {
