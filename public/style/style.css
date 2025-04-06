@@ -12,7 +12,7 @@ body {
     top: 220px; /* input-field に合わせて調整（必要なら） */
     left: 10%;
     width: 80%;
-    height: 200px;
+    height: 300px;
     padding: 10px;
     font-size: 18px;
     border: 2px solid #ccc;
@@ -29,7 +29,7 @@ body {
     top: 220px;
     left: 10%;
     width: 80%;
-    height: 200px;
+    height: 300px;
     font-size: 18px;
     padding: 10px;
     border: 2px solid #ccc;
