@@ -12,7 +12,7 @@ app.get("/", (req, res) => { // /にアクセスしたらindex.htmlを返す
 });
 
 const promptText = `
-Generate exactly 1 random Javascript programming code snippets for beginners,outputting only the code as text.
+Generate exactly 1 random C programming code snippets for beginners,outputting only the code as text.
 Each snippet should:
 - Output content is program only.
 - Never output markdown syntax.
