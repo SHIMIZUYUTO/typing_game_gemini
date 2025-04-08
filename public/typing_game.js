@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 🔽 Enterキーでのみ次の行へ進む
+    // TODO: 入力途中にエンターキーを押しても反応しないようにする
     inputField.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
             event.preventDefault(); // 自動改行を防ぐ
