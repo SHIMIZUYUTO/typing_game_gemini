@@ -1,23 +1,66 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+<head>   
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Typing Game</title>
+    <style>
+      /* ログイン画面を表示する */
+      #login-container {
+        display: block;
+      }
+      /* タイピング画面を非表示にする */
+      #typing-container {
+        display: none;
+      }
+    </style>
 </head>
 <body>
-    <h1>⌨タイピング⌨</h1>
-    <p>スタートボタンを押してね</p>
-    <button id="start-button">スタート</button>
-    <p id="word-display"></p>
-    <div id="placeholder-field"></div>
-    <textarea id="input-field" disabled></textarea>
-    <p id="score-display"></p>
-    <p id="result-display"></p>
-    <p>間違えたキー: <span id="incorrect-keys-display"></span></p>
+    <!-- ログイン画面 -->
+    <div id="login-container">
+      <form id="login-form">
+        <h1>ログイン</h1>
+        <p>メールアドレス</p>
+        <input type="email" id="email" required>
+        <p>パスワード</p>
+        <input type="password" id="password" required>
+        <button id="login-button" type="submit">ログイン</button>
+      </form>
+    </div>
 
-    
-    <script src="typing_game.js"></script>
+    <!-- タイピング画面 -->
+    <div id="typing-container">
+      <h1>⌨タイピング⌨</h1>
+      <p>スタートボタンを押してね</p>
+      <button id="start-button">スタート</button>
+      <p id="word-display"></p>
+      <div id="placeholder-field"></div>
+      <textarea id="input-field" disabled></textarea>
+      <p id="score-display"></p>
+      <p id="result-display"></p>
+      <p>間違えたキー: <span id="incorrect-keys-display"></span></p>
+    </div>
+
+    <!-- Firebase SDK とログイン機能をモジュールで読み込む -->
+    <script type="module">
+      // Firebase SDK を CDN から読み込む
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+      import { getAuth } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+
+      // Firebase 設定情報
+      const firebaseConfig = {
+        apiKey: 'AIzaSyBW_5YU8b3vRSrmWtza7Tx50XQcR1s8U_c',
+        authDomain: 'typing-game-a8239.firebaseapp.com',
+        projectId: 'typing-game-a8239',
+      };
+
+      // Firebase アプリの初期化
+      initializeApp(firebaseConfig);
+    </script>
+
+    <script type="module" src="login.js"></script>
+    <script type="module" src="index.js"></script>
+    <script type="module" src="typing_game.js"></script>
 </body>
 </html>

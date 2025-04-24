@@ -147,4 +147,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     startButton.addEventListener("click", startGame);
     inputField.addEventListener("input", checkInput);
+    // <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-auth.js"></script>
 });

@@ -2,6 +2,14 @@ body {
     position: relative;
 }
 
+#login-container {
+    display: none;
+}
+
+#typing-container {
+    display: none;
+}
+
 #placeholder-field,#input-field {
     font-family: "Courier New", Courier, monospace;
 }
