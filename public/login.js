@@ -2,6 +2,11 @@ import { login } from './firebase_auth.js';
 
 const loginForm = document.getElementById('login-form');
 
+document.addEventListener('DOMContentLoaded', () => {
+  // ログイン画面を表示する
+  document.getElementById('login-container').style.display = 'block';
+});
+
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
