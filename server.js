@@ -12,19 +12,19 @@ app.get("/", (req, res) => { // /にアクセスしたらindex.htmlを返す
 });
 
 const promptText = `
-Generate exactly 1 random C programming code snippets for beginners,outputting only the code as text.
-Each snippet should:
-- Output content is program only.
-- Never output markdown syntax.
-- Be at most 10 lines long.
-- Do not enter indentation.
-- Be properly formatted with proper indentation and line breaks.
-- Avoid unnecessary lines (e.g., no '#include' or other boilerplate code).
-- Never output explanations, comments, or markdown syntax (such as \`\`\`c).
-- Ensure that each statement ends with a semicolon and no space follows the semicolon.
-- Ensure proper indentation for code blocks such as "if", "else", "for", "while", and "functions".
-- Never use double line breaks (\n\n); use single line breaks (\n) instead.
-Each snippet should have proper line breaks between the statements.
+初心者のためのランダムなCプログラミングコードスニペットを正確に1つ生成し、コードのみをテキストとして出力してください。
+各スニペットは
+- 出力内容はプログラムのみ。
+- マークダウン構文を出力しない。
+- 長くても10行まで。
+- インデントを入力しない。
+- 適切なインデントと改行で適切にフォーマットする。
+- 不要な行は避けること（例：『#include』やその他の定型的なコードは使用しない）。
+- 説明、コメント、マークダウン構文（  \`\`\`cなど）を出力しないこと。
+- 各ステートメントがセミコロンで終わり、セミコロンの後にスペースが続かないようにする。
+- if、else、for、while、functions などのコードブロックのインデントが適切であることを確認してください。
+- 二重改行は絶対にしないでください。
+各スニペットでは、文と文の間に適切な改行を入れてください。
 `;
 
 app.post("/get-words", async (req, res) => {
