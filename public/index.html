@@ -35,8 +35,10 @@
       <p>スタートボタンを押してね</p>
       <button id="start-button">スタート</button>
       <p id="word-display"></p>
-      <div id="placeholder-field"></div>
-      <textarea id="input-field" disabled></textarea>
+      <div style="position: relative; width: 100%; height: 450px;">
+        <div id="placeholder-field"></div>
+        <div id="input-field"></div>
+      </div>
       <p id="score-display"></p>
       <p id="result-display"></p>
       <p>間違えたキー: <span id="incorrect-keys-display"></span></p>
@@ -59,7 +61,52 @@
       initializeApp(firebaseConfig);
     </script>
 
+    <!-- Monaco Editor CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+
     <script type="module" src="login.js"></script>
     <script type="module" src="typing_game.js"></script>
+    <script>
+      window.MonacoEnvironment = { getWorkerUrl: () => proxy };
+      let proxy = URL.createObjectURL(new Blob([`
+        self.MonacoEnvironment = {baseUrl: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/'};
+        importScripts('https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/base/worker/workerMain.js');
+      `], { type: 'text/javascript' }));
+
+      require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' }});
+      require(['vs/editor/editor.main'], function () {
+        // プレースホルダー用（readonly）
+        window.placeholderEditor = monaco.editor.create(document.getElementById('placeholder-field'), {
+          value: '',
+          language: 'javascript',
+          theme: 'vs', // ← ここを 'vs-dark' から 'vs' に変更
+          fontSize: 16,
+          automaticLayout: true,
+          minimap: { enabled: false },
+          readOnly: true,
+          renderLineHighlight: 'none',
+          scrollbar: { vertical: 'hidden', horizontal: 'hidden' },
+          lineNumbers: 'off',
+          overviewRulerLanes: 0,
+          renderWhitespace: 'none',
+          renderIndentGuides: false,
+          folding: false,
+          contextmenu: false,
+          cursorStyle: 'line',
+          cursorBlinking: 'solid'
+        });
+
+        // 入力用
+        window.editor = monaco.editor.create(document.getElementById('input-field'), {
+          value: '',
+          language: 'javascript',
+          theme: 'vs', // ← ここも 'vs'
+          fontSize: 16,
+          automaticLayout: true,
+          minimap: { enabled: false }
+        });
+        // 必要に応じてeditor.getValue()で入力値を取得できます
+      });
+    </script>
 </body>
 </html>

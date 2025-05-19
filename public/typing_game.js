@@ -34,26 +34,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       function updateInputField() {
-          inputField.value = userInputLines.join("\n");
+          window.editor.setValue(userInputLines.join("\n"));
 
-          let currentLineStart;
-          if(currentLineIndex === 0) {
-              currentLineStart = userInputLines
-                  .slice(0, currentLineIndex)
-                  .join("\n").length;
-          } else {
-              currentLineStart = userInputLines
-                  .slice(0, currentLineIndex)
-                  .join("\n").length + 1;
-          }
-
-          inputField.setSelectionRange(currentLineStart, currentLineStart);
-          inputField.focus();
+          // カーソル位置を現在の行の先頭に移動
+          window.editor.setPosition({ lineNumber: currentLineIndex + 1, column: 1 });
+          window.editor.focus();
       }
 
-      function checkInput(event) {
-          const cursorPosition = inputField.selectionStart;
-          const allInput = inputField.value.split("\n");
+      function checkInput() {
+          const allInput = window.editor.getValue().split("\n");
           const currentInput = allInput[currentLineIndex] || "";
           const targetLine = codeLines[currentLineIndex];
           const correctChar = targetLine[currentInput.length - 1];
@@ -65,11 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
                   incorrectKeys[correctChar] = (incorrectKeys[correctChar] || 0) + 1;
                   updateIncorrectKeysDisplay();
               }
-
               userInputLines[currentLineIndex] = currentInput.slice(0, -1);
-              inputField.value = userInputLines.join("\n");
-              inputField.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
-              currentLineIndex = Math.min(currentLineIndex, allInput.length - 1);
+              window.editor.setValue(userInputLines.join("\n"));
+              window.editor.setPosition({ lineNumber: currentLineIndex + 1, column: currentInput.length });
           }
       }
 
@@ -170,6 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       startButton.addEventListener("click", startGame);
       inputField.addEventListener("input", checkInput);
+      window.editor.onDidChangeModelContent(() => {
+        checkInput();
+      });
     });
   });
 });

@@ -10,40 +10,38 @@ body {
     display: none;
 }
 
-#placeholder-field,#input-field {
-    font-family: "Courier New", Courier, monospace;
-}
-
-/* プレースホルダー用フィールド */
-#placeholder-field {
-    position: absolute;
-    top: 220px; /* input-field に合わせて調整（必要なら） */
-    left: 10%;
-    width: 80%;
-    height: 450px;
-    padding: 10px;
-    font-size: 18px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    color: rgba(0, 0, 0, 0.3);
-    white-space: pre-wrap;
-    pointer-events: none; /* クリックなどを透過させる */
-    z-index: 0;
-}
-
-/* 入力用フィールド */
+#placeholder-field,
 #input-field {
     position: absolute;
-    top: 220px;
+    top: 0;
     left: 10%;
     width: 80%;
     height: 450px;
-    font-size: 18px;
-    padding: 10px;
+    margin: 0 auto;
     border: 2px solid #ccc;
     border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0); /* 背景透過 */
-    resize: none;
+    font-size: 18px;
     white-space: pre-wrap;
+    /* 必要に応じて他のスタイルも追加 */
+}
+
+#placeholder-field {
+    z-index: 0;
+    color: rgba(0, 0, 0, 0.3);
+    pointer-events: none; /* クリックなどを透過させる */
+}
+
+#input-field {
     z-index: 1;
+    background: transparent;
+}
+
+/* レスポンシブ対応例 */
+@media (max-width: 600px) {
+    #placeholder-field,
+    #input-field {
+        width: 98%;
+        height: 250px;
+        left: 1%;
+    }
 }
