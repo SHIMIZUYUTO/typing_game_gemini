@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputField = document.getElementById("input-field");
   const resultDisplay = document.getElementById("result-display");
   const incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
-  const placeholderField = document.getElementById("placeholder-field");
 
   let codeLines = [];
   let userInputLines = [];
@@ -26,8 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
               codeLines = data.codeSnippets || [];
               userInputLines = Array(codeLines.length).fill("");
 
-              // プレースホルダー用の表示（背景に表示）
-              placeholderField.textContent = codeLines.join("\n");
+              // プレースホルダー用Monaco Editorに表示
+              if (window.placeholderEditor) {
+                  window.placeholderEditor.setValue(codeLines.join("\n"));
+              }
           } catch (error) {
               console.error("Error fetching words:", error);
           }
