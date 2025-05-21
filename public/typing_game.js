@@ -64,20 +64,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       inputField.addEventListener("keydown", (event) => {
-          if (event.key === "Enter") {
-              event.preventDefault();
-              const allInput = inputField.value.replace(/\n$/, "").split("\n");
-              const currentInput = allInput[currentLineIndex] || "";
+        //   if (event.key === "Enter") {
+        //       event.preventDefault();
+        //       const allInput = inputField.value.replace(/\n$/, "").split("\n");
+        //       const currentInput = allInput[currentLineIndex] || "";
 
-              if (currentInput.trim() !== "") {
-                  currentLineIndex++;
-                  if (currentLineIndex < codeLines.length) {
-                      updateInputField();
-                  } else {
-                      endGame();
-                  }
-              }
-          }
+        //       if (currentInput.trim() !== "") {
+        //           currentLineIndex++;
+        //           if (currentLineIndex < codeLines.length) {
+        //               updateInputField();
+        //           } else {
+        //               endGame();
+        //           }
+        //       }
+        //   }
       });
 
       function updateIncorrectKeysDisplay() {
