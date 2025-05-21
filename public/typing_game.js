@@ -55,9 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
                   incorrectKeys[correctChar] = (incorrectKeys[correctChar] || 0) + 1;
                   updateIncorrectKeysDisplay();
               }
-              userInputLines[currentLineIndex] = currentInput.slice(0, -1);
-              window.editor.setValue(userInputLines.join("\n"));
-              window.editor.setPosition({ lineNumber: currentLineIndex + 1, column: currentInput.length });
+              // 削除処理を無くす
+              // userInputLines[currentLineIndex] = currentInput.slice(0, -1);
+              // window.editor.setValue(userInputLines.join("\n"));
+              // window.editor.setPosition({ lineNumber: currentLineIndex + 1, column: currentInput.length });
           }
       }
 
