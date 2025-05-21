@@ -85,7 +85,7 @@
         // プレースホルダー用（readonly）
         window.placeholderEditor = monaco.editor.create(document.getElementById('placeholder-field'), {
           value: '',
-          language: 'javascript',
+          language: 'c',
           theme: 'vs', // ← ここを 'vs-dark' から 'vs' に変更
           fontSize: 16,
           automaticLayout: true,
@@ -106,7 +106,7 @@
         // 入力用
         window.editor = monaco.editor.create(document.getElementById('input-field'), {
           value: '',
-          language: 'javascript',
+          language: 'c',
           theme: 'vs', // ← ここも 'vs'
           fontSize: 16,
           automaticLayout: true,
