@@ -18,9 +18,7 @@ const promptText = `
 - マークダウン構文を出力しない。
 - 10行程度のプログラムを出力する。
 - 毎回異なる内容のプログラムを出力する。
-- インデントを入力しない。
 - 適切なインデントと改行で適切にフォーマットする。
-- 不要な行は避けること（例：『#include』やその他の定型的なコードは使用しない）。
 - 説明、コメント、マークダウン構文（  \`\`\`cなど）を出力しないこと。
 - 各ステートメントがセミコロンで終わり、セミコロンの後にスペースが続かないようにする。
 - if、else、for、while、functions などのコードブロックのインデントが適切であることを確認してください。
@@ -58,29 +56,21 @@ app.post("/get-words", async (req, res) => {
             throw new Error("❌ APIのレスポンスが不正です！");
         }
 
-        let codeText = data.candidates[0].content.parts[0].text.trim(); // 生成されたコードテキスト
-        codeText = codeText.replace(/```c\n/g, ""); // マークダウン問題を解決
+        let codeText = data.candidates[0].content.parts[0].text.trim();
+        codeText = codeText.replace(/```c\n/g, "");
         codeText = codeText.replace(/```/g, "");
-        codeText = codeText.replace(/\t/g, "  "); // タブ → 半角スペース2つ
-        codeText = codeText.replace(/\r\n/g, "\n"); // Windows改行 → Unix改行
-        codeText = codeText.replace(/\n{2,}/g, "\n"); // 二重改行以上 → 単一改行
+        codeText = codeText.replace(/\r\n/g, "\n");
+        codeText = codeText.replace(/\n{2,}/g, "\n");
+
+        // インデントを残して空行だけ除去
         const codeSnippets = codeText
-        .split("\n")
-        .map(line => line.trim())
-        .filter(line => line.length > 0) // 空行除去
-        .slice(0, 20);
-      
+          .split("\n")
+        //   .map(line => line.replace(/\s+$/, "")) // 行末のみトリム
+          .filter(line => line.length > 0)
+          .slice(0, 20);
 
-        // 各コードスニペット内の行を改行で区切り、適切に整形
-        const formattedCodeSnippets = codeSnippets.map(snippet => {
-            return snippet
-                .split("\n")
-                .map(line => line.trim())
-                .filter(line => line.length > 0) // 空行を削除
-                .join("\n");
-        });
 
-        res.json({ codeSnippets: formattedCodeSnippets });
+        res.json({ codeSnippets: codeSnippets });
 
     } catch (error) {
         console.error("Error fetching C snippets:", error.message);
