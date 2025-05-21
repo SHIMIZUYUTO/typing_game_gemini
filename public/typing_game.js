@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById("start-button");
+  const stopButton = document.getElementById("stop-button"); // デバッグ用
   const inputField = document.getElementById("input-field");
   const resultDisplay = document.getElementById("result-display");
   const incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
@@ -158,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       startButton.addEventListener("click", startGame);
+      stopButton.addEventListener("click", endGame); // デバッグ用
       inputField.addEventListener("input", checkInput);
       window.editor.onDidChangeModelContent(() => {
         checkInput();
