@@ -1,4 +1,4 @@
-// TODO: Monaco Editorの差分取得機能の実装
+// TODO: Monaco Editorの差分取得機能の実装（現在未完成）
 // BUG: 間違えたキー入力の判定が一行目でしか行われない
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputField = document.getElementById("input-field");
   const resultDisplay = document.getElementById("result-display");
   const incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
+  const diffButton = document.getElementById("diff-button"); // 追加
 
   let codeLines = [];
   let userInputLines = [];
@@ -160,6 +161,34 @@ document.addEventListener("DOMContentLoaded", () => {
               console.error('ハイスコア更新中にエラー:', error);
           }
       }
+
+      // 差分取得＆表示
+      diffButton.addEventListener("click", () => {
+        if (!window.monaco || !window.placeholderEditor || !window.editor) return;
+
+        const original = window.placeholderEditor.getValue();
+        const modified = window.editor.getValue();
+
+        // Monacoのdiff APIを使って差分取得
+        const diff = window.monaco.editor.computeDiff(
+          [{ value: original, language: 'c' }],
+          [{ value: modified, language: 'c' }],
+          false
+        );
+
+        // 差分をテキストで整形
+        let diffText = "";
+        diff.changes.forEach(change => {
+          diffText += `行${change.originalStartLineNumber}～${change.originalEndLineNumber}が\n`;
+          diffText += `→ 行${change.modifiedStartLineNumber}～${change.modifiedEndLineNumber}に変更\n`;
+        });
+
+        if (diffText === "") {
+          diffText = "差分はありません。";
+        }
+
+        alert(diffText);
+      });
 
       startButton.addEventListener("click", startGame);
       stopButton.addEventListener("click", endGame); // デバッグ用
