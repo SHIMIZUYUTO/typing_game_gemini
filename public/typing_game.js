@@ -49,21 +49,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
       function checkInput() {
           const allInput = window.editor.getValue().split("\n");
-          const currentInput = allInput[currentLineIndex] || "";
-          const targetLine = codeLines[currentLineIndex];
-          const correctChar = targetLine[currentInput.length - 1];
-
-          if (targetLine.startsWith(currentInput)) {
-              userInputLines[currentLineIndex] = currentInput;
-          } else {
-              if (correctChar) {
-                  incorrectKeys[correctChar] = (incorrectKeys[correctChar] || 0) + 1;
-                  updateIncorrectKeysDisplay();
+          // 各行ごとに判定
+          for (let i = 0; i < codeLines.length; i++) {
+              const currentInput = allInput[i] || "";
+              const targetLine = codeLines[i] || "";
+              // 入力が正しいか判定
+              if (targetLine.startsWith(currentInput)) {
+                  userInputLines[i] = currentInput;
+              } else {
+                  // どこで間違えたかを判定
+                  let wrongIndex = 0;
+                  while (
+                      wrongIndex < currentInput.length &&
+                      wrongIndex < targetLine.length &&
+                      currentInput[wrongIndex] === targetLine[wrongIndex]
+                  ) {
+                      wrongIndex++;
+                  }
+                  // 本来入力すべき正解のキー
+                  const expectedChar = targetLine[wrongIndex];
+                  if (expectedChar) {
+                      incorrectKeys[expectedChar] = (incorrectKeys[expectedChar] || 0) + 1;
+                      updateIncorrectKeysDisplay();
+                  }
               }
-              // 削除処理を無くす
-              // userInputLines[currentLineIndex] = currentInput.slice(0, -1);
-              // window.editor.setValue(userInputLines.join("\n"));
-              // window.editor.setPosition({ lineNumber: currentLineIndex + 1, column: currentInput.length });
           }
       }
 
