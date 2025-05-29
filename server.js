@@ -61,7 +61,7 @@ app.post("/get-words", async (req, res) => {
         codeText = codeText.replace(/```/g, "");
         codeText = codeText.replace(/\r\n/g, "\n");
         codeText = codeText.replace(/\n{2,}/g, "\n");
-        codeText = codeText.replace(/  /g, "\t"); // 2つのスペースをタブに置き換える
+        codeText = codeText.replace(/  /g, "    "); // 2つのスペースをスペース4つに変換
 
         // インデントを残して空行だけ除去
         const codeSnippets = codeText

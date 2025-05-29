@@ -53,8 +53,11 @@ document.addEventListener("DOMContentLoaded", () => {
           for (let i = 0; i < codeLines.length; i++) {
               const currentInput = allInput[i] || "";
               const targetLine = codeLines[i] || "";
-
-              // 入力が正しいとき、もしくはtargetLine.startsWithがタブ文字を含む場合は、入力を更新
+              
+              if(targetLine.startsWith("\t")) {
+                userInputLines[i] = "\t";
+              }
+              // 入力が正しいとき、入力を更新
               if (targetLine.startsWith(currentInput)) {
                   userInputLines[i] = currentInput;
               } else {
@@ -73,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       incorrectKeys[expectedChar] = (incorrectKeys[expectedChar] || 0) + 1;
                       updateIncorrectKeysDisplay();
                       // どの行のどの文字を何の文字と間違えたかをconsole.logで表示
-                        console.log(`行 ${i + 1} の文字 "${expectedChar}" を "${currentInput[wrongIndex] || 'EOF'}" と間違えました。`);
+                        console.log(`行 ${i + 1} の ${wrongIndex + 1}文字目 "${expectedChar}" を "${currentInput[wrongIndex]}" と間違えました。`);
                   }
               }
           }
