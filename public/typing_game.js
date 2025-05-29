@@ -48,39 +48,46 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       function checkInput() {
-          const allInput = window.editor.getValue().split("\n");
-          // 各行ごとに判定
-          for (let i = 0; i < codeLines.length; i++) {
-              const currentInput = allInput[i] || "";
-              const targetLine = codeLines[i] || "";
-              
-              if(targetLine.startsWith("\t")) {
-                userInputLines[i] = "\t";
-              }
-              // 入力が正しいとき、入力を更新
-              if (targetLine.startsWith(currentInput)) {
-                  userInputLines[i] = currentInput;
-              } else {
-                  // どこで間違えたかを判定
-                  let wrongIndex = 0;
-                  while (
-                      wrongIndex < currentInput.length &&
-                      wrongIndex < targetLine.length &&
-                      currentInput[wrongIndex] === targetLine[wrongIndex]
-                  ) {
-                      wrongIndex++;
-                  }
-                  // 本来入力すべき正解のキー
-                  const expectedChar = targetLine[wrongIndex];
-                  if (expectedChar) {
-                      incorrectKeys[expectedChar] = (incorrectKeys[expectedChar] || 0) + 1;
-                      updateIncorrectKeysDisplay();
-                      // どの行のどの文字を何の文字と間違えたかをconsole.logで表示
-                        console.log(`行 ${i + 1} の ${wrongIndex + 1}文字目 "${expectedChar}" を "${currentInput[wrongIndex]}" と間違えました。`);
-                  }
-              }
-          }
-      }
+        const allInput = window.editor.getValue().split("\n");
+        for (let i = 0; i < codeLines.length; i++) {
+            const currentInput = allInput[i] || "";
+            const targetLine = codeLines[i] || "";
+
+            if (targetLine.startsWith(currentInput)) {
+                userInputLines[i] = currentInput;
+                // console.log(`行 ${i + 1} の入力は正しい: "${currentInput}"`);
+            } else {
+                // どこで間違えたかを判定（タブ文字はスキップ）
+                let wrongIndex = 0;
+                while (
+                    wrongIndex < currentInput.length &&
+                    wrongIndex < targetLine.length &&
+                    currentInput[wrongIndex] === targetLine[wrongIndex]
+                ) {
+                    wrongIndex++;
+                }
+                // タブ文字をスキップ
+                while (wrongIndex < targetLine.length && targetLine[wrongIndex] === "\t") {
+                    wrongIndex++;
+                }
+                // 本来入力すべき正解のキー
+                const expectedChar = targetLine[wrongIndex];
+                // 間違って入力されたキー
+                const wrongChar = currentInput[wrongIndex];
+
+                // 間違って入力されたキーが閉じ括弧もしくは"ならスキップ
+                if (wrongChar === "}" || wrongChar === ")" || wrongChar === "]" || wrongChar === ">" || wrongChar === '"' || wrongChar === "'") {
+                    continue;
+                }
+
+                else if (expectedChar) {
+                    incorrectKeys[expectedChar] = (incorrectKeys[expectedChar] || 0) + 1;
+                    updateIncorrectKeysDisplay();
+                    console.log(`行 ${i + 1} の ${wrongIndex + 1}文字目 "${expectedChar}" を "${wrongChar}" と間違えました。`);
+                }
+            }
+        }
+    }
 
       inputField.addEventListener("keydown", (event) => {
         //   if (event.key === "Enter") {

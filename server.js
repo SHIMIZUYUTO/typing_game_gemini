@@ -19,6 +19,7 @@ const promptText = `
 - 10行程度のプログラムを出力する。
 - 毎回異なる内容のプログラムを出力する。
 - 適切なインデントと改行で適切にフォーマットする。
+- インデントは半角スペース4つで行うこと。
 - 説明、コメント、マークダウン構文（  \`\`\`cなど）を出力しないこと。
 - 各ステートメントがセミコロンで終わり、セミコロンの後にスペースが続かないようにする。
 - if、else、for、while、functions などのコードブロックのインデントが適切であることを確認してください。
@@ -61,7 +62,8 @@ app.post("/get-words", async (req, res) => {
         codeText = codeText.replace(/```/g, "");
         codeText = codeText.replace(/\r\n/g, "\n");
         codeText = codeText.replace(/\n{2,}/g, "\n");
-        codeText = codeText.replace(/  /g, "    "); // 2つのスペースをスペース4つに変換
+        // codeText = codeText.replace(/  /g, "    "); // 2つのスペースをスペース4つに変換
+        // codeText = codeText.replace(/        /g, "    "); // スペース8個をスペース4つに変換
 
         // インデントを残して空行だけ除去
         const codeSnippets = codeText
