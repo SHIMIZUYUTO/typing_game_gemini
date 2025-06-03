@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultDisplay = document.getElementById("result-display");
   const incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
   const diffButton = document.getElementById("diff-button"); // 追加
+  const closeDiffBtn = document.getElementById("close-diff");
 
   let codeLines = [];
   let userInputLines = [];
@@ -191,25 +192,44 @@ document.addEventListener("DOMContentLoaded", () => {
         const original = window.placeholderEditor.getValue();
         const modified = window.editor.getValue();
 
-        // Monacoのdiff APIを使って差分取得
-        const diff = window.monaco.editor.computeDiff(
-          [{ value: original, language: 'c' }],
-          [{ value: modified, language: 'c' }],
-          false
-        );
+        // Diffエディタ用のdivを表示
+        const diffContainer = document.getElementById("diff-container");
+        diffContainer.style.display = "block";
 
-        // 差分をテキストで整形
-        let diffText = "";
-        diff.changes.forEach(change => {
-          diffText += `行${change.originalStartLineNumber}～${change.originalEndLineNumber}が\n`;
-          diffText += `→ 行${change.modifiedStartLineNumber}～${change.modifiedEndLineNumber}に変更\n`;
-        });
-
-        if (diffText === "") {
-          diffText = "差分はありません。";
+        // すでにDiffエディタが存在する場合は破棄
+        if (window.diffEditor) {
+            window.diffEditor.dispose();
         }
 
-        alert(diffText);
+        // モデル作成
+        const originalModel = window.monaco.editor.createModel(original, "c");
+        const modifiedModel = window.monaco.editor.createModel(modified, "c");
+
+        // Diffエディタ生成
+        window.diffEditor = window.monaco.editor.createDiffEditor(diffContainer, {
+            theme: "vs",
+            fontSize: 16,
+            readOnly: true,
+            automaticLayout: true,
+            minimap: { enabled: false }
+        });
+
+        window.diffEditor.setModel({
+            original: originalModel,
+            modified: modifiedModel
+        });
+
+        closeDiffBtn.style.display = "block";
+      });
+
+      closeDiffBtn.addEventListener("click", () => {
+        const diffContainer = document.getElementById("diff-container");
+        diffContainer.style.display = "none";
+        closeDiffBtn.style.display = "none";
+        if (window.diffEditor) {
+            window.diffEditor.dispose();
+            window.diffEditor = null;
+        }
       });
 
       startButton.addEventListener("click", startGame);
