@@ -235,9 +235,11 @@ document.addEventListener("DOMContentLoaded", () => {
       startButton.addEventListener("click", startGame);
       stopButton.addEventListener("click", endGame); // デバッグ用
       inputField.addEventListener("input", checkInput);
-      window.editor.onDidChangeModelContent(() => {
-        checkInput();
-      });
+
+      // 一旦コメントアウト（削除せずにとっておく）
+    //   window.editor.onDidChangeModelContent(() => {
+    //     checkInput();
+    //   });
     });
   });
 });
