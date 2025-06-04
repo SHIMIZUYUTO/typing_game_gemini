@@ -1,5 +1,4 @@
-// TODO: Monaco Editorの差分取得機能の実装（現在未完成）
-// BUG: 間違えたキー入力の判定が一行目でしか行われない
+// TODO: 間違いカウントを一度だけ行うようにする
 
 document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById("start-button");
