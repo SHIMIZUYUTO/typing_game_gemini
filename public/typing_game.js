@@ -187,12 +187,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 差分取得＆表示
       diffButton.addEventListener("click", () => {
-        if (!window.monaco || !window.placeholderEditor || !window.editor) return;
+        if (!window.placeholderEditor || !window.editor) return;
 
         const original = window.placeholderEditor.getValue();
         const modified = window.editor.getValue();
 
-        // Diffエディタ用のdivを表示
         const diffContainer = document.getElementById("diff-container");
         diffContainer.style.display = "block";
 
@@ -222,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
         closeDiffBtn.style.display = "block";
       });
 
+      // 閉じるボタン
       closeDiffBtn.addEventListener("click", () => {
         const diffContainer = document.getElementById("diff-container");
         diffContainer.style.display = "none";
