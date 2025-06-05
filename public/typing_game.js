@@ -53,54 +53,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
       function checkInput() {
-        const allInput = window.editor.getValue().split("\n");
-        for (let i = 0; i < codeLines.length; i++) {
-            const currentInput = allInput[i] || "";
-            const targetLine = codeLines[i] || "";
+    const allInput = window.editor.getValue().split("\n");
+    for (let i = 0; i < codeLines.length; i++) {
+        const currentInput = allInput[i] || "";
+        const targetLine = codeLines[i] || "";
 
-            // 正しい部分のフラグをリセット
-            for (let j = 0; j < Math.min(currentInput.length, targetLine.length); j++) {
-                if (currentInput[j] === targetLine[j] && mistakeFlags[i][j]) {
-                    mistakeFlags[i][j] = false;
-                }
+        // 各文字ごとに判定
+        for (let j = 0; j < targetLine.length; j++) {
+            // 入力が足りていない場合はスキップ
+            if (j >= currentInput.length) {
+                // 入力が戻ってきた場合はフラグをリセット
+                if (mistakeFlags[i][j]) mistakeFlags[i][j] = false;
+                continue;
             }
 
-            if (targetLine.startsWith(currentInput)) {
-                userInputLines[i] = currentInput;
-            } else {
-                let wrongIndex = 0;
-                while (
-                    wrongIndex < currentInput.length &&
-                    wrongIndex < targetLine.length &&
-                    currentInput[wrongIndex] === targetLine[wrongIndex]
-                ) {
-                    wrongIndex++;
-                }
-                while (wrongIndex < targetLine.length && targetLine[wrongIndex] === "\t") {
-                    wrongIndex++;
-                }
-                const expectedChar = targetLine[wrongIndex];
-                const wrongChar = currentInput[wrongIndex];
+            // 正しい文字が入力されたらフラグをリセット
+            if (currentInput[j] === targetLine[j]) {
+                if (mistakeFlags[i][j]) mistakeFlags[i][j] = false;
+                continue;
+            }
 
-                // 間違って入力されたキーが閉じ括弧もしくは"ならスキップ
-                if (wrongChar === "}" || wrongChar === ")" || wrongChar === "]" || wrongChar === ">" || wrongChar === '"' || wrongChar === "'") {
-                    continue;
-                }
+            // 間違って入力されたキーが閉じ括弧やクォートならスキップ
+            if (
+                currentInput[j] === "}" || currentInput[j] === ")" ||
+                currentInput[j] === "]" || currentInput[j] === ">" ||
+                currentInput[j] === '"' || currentInput[j] === "'"
+            ) {
+                continue;
+            }
 
-                // すでにこの位置でミスカウント済みならスキップ
-                if (mistakeFlags[i][wrongIndex]) {
-                    continue;
-                }
-
-                if (expectedChar) {
-                    incorrectKeys[expectedChar] = (incorrectKeys[expectedChar] || 0) + 1;
-                    updateIncorrectKeysDisplay();
-                    mistakeFlags[i][wrongIndex] = true; // この位置をミス済みに
-                    // console.log(`行 ${i + 1} の ${wrongIndex + 1}文字目 "${expectedChar}" を "${wrongChar}" と間違えました。`);
-                }
+            // まだカウントしていない場合のみカウント
+            if (!mistakeFlags[i][j]) {
+                const expectedChar = targetLine[j];
+                incorrectKeys[expectedChar] = (incorrectKeys[expectedChar] || 0) + 1;
+                updateIncorrectKeysDisplay();
+                mistakeFlags[i][j] = true;
+                // console.log(`行${i + 1}の${j + 1}文字目 "${expectedChar}" を "${currentInput[j]}" と間違えました。`);
             }
         }
+        // 入力が正しい部分はuserInputLinesを更新
+        if (targetLine.startsWith(currentInput)) {
+            userInputLines[i] = currentInput;
+        }
     }
+}
 
       inputField.addEventListener("keydown", (event) => {
         //   if (event.key === "Enter") {
