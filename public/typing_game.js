@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let incorrectKeys = {};
   let startTime;
   let highScore = 0;
+  let mistakeFlags = []; // [行][列]ごとにミス済みかどうか
 
   // Firebaseをインポート
   import('https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js').then(({ getAuth }) => {
@@ -47,17 +48,26 @@ document.addEventListener("DOMContentLoaded", () => {
           window.editor.focus();
       }
 
+      function resetMistakeFlags() {
+        mistakeFlags = codeLines.map(line => Array(line.length).fill(false));
+    }
+
       function checkInput() {
         const allInput = window.editor.getValue().split("\n");
         for (let i = 0; i < codeLines.length; i++) {
             const currentInput = allInput[i] || "";
             const targetLine = codeLines[i] || "";
 
+            // 正しい部分のフラグをリセット
+            for (let j = 0; j < Math.min(currentInput.length, targetLine.length); j++) {
+                if (currentInput[j] === targetLine[j] && mistakeFlags[i][j]) {
+                    mistakeFlags[i][j] = false;
+                }
+            }
+
             if (targetLine.startsWith(currentInput)) {
                 userInputLines[i] = currentInput;
-                // console.log(`行 ${i + 1} の入力は正しい: "${currentInput}"`);
             } else {
-                // どこで間違えたかを判定（タブ文字はスキップ）
                 let wrongIndex = 0;
                 while (
                     wrongIndex < currentInput.length &&
@@ -66,13 +76,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 ) {
                     wrongIndex++;
                 }
-                // タブ文字をスキップ
                 while (wrongIndex < targetLine.length && targetLine[wrongIndex] === "\t") {
                     wrongIndex++;
                 }
-                // 本来入力すべき正解のキー
                 const expectedChar = targetLine[wrongIndex];
-                // 間違って入力されたキー
                 const wrongChar = currentInput[wrongIndex];
 
                 // 間違って入力されたキーが閉じ括弧もしくは"ならスキップ
@@ -80,10 +87,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     continue;
                 }
 
-                else if (expectedChar) {
+                // すでにこの位置でミスカウント済みならスキップ
+                if (mistakeFlags[i][wrongIndex]) {
+                    continue;
+                }
+
+                if (expectedChar) {
                     incorrectKeys[expectedChar] = (incorrectKeys[expectedChar] || 0) + 1;
                     updateIncorrectKeysDisplay();
-                    console.log(`行 ${i + 1} の ${wrongIndex + 1}文字目 "${expectedChar}" を "${wrongChar}" と間違えました。`);
+                    mistakeFlags[i][wrongIndex] = true; // この位置をミス済みに
+                    // console.log(`行 ${i + 1} の ${wrongIndex + 1}文字目 "${expectedChar}" を "${wrongChar}" と間違えました。`);
                 }
             }
         }
@@ -146,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           fetchWords().then(() => {
               updateInputField();
+              resetMistakeFlags();
           });
       }
 
