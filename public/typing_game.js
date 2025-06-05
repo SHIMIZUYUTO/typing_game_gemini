@@ -1,4 +1,4 @@
-// TODO: 間違いカウントを一度だけ行うようにする
+// TODO: 2回目以降のタイピングゲームの題材出力の実装
 
 document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById("start-button");
