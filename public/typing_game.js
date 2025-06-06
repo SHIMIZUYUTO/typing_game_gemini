@@ -63,13 +63,17 @@ document.addEventListener("DOMContentLoaded", () => {
             // 入力が足りていない場合はスキップ
             if (j >= currentInput.length) {
                 // 入力が戻ってきた場合はフラグをリセット
-                if (mistakeFlags[i][j]) mistakeFlags[i][j] = false;
                 continue;
             }
 
-            // 正しい文字が入力されたらフラグをリセット
+            // すでに正しい文字が一度でも入力された箇所は今後判定しない
+            if (mistakeFlags[i][j] === "correct") {
+                continue;
+            }
+
+            // 正しい文字が入力されたらフラグを"correct"にして今後判定しない
             if (currentInput[j] === targetLine[j]) {
-                if (mistakeFlags[i][j]) mistakeFlags[i][j] = false;
+                mistakeFlags[i][j] = "correct";
                 continue;
             }
 
