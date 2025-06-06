@@ -164,39 +164,52 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       async function endGame() {
-          inputField.disabled = true;
-          const timeTaken = (Date.now() - startTime) / 1000;
-          const penalty = Object.values(incorrectKeys).reduce((a, b) => a + b, 0);
-          const score = Math.max(0, Math.round(100 - timeTaken - penalty * 2));
+    inputField.disabled = true;
+    const timeTaken = (Date.now() - startTime) / 1000;
+    const penalty = Object.values(incorrectKeys).reduce((a, b) => a + b, 0);
+    const score = Math.max(0, Math.round(100 - timeTaken - penalty * 2));
 
-          resultDisplay.textContent = `ゲーム終了！スコア: ${score}`;
-          startButton.disabled = false;
+    resultDisplay.textContent = `ゲーム終了！スコア: ${score}`;
+    startButton.disabled = false;
 
-          // 🔥 ハイスコア更新処理
-          try {
-              const user = auth.currentUser;
-              if (user) {
-                  const userDocRef = doc(db, 'users', user.uid);
-                  const userDocSnap = await getDoc(userDocRef);
+    // 🔥 ハイスコア更新処理
+    try {
+        const user = auth.currentUser;
+        if (user) {
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDocSnap = await getDoc(userDocRef);
 
-                  if (userDocSnap.exists()) {
-                      const userData = userDocSnap.data();
-                      const previousHighScore = userData.highScore || 0;
+            if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+                const previousHighScore = userData.highScore || 0;
 
-                      if (score > previousHighScore) {
-                          await setDoc(userDocRef, {
-                              highScore: score
-                          }, { merge: true });
-                          console.log('ハイスコアを更新しました！');
-                      } else {
-                          console.log('ハイスコアは更新されませんでした');
-                      }
-                  }
-              }
-          } catch (error) {
-              console.error('ハイスコア更新中にエラー:', error);
-          }
-      }
+                if (score > previousHighScore) {
+                    await setDoc(userDocRef, {
+                        highScore: score
+                    }, { merge: true });
+                    console.log('ハイスコアを更新しました！');
+                } else {
+                    console.log('ハイスコアは更新されませんでした');
+                }
+            }
+
+            // 🔥 間違いカウント上位5つのキーを保存
+            // 1. incorrectKeysを配列に変換し、回数で降順ソート
+            const sortedKeys = Object.entries(incorrectKeys)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([key]) => key);
+
+            // 2. Firebaseに保存（配列のみ）
+            await setDoc(userDocRef, {
+                topMistakeKeys: sortedKeys
+            }, { merge: true });
+            console.log('上位5つの間違いキーを保存しました:', sortedKeys);
+        }
+    } catch (error) {
+        console.error('ハイスコア更新中にエラー:', error);
+    }
+}
 
       // 差分取得＆表示
       diffButton.addEventListener("click", () => {
