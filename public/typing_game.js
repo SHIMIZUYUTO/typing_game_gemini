@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
           incorrectKeysDisplay.innerHTML = "";
           Object.entries(incorrectKeys).forEach(([key, count]) => {
               const keyElement = document.createElement("span");
-              keyElement.textContent = `${key}: ${count} `;
+              keyElement.textContent = `${key}: ${count}回　 `;
               incorrectKeysDisplay.appendChild(keyElement);
           });
       }
