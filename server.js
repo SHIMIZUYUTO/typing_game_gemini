@@ -33,18 +33,23 @@ const promptText = `
 app.post("/get-words", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-            throw new Error("❌ APIキーが設定されていません！");
+        if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
+
+        // クライアントからカスタム用キー配列が送られてきた場合
+        let prompt = promptText;
+        if (req.body && Array.isArray(req.body.topMistakeKeys) && req.body.topMistakeKeys.length > 0) {
+            const keys = req.body.topMistakeKeys.map(k => `"${k}"`).join(", ");
+            prompt = `${promptText}
+            また、以下の文字（キー）が多めに含まれるようなCプログラムを生成してください: ${keys}
+            `;
         }
 
-        // Gemini-2.0 Flash API を使用
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: promptText }] }]
+                contents: [{ parts: [{ text: prompt }] }]
             }),
         });
 

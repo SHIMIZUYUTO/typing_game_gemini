@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
       async function startGame() {
           inputField.disabled = false;
           startButton.disabled = true;
+          customButton.disabled = true;
           resultDisplay.textContent = "";
           incorrectKeys = {};
           incorrectKeysDisplay.innerHTML = "";
@@ -171,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resultDisplay.textContent = `ゲーム終了！スコア: ${score}`;
     startButton.disabled = false;
+    customButton.disabled = false;
 
     // 🔥 ハイスコア更新処理
     try {
@@ -272,6 +274,74 @@ document.addEventListener("DOMContentLoaded", () => {
     //   window.editor.onDidChangeModelContent(() => {
     //     checkInput();
     //   });
+
+    const customButton = document.getElementById("custom-button");
+
+    customButton.addEventListener("click", async () => {
+        // FirebaseからtopMistakeKeysを取得
+        const user = auth.currentUser;
+        if (!user) return alert("ログインしてください");
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        let topMistakeKeys = [];
+        if (userDocSnap.exists()) {
+            topMistakeKeys = userDocSnap.data().topMistakeKeys || [];
+        }
+
+        // サーバーにtopMistakeKeysを送って問題取得
+        const response = await fetch("/get-words", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topMistakeKeys })
+        });
+        const data = await response.json();
+        codeLines = data.codeSnippets || [];
+        // userInputLinesを模範解答の行数と合わせた配列で初期化（改行を含む状態）
+        userInputLines = Array(codeLines.length).fill("");
+        
+        // プレースホルダー用Monaco Editorに表示
+        if (window.placeholderEditor) {
+            window.placeholderEditor.setValue(codeLines.join("\n"));
+        }
+        // 入力用エディタも模範解答の行数に合わせた改行状態で初期化
+        if (window.editor) {
+            window.editor.setValue(userInputLines.join("\n"));
+        }
+        
+        // ↓以下、スタートボタンで実施しているゲーム開始処理と同様の処理
+        
+        // 入力欄を有効にし、スタートボタンを無効化
+        inputField.disabled = false;
+        startButton.disabled = true;
+        customButton.disabled = true;
+        resultDisplay.textContent = "";
+        incorrectKeys = {};
+        incorrectKeysDisplay.innerHTML = "";
+        currentLineIndex = 0;
+        startTime = Date.now();
+        
+        // ユーザーのハイスコアを取得して表示
+        try {
+            if (user) {
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    highScore = userData.highScore || 0;
+                    resultDisplay.textContent = `あなたのハイスコア: ${highScore} 点`;
+                } else {
+                    highScore = 0;
+                    resultDisplay.textContent = `まだハイスコアはありません！`;
+                }
+            }
+        } catch (error) {
+            console.error('ハイスコア取得エラー:', error);
+        }
+        
+        // ミスフラグのリセット
+        mistakeFlags = codeLines.map(line => Array(line.length).fill(false));
+        updateInputField();
+    });
     });
   });
 });
