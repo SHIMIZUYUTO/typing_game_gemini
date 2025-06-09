@@ -193,11 +193,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // 🔥 間違いカウント上位5つのキーを保存
+            // 🔥 間違いカウント上位8つのキーを保存
             // 1. incorrectKeysを配列に変換し、回数で降順ソート
             const sortedKeys = Object.entries(incorrectKeys)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 5)
+                .slice(0, 8)
                 .map(([key]) => key);
 
             // すべての間違いカウントが0の場合は保存しない
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 await setDoc(userDocRef, {
                     topMistakeKeys: sortedKeys
                 }, { merge: true });
-                console.log('上位5つの間違いキーを保存しました:', sortedKeys);
+                console.log('上位8つの間違いキーを保存しました:', sortedKeys);
             } else {
                 console.log('間違いカウントが全て0なのでFirebaseは更新しません');
             }
