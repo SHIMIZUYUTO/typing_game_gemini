@@ -200,11 +200,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 .slice(0, 5)
                 .map(([key]) => key);
 
-            // 2. Firebaseに保存（配列のみ）
-            await setDoc(userDocRef, {
-                topMistakeKeys: sortedKeys
-            }, { merge: true });
-            console.log('上位5つの間違いキーを保存しました:', sortedKeys);
+            // すべての間違いカウントが0の場合は保存しない
+            const allZero = Object.values(incorrectKeys).every(count => count === 0);
+
+            if (!allZero && sortedKeys.length > 0) {
+                await setDoc(userDocRef, {
+                    topMistakeKeys: sortedKeys
+                }, { merge: true });
+                console.log('上位5つの間違いキーを保存しました:', sortedKeys);
+            } else {
+                console.log('間違いカウントが全て0なのでFirebaseは更新しません');
+            }
         }
     } catch (error) {
         console.error('ハイスコア更新中にエラー:', error);
