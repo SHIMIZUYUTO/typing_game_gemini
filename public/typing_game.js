@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
       async function startGame() {
           inputField.disabled = false;
           startButton.disabled = true;
+          diffButton.disabled = false;
           customButton.disabled = true;
           resultDisplay.textContent = "";
           incorrectKeys = {};
@@ -227,6 +228,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const modified = window.editor.getValue();
 
         const diffContainer = document.getElementById("diff-container");
+        diffButton.disabled = true;
+        closeDiffBtn.disabled = false;
         diffContainer.style.display = "block";
 
         // すでにDiffエディタが存在する場合は破棄
@@ -252,14 +255,16 @@ document.addEventListener("DOMContentLoaded", () => {
             modified: modifiedModel
         });
 
-        closeDiffBtn.style.display = "block";
+        // closeDiffBtn.style.display = "block";
       });
 
       // 閉じるボタン
       closeDiffBtn.addEventListener("click", () => {
         const diffContainer = document.getElementById("diff-container");
+        diffButton.disabled = false;
+        closeDiffBtn.disabled = true;
         diffContainer.style.display = "none";
-        closeDiffBtn.style.display = "none";
+        // closeDiffBtn.style.display = "none";
         if (window.diffEditor) {
             window.diffEditor.dispose();
             window.diffEditor = null;
@@ -313,6 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // 入力欄を有効にし、スタートボタンを無効化
         inputField.disabled = false;
         startButton.disabled = true;
+        diffButton.disabled = false;
         customButton.disabled = true;
         resultDisplay.textContent = "";
         incorrectKeys = {};

@@ -37,8 +37,9 @@
         <tr>
           <td><button id="start-button">スタート</button></td>
           <td><button id="stop-button">ストップ</button></td>
-          <td><button id="diff-button">差分を表示</button></td> <!-- 追加 -->
-          <td><button id="custom-button">カスタム</button></td> <!-- スタートボタンの横に追加 -->
+          <td><button id="diff-button" disabled>差分を表示</button></td>
+          <td><button id="close-diff" disabled>差分を閉じる</button></td>
+          <td><button id="custom-button">カスタム</button></td>
         </tr>
         
       </table>
@@ -55,7 +56,7 @@
     </div>
 
     <!-- タイピング画面の下などに追加 -->
-    <button id="close-diff" style="display:none; margin: 0 auto;">差分を閉じる</button>
+
 
     <!-- Firebase SDK とログイン機能をモジュールで読み込む -->
     <script type="module">
