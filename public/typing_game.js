@@ -1,5 +1,3 @@
-// TODO: 2回目以降のタイピングゲームの題材出力の実装
-
 document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById("start-button");
   const stopButton = document.getElementById("stop-button"); // デバッグ用
