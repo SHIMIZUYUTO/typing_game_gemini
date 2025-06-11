@@ -16,6 +16,8 @@ import {
 const auth = getAuth();
 const db = getFirestore();
 
+export { auth, db }; 
+
 // ログイン機能
 export const login = (email, password) => {
   return signInWithEmailAndPassword(auth, email, password)
