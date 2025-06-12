@@ -76,12 +76,15 @@ export function setupGameEvents() {
                     programsList.appendChild(li);
 
                     // 質問ボタンのイベントリスナーを追加
-                    setTimeout(() => { // DOM追加後に確実に取得
+                    setTimeout(() => {
                         const askBtn = document.getElementById(`ask-gemini-${prog.id}`);
                         const questionInput = document.getElementById(`question-input-${prog.id}`);
                         const answerDiv = document.getElementById(`gemini-answer-${prog.id}`);
                         if (askBtn && questionInput && answerDiv) {
-                            askBtn.addEventListener("click", async () => {
+                            // 既存のイベントリスナーを全て削除
+                            askBtn.replaceWith(askBtn.cloneNode(true));
+                            const newAskBtn = document.getElementById(`ask-gemini-${prog.id}`);
+                            newAskBtn.addEventListener("click", async () => {
                                 const question = questionInput.value.trim();
                                 if (!question) {
                                     answerDiv.textContent = "質問内容を入力してください。";
@@ -100,7 +103,9 @@ export function setupGameEvents() {
                                     });
                                     const data = await res.json();
                                     if (data.answer) {
-                                        answerDiv.textContent = data.answer;
+                                        // 改行を<br>に変換してHTMLとして表示
+                                        answerDiv.innerHTML = data.answer.replace(/</g, "&lt;").replace(/\n/g, "<br>");
+                                        console.log("Geminiの回答:", data.answer);
                                     } else {
                                         answerDiv.textContent = "回答が取得できませんでした。";
                                     }
