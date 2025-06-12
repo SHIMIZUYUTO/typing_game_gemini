@@ -1,4 +1,4 @@
-import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys } from './firebase_helper.js';
+import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram } from './firebase_helper.js';
 import { auth, db } from './firebase_auth.js';
 
 const startButton = document.getElementById("start-button");
@@ -183,6 +183,17 @@ export async function endGame() {
             console.log('上位8つの間違いキーを保存しました:', sortedKeys);
         } else {
             console.log('間違いカウントが全て0なのでFirebaseは更新されません');
+        }
+
+        // プログラムを保存
+        try {
+            if (user && window.placeholderEditor) { // TODO: window.editorに変更
+                const code = window.placeholderEditor.getValue();
+                await saveUserProgram(user, code);
+                console.log('プログラムを保存しました');
+            }
+        } catch (error) {
+            console.error('プログラム保存エラー:', error);
         }
     } catch (error) {
         console.error('ハイスコア更新中にエラー:', error);
