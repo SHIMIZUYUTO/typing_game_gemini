@@ -40,6 +40,7 @@
           <td><button id="diff-button" disabled>差分を表示</button></td>
           <td><button id="close-diff" disabled>差分を閉じる</button></td>
           <td><button id="custom-button">カスタム</button></td>
+          <td><button id="show-programs-button">保存プログラム一覧</button></td>
         </tr>
         
       </table>
@@ -53,6 +54,13 @@
       <p id="score-display"></p>
       <p id="result-display"></p>
       <p>間違えたキー:　<span id="incorrect-keys-display"></span></p>
+    </div>
+
+    <!-- プログラム一覧モーダル -->
+    <div id="programs-modal" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:#fff; border:1px solid #ccc; overflow:auto; z-index:1000;">
+      <button id="close-programs-modal" style="float:right;">閉じる</button>
+      <h2>保存されたプログラム一覧</h2>
+      <ul id="programs-list"></ul>
     </div>
 
     <!-- タイピング画面の下などに追加 -->

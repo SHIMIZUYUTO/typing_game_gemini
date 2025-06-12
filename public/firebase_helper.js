@@ -56,3 +56,15 @@ export async function saveUserProgram(user, code) {
         savedAt: new Date()
     });
 }
+
+export async function getUserPrograms(user) {
+    if (!user) return [];
+    const programsCol = collection(db, 'users', user.uid, 'programs');
+    const q = query(programsCol, orderBy('savedAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        code: doc.data().code,
+        savedAt: doc.data().savedAt?.toDate ? doc.data().savedAt.toDate() : doc.data().savedAt
+    }));
+}

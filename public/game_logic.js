@@ -1,4 +1,4 @@
-import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram } from './firebase_helper.js';
+import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram, getUserPrograms } from './firebase_helper.js';
 import { auth, db } from './firebase_auth.js';
 
 const startButton = document.getElementById("start-button");
@@ -9,6 +9,10 @@ const incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
 const customButton = document.getElementById("custom-button");
 const diffButton = document.getElementById("diff-button"); // 追加
 const closeDiffBtn = document.getElementById("close-diff");
+const showProgramsButton = document.getElementById("show-programs-button");
+const programsModal = document.getElementById("programs-modal");
+const closeProgramsModal = document.getElementById("close-programs-modal");
+const programsList = document.getElementById("programs-list");
 
 let codeLines = [];
 let userInputLines = [];
@@ -44,6 +48,39 @@ export function setupGameEvents() {
         diffButton.disabled = false;
         closeDiffBtn.disabled = true;
     });
+
+    // 保存されたプログラム表示ボタンの設定
+    if (showProgramsButton) {
+        showProgramsButton.addEventListener("click", async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert("ログインしてください");
+                return;
+            }
+            programsList.innerHTML = "<li>読み込み中...</li>";
+            programsModal.style.display = "block";
+            const programs = await getUserPrograms(user);
+            if (programs.length === 0) {
+                programsList.innerHTML = "<li>保存されたプログラムはありません。</li>";
+            } else {
+                programsList.innerHTML = "";
+                programs.forEach((prog, idx) => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        <pre style="background:#eee; padding:8px; overflow:auto;">${prog.code.replace(/</g, "&lt;")}</pre>
+                        <div>保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
+                    `;
+                    programsList.appendChild(li);
+                });
+            }
+        });
+    }
+
+    if (closeProgramsModal) {
+        closeProgramsModal.addEventListener("click", () => {
+            programsModal.style.display = "none";
+        });
+    }
 }
 
 // ゲーム開始
