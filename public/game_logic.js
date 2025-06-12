@@ -69,8 +69,47 @@ export function setupGameEvents() {
                     li.innerHTML = `
                         <pre style="background:#eee; padding:8px; overflow:auto;">${prog.code.replace(/</g, "&lt;")}</pre>
                         <div>保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
+                        <input type="text" placeholder="このプログラムについて質問" id="question-input-${prog.id}" style="width:60%;">
+                        <button id="ask-gemini-${prog.id}">Geminiに質問</button>
+                        <div id="gemini-answer-${prog.id}" style="margin:8px 0; color:#333;"></div>
                     `;
                     programsList.appendChild(li);
+
+                    // 質問ボタンのイベントリスナーを追加
+                    setTimeout(() => { // DOM追加後に確実に取得
+                        const askBtn = document.getElementById(`ask-gemini-${prog.id}`);
+                        const questionInput = document.getElementById(`question-input-${prog.id}`);
+                        const answerDiv = document.getElementById(`gemini-answer-${prog.id}`);
+                        if (askBtn && questionInput && answerDiv) {
+                            askBtn.addEventListener("click", async () => {
+                                const question = questionInput.value.trim();
+                                if (!question) {
+                                    answerDiv.textContent = "質問内容を入力してください。";
+                                    return;
+                                }
+                                answerDiv.textContent = "Geminiに問い合わせ中...";
+                                try {
+                                    // サーバーに質問を送信
+                                    const res = await fetch("/ask-gemini", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            code: prog.code,
+                                            question: question
+                                        })
+                                    });
+                                    const data = await res.json();
+                                    if (data.answer) {
+                                        answerDiv.textContent = data.answer;
+                                    } else {
+                                        answerDiv.textContent = "回答が取得できませんでした。";
+                                    }
+                                } catch (e) {
+                                    answerDiv.textContent = "エラーが発生しました。";
+                                }
+                            });
+                        }
+                    }, 0);
                 });
             }
         });

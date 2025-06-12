@@ -89,4 +89,49 @@ app.post("/get-words", async (req, res) => {
     }
 });
 
+app.post("/ask-gemini", async (req, res) => {
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
+
+        const { code, question } = req.body;
+        if (!code || !question) {
+            return res.status(400).json({ error: "codeとquestionは必須です" });
+        }
+
+        const prompt = `
+        以下のC言語プログラムについて、ユーザーからの質問に日本語で分かりやすく答えてください。
+        なお、太字を始めとしたマークダウン構文は絶対に出力しないでください
+        【プログラム】
+        ${code}
+        【質問】
+        ${question}
+        【回答】
+        `;
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        let answer = "";
+        if (data && data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+            answer = data.candidates[0].content.parts[0].text.trim();
+        }
+        res.json({ answer });
+    } catch (error) {
+        console.error("Gemini質問APIエラー:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
