@@ -65,7 +65,7 @@ export function setupGameEvents() {
             } else {
                 programsList.innerHTML = "";
                 programs.forEach((prog, idx) => {
-                    const li = document.createElement("li");
+                    const li = document.createElement("li"); // TODO: style.cssに移す
                     li.innerHTML = `
                         <pre style="background:#eee; padding:8px; overflow:auto;">${prog.code.replace(/</g, "&lt;")}</pre>
                         <div>保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
