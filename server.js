@@ -128,6 +128,19 @@ app.post("/ask-gemini", async (req, res) => {
         if (data && data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
             answer = data.candidates[0].content.parts[0].text.trim();
         }
+
+        // ★ここでマークダウンや不要な改行を除去
+        answer = answer
+            .replace(/```[\s\S]*?```/g, "") // コードブロック
+            .replace(/`([^`]+)`/g, "$1")    // インラインコード
+            .replace(/\*\*([^*]+)\*\*/g, "$1") // 太字
+            .replace(/\*([^*]+)\*/g, "$1")     // 斜体
+            .replace(/__([^_]+)__/g, "$1")     // 下線
+            .replace(/~~([^~]+)~~/g, "$1")     // 打ち消し
+            .replace(/\r\n/g, "\n")
+            .replace(/\n{3,}/g, "\n\n")        // 3つ以上の連続改行を2つに
+            .trim();
+
         res.json({ answer });
     } catch (error) {
         console.error("Gemini質問APIエラー:", error.message);
