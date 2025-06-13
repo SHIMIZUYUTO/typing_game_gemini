@@ -121,6 +121,25 @@ body {
     color: #ccc;
 }
 
+/* タブのスタイル */
+#programs-tabs {
+    margin-bottom: 10px;
+}
+#programs-tabs button {
+    padding: 6px 18px;
+    border: none;
+    background: #eee;
+    cursor: pointer;
+    font-size: 15px;
+    border-radius: 5px 5px 0 0;
+    margin-right: 2px;
+}
+#programs-tabs button.active-tab {
+    background: #fff;
+    border-bottom: 2px solid #4caf50;
+    font-weight: bold;
+}
+
 /* レスポンシブ対応例 */
 @media (max-width: 900px) {
     .editor-flex-container {
