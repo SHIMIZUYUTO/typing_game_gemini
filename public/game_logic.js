@@ -67,11 +67,11 @@ export function setupGameEvents() {
                 programs.forEach((prog, idx) => {
                     const li = document.createElement("li"); // TODO: style.cssに移す
                     li.innerHTML = `
-                        <pre style="background:#eee; padding:8px; overflow:auto;">${prog.code.replace(/</g, "&lt;")}</pre>
-                        <div>保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
-                        <input type="text" placeholder="このプログラムについて質問" id="question-input-${prog.id}" style="width:60%;">
-                        <button id="ask-gemini-${prog.id}">Geminiに質問</button>
-                        <div id="gemini-answer-${prog.id}" style="margin:8px 0; color:#333;"></div>
+                        <pre class="saved-program-code">${prog.code.replace(/</g, "&lt;")}</pre>
+                        <div class="saved-program-date">保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
+                        <input type="text" class="program-question-input" placeholder="このプログラムについて質問" id="question-input-${prog.id}">
+                        <button class="ask-gemini-btn" id="ask-gemini-${prog.id}">Geminiに質問</button>
+                        <div class="gemini-answer" id="gemini-answer-${prog.id}"></div>
                     `;
                     programsList.appendChild(li);
 

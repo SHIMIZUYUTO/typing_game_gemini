@@ -56,6 +56,54 @@ body {
     display: none;
 }
 
+/* 保存プログラム一覧のスタイル */
+.saved-program-code {
+    background: #eee;
+    padding: 8px;
+    overflow: auto;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.saved-program-date {
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.program-question-input {
+    width: 60%;
+    margin-bottom: 4px;
+    padding: 4px;
+    font-size: 14px;
+}
+
+.ask-gemini-btn {
+    margin-left: 8px;
+    padding: 4px 10px;
+    font-size: 14px;
+    background: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.ask-gemini-btn:hover {
+    background: #388e3c;
+}
+
+.gemini-answer {
+    margin: 8px 0;
+    color: #333;
+    background: #f9f9f9;
+    padding: 6px;
+    border-radius: 3px;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
 /* レスポンシブ対応例 */
 @media (max-width: 900px) {
     .editor-flex-container {
