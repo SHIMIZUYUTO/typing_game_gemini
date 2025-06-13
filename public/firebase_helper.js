@@ -42,19 +42,29 @@ export async function saveUserProgram(user, code) {
     const q = query(programsCol, orderBy('savedAt', 'asc'));
     const snapshot = await getDocs(q);
 
-    // 5つ以上なら古いものから削除
-    if (snapshot.size >= 5) {
-        const docsToDelete = snapshot.docs.slice(0, snapshot.size - 4); // 4つ残す
+    // お気に入り以外のプログラムのみカウント
+    const nonFavoriteDocs = snapshot.docs.filter(doc => !doc.data().favorite);
+    // 5つ以上なら古い「お気に入りでない」ものから削除
+    if (nonFavoriteDocs.length >= 5) {
+        const docsToDelete = nonFavoriteDocs.slice(0, nonFavoriteDocs.length - 4);
         for (const docSnap of docsToDelete) {
             await deleteDoc(docSnap.ref);
         }
     }
 
-    // 新しいプログラムを追加
+    // 新しいプログラムを追加（デフォルトはお気に入りfalse）
     await addDoc(programsCol, {
         code,
-        savedAt: new Date()
+        savedAt: new Date(),
+        favorite: false
     });
+}
+
+// お気に入り状態を切り替える
+export async function toggleFavoriteProgram(user, programId, currentFavorite) {
+    if (!user || !programId) return;
+    const programRef = doc(db, 'users', user.uid, 'programs', programId);
+    await setDoc(programRef, { favorite: !currentFavorite }, { merge: true });
 }
 
 export async function getUserPrograms(user) {
@@ -65,6 +75,7 @@ export async function getUserPrograms(user) {
     return snapshot.docs.map(doc => ({
         id: doc.id,
         code: doc.data().code,
-        savedAt: doc.data().savedAt?.toDate ? doc.data().savedAt.toDate() : doc.data().savedAt
+        savedAt: doc.data().savedAt?.toDate ? doc.data().savedAt.toDate() : doc.data().savedAt,
+        favorite: !!doc.data().favorite
     }));
 }

@@ -1,4 +1,4 @@
-import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram, getUserPrograms } from './firebase_helper.js';
+import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram, getUserPrograms, toggleFavoriteProgram } from './firebase_helper.js';
 import { auth, db } from './firebase_auth.js';
 
 const startButton = document.getElementById("start-button");
@@ -65,8 +65,11 @@ export function setupGameEvents() {
             } else {
                 programsList.innerHTML = "";
                 programs.forEach((prog, idx) => {
-                    const li = document.createElement("li"); // TODO: style.cssに移す
+                    const li = document.createElement("li");
                     li.innerHTML = `
+                        <span class="favorite-star" id="favorite-star-${prog.id}" style="cursor:pointer;font-size:20px;color:${prog.favorite ? "#FFD700" : "#ccc"};">
+                            ${prog.favorite ? "★" : "☆"}
+                        </span>
                         <pre class="saved-program-code">${prog.code.replace(/</g, "&lt;")}</pre>
                         <div class="saved-program-date">保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
                         <input type="text" class="program-question-input" placeholder="このプログラムについて質問" id="question-input-${prog.id}">
@@ -75,8 +78,17 @@ export function setupGameEvents() {
                     `;
                     programsList.appendChild(li);
 
-                    // 質問ボタンのイベントリスナーを追加
+                    // ★マークのイベント
                     setTimeout(() => {
+                        const star = document.getElementById(`favorite-star-${prog.id}`);
+                        if (star) {
+                            star.onclick = async () => {
+                                await toggleFavoriteProgram(auth.currentUser, prog.id, prog.favorite);
+                                // 再読み込みで状態反映
+                                showProgramsButton.click();
+                            };
+                        }
+                        // 質問ボタンのイベントリスナーを追加
                         const askBtn = document.getElementById(`ask-gemini-${prog.id}`);
                         const questionInput = document.getElementById(`question-input-${prog.id}`);
                         const answerDiv = document.getElementById(`gemini-answer-${prog.id}`);

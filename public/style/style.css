@@ -104,6 +104,23 @@ body {
     white-space: pre-wrap;
 }
 
+/* お気に入りスターのスタイル */
+.favorite-star {
+    cursor: pointer;
+    font-size: 20px;
+    user-select: none;
+    margin-right: 8px;
+    transition: color 0.2s;
+}
+
+.favorite-star.favorited {
+    color: #FFD700;
+}
+
+.favorite-star:not(.favorited) {
+    color: #ccc;
+}
+
 /* レスポンシブ対応例 */
 @media (max-width: 900px) {
     .editor-flex-container {
