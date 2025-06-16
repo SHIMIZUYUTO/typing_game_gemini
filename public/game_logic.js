@@ -348,15 +348,15 @@ function renderProgramsList(programs, showFavorite) {
     filtered.forEach((prog, idx) => {
         const li = document.createElement("li");
         li.innerHTML = `
-            <span class="favorite-star" id="favorite-star-${prog.id}" style="cursor:pointer;font-size:20px;color:${prog.favorite ? "#FFD700" : "#ccc"};">
-                ${prog.favorite ? "★" : "☆"}
-            </span>
-            <pre class="saved-program-code">${prog.code.replace(/</g, "&lt;")}</pre>
-            <div class="saved-program-date">保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
-            <input type="text" class="program-question-input" placeholder="このプログラムについて質問" id="question-input-${prog.id}">
-            <button class="ask-gemini-btn" id="ask-gemini-${prog.id}">Geminiに質問</button>
-            <div class="gemini-answer" id="gemini-answer-${prog.id}"></div>
-        `;
+    <span class="favorite-star${prog.favorite ? " favorited" : ""}" id="favorite-star-${prog.id}">
+        ${prog.favorite ? "★" : "☆"}
+    </span>
+    <pre class="saved-program-code">${prog.code.replace(/</g, "&lt;")}</pre>
+    <div class="saved-program-date">保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
+    <input type="text" class="program-question-input" placeholder="このプログラムについて質問" id="question-input-${prog.id}">
+    <button class="ask-gemini-btn" id="ask-gemini-${prog.id}">Geminiに質問</button>
+    <div class="gemini-answer" id="gemini-answer-${prog.id}"></div>
+`;
         programsList.appendChild(li);
 
         // ★マークのイベント

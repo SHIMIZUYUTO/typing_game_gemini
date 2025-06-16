@@ -22,7 +22,7 @@ body {
 #placeholder-field,
 #input-field {
     position: relative;
-    width: 50%;
+    width: 45%;
     height: 100%;
     border: 2px solid #ccc;
     border-radius: 5px;
@@ -54,6 +54,53 @@ body {
     border: 2px solid #ccc;
     z-index: 10;
     display: none;
+}
+
+/* プログラム一覧モーダル */
+#programs-modal {
+    display: none;
+    position: fixed;
+    top: 10%;
+    left: 10%;
+    width: 70%;
+    height: 70%;
+    background: #fff;
+    border: 1px solid #ccc;
+    overflow: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    padding: 24px 24px 12px 24px;
+    border-radius: 8px;
+}
+#close-programs-modal {
+    float: right;
+    background: #f44336;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 6px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+#close-programs-modal:hover {
+    background: #d32f2f;
+}
+#programs-modal h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 20px;
+    color: #222;
+}
+#programs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#programs-list li {
+    border-bottom: 1px solid #eee;
+    padding: 12px 0 8px 0;
+    margin-bottom: 0;
 }
 
 /* 保存プログラム一覧のスタイル */
@@ -139,6 +186,8 @@ body {
     border-bottom: 2px solid #4caf50;
     font-weight: bold;
 }
+
+
 
 /* レスポンシブ対応例 */
 @media (max-width: 900px) {
