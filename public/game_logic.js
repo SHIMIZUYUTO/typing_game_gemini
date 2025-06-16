@@ -37,7 +37,7 @@ export function setupGameEvents() {
         });
     }
 
-    // 差分ボタンの有効/無効制御とクリック時の処理
+    stopButton.disabled = true;
     diffButton.disabled = true;
     closeDiffBtn.disabled = true;
 
@@ -98,6 +98,7 @@ export async function startGame() {
     // ゲーム初期化・開始処理
     inputField.disabled = false;
     startButton.disabled = true;
+    stopButton.disabled = false; 
     diffButton.disabled = false;
     customButton.disabled = true;
     resultDisplay.textContent = "";
@@ -160,6 +161,7 @@ export async function startCustomGame() {
     // 入力欄を有効にし、スタートボタンを無効化
     inputField.disabled = false;
     startButton.disabled = true;
+    stopButton.disabled = false;
     diffButton.disabled = false;
     customButton.disabled = true;
     resultDisplay.textContent = "";
@@ -191,6 +193,7 @@ export async function startCustomGame() {
 // ゲーム終了
 export async function endGame() {
     inputField.disabled = true;
+    stopButton.disabled = true;
     const timeTaken = (Date.now() - startTime) / 1000;
     const penalty = Object.values(incorrectKeys).reduce((a, b) => a + b, 0);
     const score = Math.max(0, Math.round(100 - timeTaken - penalty * 2));
