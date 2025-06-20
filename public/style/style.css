@@ -62,18 +62,45 @@ body {
     position: fixed;
     top: 10%;
     left: 10%;
-    width: 70%;
+    width: 80%;
     height: 70%;
     background: #fff;
     border: 1px solid #ccc;
-    overflow: auto;
     z-index: 1000;
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    padding: 24px 24px 12px 24px;
     border-radius: 8px;
+    /* paddingはheaderとlistで分けるので不要 */
+    overflow: hidden;
+    min-width: 320px;
 }
+
+.programs-modal-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
+#programs-modal-header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+    padding: 16px 24px 8px 24px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#programs-modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #222;
+}
+
 #close-programs-modal {
-    float: right;
     background: #f44336;
     color: #fff;
     border: none;
@@ -81,21 +108,36 @@ body {
     padding: 6px 14px;
     font-size: 14px;
     cursor: pointer;
-    margin-bottom: 8px;
+    margin: 0;
 }
 #close-programs-modal:hover {
     background: #d32f2f;
 }
-#programs-modal h2 {
-    margin-top: 0;
-    margin-bottom: 16px;
-    font-size: 20px;
-    color: #222;
+
+#programs-tabs {
+    margin-bottom: 0;
 }
+#programs-tabs button {
+    padding: 6px 18px;
+    border: none;
+    background: #eee;
+    cursor: pointer;
+    font-size: 15px;
+    border-radius: 5px 5px 0 0;
+    margin-right: 2px;
+}
+#programs-tabs button.active-tab {
+    background: #fff;
+    border-bottom: 2px solid #4caf50;
+    font-weight: bold;
+}
+
 #programs-list {
     list-style: none;
-    padding: 0;
+    padding: 0 24px 0 24px;
     margin: 0;
+    height: calc(100% - 110px); /* headerの高さ分を引く */
+    overflow-y: auto;
 }
 #programs-list li {
     border-bottom: 1px solid #eee;

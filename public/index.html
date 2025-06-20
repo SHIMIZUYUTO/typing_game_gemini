@@ -58,11 +58,15 @@
 
     <!-- プログラム一覧モーダル -->
     <div id="programs-modal">
-      <button id="close-programs-modal">閉じる</button>
-      <h2>保存されたプログラム一覧</h2>
-      <div id="programs-tabs">
-        <button id="tab-favorite" class="active-tab">★ お気に入り</button>
-        <button id="tab-normal">通常</button>
+      <div id="programs-modal-header">
+        <div class="programs-modal-header-row">
+          <h2>保存されたプログラム一覧</h2>
+          <button id="close-programs-modal">閉じる</button>
+        </div>
+        <div id="programs-tabs">
+          <button id="tab-favorite" class="active-tab">★ お気に入り</button>
+          <button id="tab-normal">通常</button>
+        </div>
       </div>
       <ul id="programs-list"></ul>
     </div>
