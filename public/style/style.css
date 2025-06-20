@@ -284,6 +284,33 @@ body {
     white-space: pre-wrap;
 }
 
+/* チャット履歴のスタイル */
+.chat-history {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    background: #f8f8f8;
+    padding: 8px;
+    border-radius: 4px;
+}
+.chat-msg {
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+}
+.chat-user {
+    background: #e3f2fd;
+    text-align: right;
+}
+.chat-gemini {
+    background: #f1f8e9;
+    text-align: left;
+}
+.chat-input-row {
+    display: flex;
+    gap: 8px;
+}
+
 /* レスポンシブ対応例 */
 @media (max-width: 900px) {
     .editor-flex-container {

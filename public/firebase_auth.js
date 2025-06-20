@@ -1,16 +1,8 @@
 // Firebase Authenticationをインポート
-import {
-  getAuth,
-  signInWithEmailAndPassword
-} from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
 
 // Firestoreをインポート
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc
-} from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
 // Firebase AuthenticationとFirestoreのインスタンスを取得
 const auth = getAuth();
@@ -26,21 +18,17 @@ export const login = (email, password) => {
       console.log('ログイン成功:', user);
 
       // Firestoreにユーザードキュメントを作成またはスキップ
-      const userDocRef = doc(db, 'users', user.uid);        // ドキュメントの参照を取得
-      const userDocSnap = await getDoc(userDocRef);          // ドキュメントのスナップショットを取得
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnap = await getDoc(userDocRef);
 
       if (!userDocSnap.exists()) {
-        // ドキュメントが存在しない場合のみ、新規作成
         await setDoc(userDocRef, {
-          email: user.email,     // メールアドレス
-          createdAt: new Date(), // アカウント作成日時
-          highScore: 0           // 初期スコア
+          email: user.email,
+          createdAt: new Date(),
+          highScore: 0
         });
         console.log('新しいユーザードキュメントを作成しました');
-      } else {
-        // 既にドキュメントが存在する場合、何もしない
       }
-
     })
     .catch((error) => {
       console.error('ログイン失敗:', error);

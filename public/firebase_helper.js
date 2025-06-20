@@ -79,3 +79,23 @@ export async function getUserPrograms(user) {
         favorite: !!doc.data().favorite
     }));
 }
+
+// チャット履歴を取得
+export async function getProgramMessages(user, programId) {
+    if (!user || !programId) return [];
+    const messagesCol = collection(db, 'users', user.uid, 'programs', programId, 'messages');
+    const q = query(messagesCol, orderBy('createdAt', 'asc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data());
+}
+
+// チャット履歴を追加
+export async function addProgramMessage(user, programId, role, text) {
+    if (!user || !programId) return;
+    const messagesCol = collection(db, 'users', user.uid, 'programs', programId, 'messages');
+    await addDoc(messagesCol, {
+        role,
+        text,
+        createdAt: new Date()
+    });
+}

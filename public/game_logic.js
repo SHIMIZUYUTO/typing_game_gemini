@@ -1,5 +1,5 @@
-import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram, getUserPrograms, toggleFavoriteProgram } from './firebase_helper.js';
-import { auth, db } from './firebase_auth.js';
+import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage } from './firebase_helper.js';
+import { auth } from './firebase_auth.js';
 
 const startButton = document.getElementById("start-button");
 const stopButton = document.getElementById("stop-button"); // デバッグ用
@@ -359,7 +359,6 @@ function renderProgramsList(programs, showFavorite) {
         `;
         // プログラムクリックで詳細画面へ
         li.addEventListener("click", (e) => {
-            // 星クリック時は詳細画面に遷移しない
             if (e.target.classList.contains("favorite-star")) return;
             openProgramDetailModal(prog);
         });
@@ -382,7 +381,7 @@ function renderProgramsList(programs, showFavorite) {
     });
 }
 
-function openProgramDetailModal(prog) {
+async function openProgramDetailModal(prog) {
     // モーダル表示
     document.getElementById("program-detail-modal").style.display = "block";
     document.getElementById("detail-program-code").textContent = prog.code;
@@ -403,19 +402,43 @@ function openProgramDetailModal(prog) {
             alert(e.message || "お気に入りは3個までです");
         }
     };
-    // 質問・回答欄初期化
+
+    // チャット履歴を取得して表示
+    const user = auth.currentUser;
+    const messages = await getProgramMessages(user, prog.id);
+    const chatHistory = document.getElementById("chat-history");
+    chatHistory.innerHTML = "";
+    messages.forEach(msg => {
+        const div = document.createElement("div");
+        div.className = "chat-msg " + (msg.role === "user" ? "chat-user" : "chat-gemini");
+        div.innerHTML = `<b>${msg.role === "user" ? "あなた" : "Gemini"}:</b> ${msg.text.replace(/</g, "&lt;").replace(/\n/g, "<br>")}`;
+        chatHistory.appendChild(div);
+    });
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // 質問欄初期化
     document.getElementById("detail-question-input").value = "";
-    document.getElementById("detail-gemini-answer").textContent = "";
 
     // Gemini質問ボタン
     document.getElementById("detail-ask-gemini").onclick = async () => {
         const question = document.getElementById("detail-question-input").value.trim();
-        const answerDiv = document.getElementById("detail-gemini-answer");
-        if (!question) {
-            answerDiv.textContent = "質問内容を入力してください。";
-            return;
-        }
-        answerDiv.textContent = "Geminiに問い合わせ中...";
+        if (!question) return;
+        await addProgramMessage(user, prog.id, "user", question);
+
+        // 表示を即時反映
+        const userDiv = document.createElement("div");
+        userDiv.className = "chat-msg chat-user";
+        userDiv.innerHTML = `<b>あなた:</b> ${question.replace(/</g, "&lt;").replace(/\n/g, "<br>")}`;
+        chatHistory.appendChild(userDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        // Geminiに問い合わせ
+        const answerDiv = document.createElement("div");
+        answerDiv.className = "chat-msg chat-gemini";
+        answerDiv.innerHTML = `<b>Gemini:</b> ...回答取得中...`;
+        chatHistory.appendChild(answerDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
         try {
             const res = await fetch("/ask-gemini", {
                 method: "POST",
@@ -427,13 +450,16 @@ function openProgramDetailModal(prog) {
             });
             const data = await res.json();
             if (data.answer) {
-                answerDiv.innerHTML = data.answer.replace(/</g, "&lt;").replace(/\n/g, "<br>");
+                await addProgramMessage(user, prog.id, "gemini", data.answer);
+                answerDiv.innerHTML = `<b>Gemini:</b> ${data.answer.replace(/</g, "&lt;").replace(/\n/g, "<br>")}`;
             } else {
-                answerDiv.textContent = "回答が取得できませんでした。";
+                answerDiv.innerHTML = `<b>Gemini:</b> 回答が取得できませんでした。`;
             }
         } catch (e) {
-            answerDiv.textContent = "エラーが発生しました。";
+            answerDiv.innerHTML = `<b>Gemini:</b> エラーが発生しました。`;
         }
+        document.getElementById("detail-question-input").value = "";
+        chatHistory.scrollTop = chatHistory.scrollHeight;
     };
 
     // 閉じるボタン

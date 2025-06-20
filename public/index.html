@@ -71,7 +71,7 @@
       <ul id="programs-list"></ul>
     </div>
 
-    <!-- プログラム詳細モーダル追加 -->
+    <!-- プログラム詳細モーダル（トークルーム） -->
     <div id="program-detail-modal" style="display:none;">
       <div id="program-detail-header">
         <button id="close-program-detail">閉じる</button>
@@ -79,9 +79,11 @@
       </div>
       <pre id="detail-program-code"></pre>
       <div id="gemini-chat-area">
-        <input type="text" id="detail-question-input" placeholder="このプログラムについて質問">
-        <button id="detail-ask-gemini">Geminiに質問</button>
-        <div id="detail-gemini-answer"></div>
+        <div id="chat-history" class="chat-history"></div>
+        <div class="chat-input-row">
+          <input type="text" id="detail-question-input" placeholder="このプログラムについて質問">
+          <button id="detail-ask-gemini">Geminiに質問</button>
+        </div>
       </div>
     </div>
 
