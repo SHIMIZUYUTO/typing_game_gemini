@@ -229,7 +229,60 @@ body {
     font-weight: bold;
 }
 
-
+#program-detail-modal {
+    display: none;
+    position: fixed;
+    top: 12%;
+    left: 15%;
+    width: 70%;
+    background: #fff;
+    border: 1px solid #ccc;
+    z-index: 2000;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    padding: 24px;
+}
+#program-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+#detail-program-code {
+    background: #eee;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+}
+#gemini-chat-area {
+    margin-top: 12px;
+}
+#detail-question-input {
+    width: 60%;
+    padding: 4px;
+    font-size: 14px;
+}
+#detail-ask-gemini {
+    margin-left: 8px;
+    padding: 4px 10px;
+    font-size: 14px;
+    background: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+#detail-gemini-answer {
+    margin: 8px 0;
+    color: #333;
+    background: #f9f9f9;
+    padding: 6px;
+    border-radius: 3px;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
 
 /* レスポンシブ対応例 */
 @media (max-width: 900px) {

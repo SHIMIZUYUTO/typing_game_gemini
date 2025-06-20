@@ -350,23 +350,25 @@ function renderProgramsList(programs, showFavorite) {
     }
     filtered.forEach((prog, idx) => {
         const li = document.createElement("li");
+        li.className = "program-list-item";
         li.innerHTML = `
-    <span class="favorite-star${prog.favorite ? " favorited" : ""}" id="favorite-star-${prog.id}">
-        ${prog.favorite ? "★" : "☆"}
-    </span>
-    <pre class="saved-program-code">${prog.code.replace(/</g, "&lt;")}</pre>
-    <div class="saved-program-date">保存日時: ${prog.savedAt ? new Date(prog.savedAt).toLocaleString() : "不明"}</div>
-    <input type="text" class="program-question-input" placeholder="このプログラムについて質問" id="question-input-${prog.id}">
-    <button class="ask-gemini-btn" id="ask-gemini-${prog.id}">Geminiに質問</button>
-    <div class="gemini-answer" id="gemini-answer-${prog.id}"></div>
-`;
-        programsList.appendChild(li);
-
-        // ★マークのイベント
+            <span class="favorite-star${prog.favorite ? " favorited" : ""}" id="favorite-star-${prog.id}">
+                ${prog.favorite ? "★" : "☆"}
+            </span>
+            <pre class="saved-program-code">${prog.code.replace(/</g, "&lt;")}</pre>
+        `;
+        // プログラムクリックで詳細画面へ
+        li.addEventListener("click", (e) => {
+            // 星クリック時は詳細画面に遷移しない
+            if (e.target.classList.contains("favorite-star")) return;
+            openProgramDetailModal(prog);
+        });
+        // 星クリックでお気に入り切り替え
         setTimeout(() => {
             const star = document.getElementById(`favorite-star-${prog.id}`);
             if (star) {
-                star.onclick = async () => {
+                star.onclick = async (event) => {
+                    event.stopPropagation();
                     try {
                         await toggleFavoriteProgram(auth.currentUser, prog.id, prog.favorite);
                         showProgramsButton.click();
@@ -375,44 +377,67 @@ function renderProgramsList(programs, showFavorite) {
                     }
                 };
             }
-            // 質問ボタンのイベントリスナーを追加
-            const askBtn = document.getElementById(`ask-gemini-${prog.id}`);
-            const questionInput = document.getElementById(`question-input-${prog.id}`);
-            const answerDiv = document.getElementById(`gemini-answer-${prog.id}`);
-            if (askBtn && questionInput && answerDiv) {
-                // 既存のイベントリスナーを全て削除
-                askBtn.replaceWith(askBtn.cloneNode(true));
-                const newAskBtn = document.getElementById(`ask-gemini-${prog.id}`);
-                newAskBtn.addEventListener("click", async () => {
-                    const question = questionInput.value.trim();
-                    if (!question) {
-                        answerDiv.textContent = "質問内容を入力してください。";
-                        return;
-                    }
-                    answerDiv.textContent = "Geminiに問い合わせ中...";
-                    try {
-                        // サーバーに質問を送信
-                        const res = await fetch("/ask-gemini", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                code: prog.code,
-                                question: question
-                            })
-                        });
-                        const data = await res.json();
-                        if (data.answer) {
-                            // 改行を<br>に変換してHTMLとして表示
-                            answerDiv.innerHTML = data.answer.replace(/</g, "&lt;").replace(/\n/g, "<br>");
-                            console.log("Geminiの回答:", data.answer);
-                        } else {
-                            answerDiv.textContent = "回答が取得できませんでした。";
-                        }
-                    } catch (e) {
-                        answerDiv.textContent = "エラーが発生しました。";
-                    }
-                });
-            }
         }, 0);
+        programsList.appendChild(li);
     });
+}
+
+function openProgramDetailModal(prog) {
+    // モーダル表示
+    document.getElementById("program-detail-modal").style.display = "block";
+    document.getElementById("detail-program-code").textContent = prog.code;
+    // 星の状態
+    const star = document.getElementById("detail-favorite-star");
+    star.textContent = prog.favorite ? "★" : "☆";
+    star.className = "favorite-star" + (prog.favorite ? " favorited" : "");
+    star.onclick = async () => {
+        try {
+            await toggleFavoriteProgram(auth.currentUser, prog.id, prog.favorite);
+            // 再取得して状態更新
+            const user = auth.currentUser;
+            const programs = await getUserPrograms(user);
+            const updated = programs.find(p => p.id === prog.id);
+            openProgramDetailModal(updated);
+            showProgramsButton.click(); // 一覧も更新
+        } catch (e) {
+            alert(e.message || "お気に入りは3個までです");
+        }
+    };
+    // 質問・回答欄初期化
+    document.getElementById("detail-question-input").value = "";
+    document.getElementById("detail-gemini-answer").textContent = "";
+
+    // Gemini質問ボタン
+    document.getElementById("detail-ask-gemini").onclick = async () => {
+        const question = document.getElementById("detail-question-input").value.trim();
+        const answerDiv = document.getElementById("detail-gemini-answer");
+        if (!question) {
+            answerDiv.textContent = "質問内容を入力してください。";
+            return;
+        }
+        answerDiv.textContent = "Geminiに問い合わせ中...";
+        try {
+            const res = await fetch("/ask-gemini", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    code: prog.code,
+                    question: question
+                })
+            });
+            const data = await res.json();
+            if (data.answer) {
+                answerDiv.innerHTML = data.answer.replace(/</g, "&lt;").replace(/\n/g, "<br>");
+            } else {
+                answerDiv.textContent = "回答が取得できませんでした。";
+            }
+        } catch (e) {
+            answerDiv.textContent = "エラーが発生しました。";
+        }
+    };
+
+    // 閉じるボタン
+    document.getElementById("close-program-detail").onclick = () => {
+        document.getElementById("program-detail-modal").style.display = "none";
+    };
 }
