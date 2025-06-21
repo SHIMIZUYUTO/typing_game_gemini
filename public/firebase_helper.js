@@ -80,13 +80,23 @@ export async function getUserPrograms(user) {
     }));
 }
 
-// チャット履歴を取得
+// チャット履歴を取得（idも返すように修正）
 export async function getProgramMessages(user, programId) {
     if (!user || !programId) return [];
     const messagesCol = collection(db, 'users', user.uid, 'programs', programId, 'messages');
     const q = query(messagesCol, orderBy('createdAt', 'asc'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data());
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+}
+
+// チャット履歴の単一メッセージを削除
+export async function deleteProgramMessage(user, programId, messageId) {
+    if (!user || !programId || !messageId) return;
+    const msgRef = doc(db, 'users', user.uid, 'programs', programId, 'messages', messageId);
+    await deleteDoc(msgRef);
 }
 
 // チャット履歴を追加

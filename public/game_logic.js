@@ -1,4 +1,4 @@
-import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage } from './firebase_helper.js';
+import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage } from './firebase_helper.js';
 import { auth } from './firebase_auth.js';
 
 const startButton = document.getElementById("start-button");
@@ -460,6 +460,21 @@ async function openProgramDetailModal(prog) {
         }
         document.getElementById("detail-question-input").value = "";
         chatHistory.scrollTop = chatHistory.scrollHeight;
+    };
+
+    // 履歴削除ボタン
+    document.getElementById("clear-chat-history").onclick = async () => {
+        if (!confirm("本当にこのプログラムのトーク履歴を削除しますか？")) return;
+        // Firestoreから全メッセージを削除
+        const user = auth.currentUser;
+        const messages = await getProgramMessages(user, prog.id);
+        for (const msg of messages) {
+            // getProgramMessagesの戻り値にidが含まれていない場合は修正が必要
+            // ここではid付きで返すようにfirebase_helper.jsを修正
+            await deleteProgramMessage(user, prog.id, msg.id);
+        }
+        // 表示もクリア
+        document.getElementById("chat-history").innerHTML = "";
     };
 
     // 閉じるボタン

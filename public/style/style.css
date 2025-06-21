@@ -311,6 +311,20 @@ body {
     gap: 8px;
 }
 
+#clear-chat-history {
+    margin-left: 8px;
+    padding: 4px 10px;
+    font-size: 14px;
+    background: #f44336;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+#clear-chat-history:hover {
+    background: #d32f2f;
+}
+
 /* レスポンシブ対応例 */
 @media (max-width: 900px) {
     .editor-flex-container {
