@@ -242,6 +242,17 @@ body {
     border-radius: 8px;
     padding: 24px;
 }
+#close-program-detail {
+    background: #f44336;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 6px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0;
+}
+
 #program-detail-header {
     display: flex;
     justify-content: space-between;
