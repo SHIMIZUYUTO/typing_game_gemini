@@ -35,12 +35,18 @@ app.post("/get-words", async (req, res) => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
-        // クライアントからカスタム用キー配列が送られてきた場合
         let prompt = promptText;
+        // カスタムキー
         if (req.body && Array.isArray(req.body.topMistakeKeys) && req.body.topMistakeKeys.length > 0) {
             const keys = req.body.topMistakeKeys.map(k => `"${k}"`).join(", ");
-            prompt = `${promptText}
+            prompt = `${prompt}
             また、以下の文字（キー）が多めに含まれるようなCプログラムを生成してください: ${keys}
+            `;
+        }
+        // 好きな題材
+        if (req.body && req.body.customTheme && req.body.customTheme.length > 0) {
+            prompt = `${prompt}
+            また、プログラムの内容や変数名、処理内容などに「${req.body.customTheme}」という題材を必ず盛り込んでください。題材がジャンルであればプログラムのジャンルを変更してください。関数の作成のようなプログラムに自体に関わる題材の場合は、それが含まれるプログラムを作成してください。いずれの題材にしても、プログラム中に日本語は含まないでください。
             `;
         }
 

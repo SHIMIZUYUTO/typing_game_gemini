@@ -118,9 +118,9 @@ export async function startGame() {
         console.error('ハイスコア取得エラー:', error);
     }
 
-    fetchWords().then(() => {
-        resetGameState();
-    });
+    const customTheme = document.getElementById("custom-theme-input").value.trim();
+    await fetchWords(customTheme);
+    resetGameState();
 }
 
 // カスタムゲーム開始
@@ -135,11 +135,14 @@ export async function startCustomGame() {
         topMistakeKeys = await getTopMistakeKeys(user);
     }
 
-    // サーバーにtopMistakeKeysを送って問題取得
+    const customTheme = document.getElementById("custom-theme-input").value.trim();
+    // topMistakeKeysも渡したい場合
+    const body = { topMistakeKeys };
+    if (customTheme) body.customTheme = customTheme;
     const response = await fetch("/get-words", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topMistakeKeys })
+        body: JSON.stringify(body)
     });
     const data = await response.json();
     codeLines = data.codeSnippets || [];
@@ -315,9 +318,15 @@ export function updateIncorrectKeysDisplay() {
     });
 }
 
-export async function fetchWords() {
+// fetchWordsを修正
+export async function fetchWords(customTheme = "") {
     try {
-        const response = await fetch("/get-words", { method: "POST" });
+        const body = customTheme ? { customTheme } : {};
+        const response = await fetch("/get-words", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
         const data = await response.json();
         codeLines = data.codeSnippets || [];
         userInputLines = Array(codeLines.length).fill("");
