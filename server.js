@@ -43,7 +43,7 @@ app.post("/get-words", async (req, res) => {
             また、以下の文字（キー）が多めに含まれるようなCプログラムを生成してください: ${keys}
             `;
         }
-        // 好きな題材
+        // 好きな題材から生成
         if (req.body && req.body.customTheme && req.body.customTheme.length > 0) {
             prompt = `${prompt}
             また、プログラムの内容や変数名、処理内容などに「${req.body.customTheme}」という題材を必ず盛り込んでください。題材がジャンルであればプログラムのジャンルを変更してください。関数の作成のようなプログラムに自体に関わる題材の場合は、それが含まれるプログラムを作成してください。いずれの題材にしても、プログラム中に日本語は含まないでください。
@@ -135,7 +135,7 @@ app.post("/ask-gemini", async (req, res) => {
             answer = data.candidates[0].content.parts[0].text.trim();
         }
 
-        // ★ここでマークダウンや不要な改行を除去
+        // マークダウンや不要な改行を除去
         answer = answer
             .replace(/```[\s\S]*?```/g, "") // コードブロック
             .replace(/`([^`]+)`/g, "$1")    // インラインコード
