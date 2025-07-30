@@ -482,14 +482,14 @@ async function openProgramDetailModal(prog) {
         if (!confirm("本当にこのプログラムのトーク履歴を削除しますか？")) return;
         // Firestoreから全メッセージを削除
         const user = auth.currentUser;
-        const messages = await getProgramMessages(user, prog.id);
         for (const msg of messages) {
             // getProgramMessagesの戻り値にidが含まれていない場合は修正が必要
             // ここではid付きで返すようにfirebase_helper.jsを修正
             await deleteProgramMessage(user, prog.id, msg.id);
         }
-        // 表示もクリア
+        // 表示とメモリ上の履歴をクリア
         document.getElementById("chat-history").innerHTML = "";
+        messages.length = 0;
     };
 
     // 閉じるボタン
