@@ -100,29 +100,55 @@ app.post("/ask-gemini", async (req, res) => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
-        const { code, question } = req.body;
+        const { code, question, history } = req.body;
         if (!code || !question) {
             return res.status(400).json({ error: "codeとquestionは必須です" });
         }
 
-        const prompt = `
-        以下のC言語プログラムについて、ユーザーからの質問に日本語で分かりやすく答えてください。
-        なお、太字を始めとしたマークダウン構文は絶対に出力しないでください。
-        ユーザーがプログラムに関係ない質問をした場合は、ユーザーの体たらくを少し糾弾するようなウィットに富んだ返しをしてください。
-        【プログラム】
-        ${code}
-        【質問】
-        ${question}
-        【回答】
-        `;
+        // Gemini APIのcontentsを作成
+        const contents = [];
+
+        // 1. システムプロンプト的な役割を果たす最初のuserパート
+        contents.push({
+            role: "user",
+            parts: [{
+                text: `
+                あなたはC言語のエキスパートです。以下のC言語プログラムについて、ユーザーからの質問に日本語で分かりやすく答えてください。
+                なお、太字を始めとしたマークダウン構文は絶対に出力しないでください。
+                ユーザーがプログラムに関係ない質問をした場合は、ユーザーの体たらくを少し糾弾するようなウィットに富んだ返しをしてください。
+                【プログラム】
+                ${code}
+                `
+            }]
+        });
+        // 2. 自己紹介と応答準備完了を伝える最初のmodelパート
+        contents.push({
+            role: "model",
+            parts: [{ text: "承知いたしました。C言語に関するご質問でしたら、何でもお聞きください。" }]
+        });
+
+        // 3. 過去の会話履歴をcontentsに追加
+        if (Array.isArray(history)) {
+            for (const message of history) {
+                contents.push({
+                    role: message.role === "user" ? "user" : "model",
+                    parts: [{ text: message.text }]
+                });
+            }
+        }
+
+        // 4. 今回の新しい質問を追加
+        contents.push({
+            role: "user",
+            parts: [{ text: question }]
+        });
+
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            }),
+            body: JSON.stringify({ contents }), // 修正：contentsを直接渡す
         });
 
         if (!response.ok) {

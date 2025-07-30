@@ -432,6 +432,9 @@ async function openProgramDetailModal(prog) {
     document.getElementById("detail-ask-gemini").onclick = async () => {
         const question = document.getElementById("detail-question-input").value.trim();
         if (!question) return;
+        
+        // ユーザーの質問をmessagesに追加
+        messages.push({ role: "user", text: question });
         await addProgramMessage(user, prog.id, "user", question);
 
         // 表示を即時反映
@@ -454,11 +457,14 @@ async function openProgramDetailModal(prog) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     code: prog.code,
-                    question: question
+                    question: question,
+                    history: messages
                 })
             });
             const data = await res.json();
             if (data.answer) {
+                // Geminiの回答をmessagesに追加
+                messages.push({ role: "gemini", text: data.answer });
                 await addProgramMessage(user, prog.id, "gemini", data.answer);
                 answerDiv.innerHTML = `<b>Gemini:</b> ${data.answer.replace(/</g, "&lt;").replace(/\n/g, "<br>")}`;
             } else {
