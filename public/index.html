@@ -158,6 +158,19 @@
           automaticLayout: true,
           minimap: { enabled: false }
         });
+
+        // editorのスクロールをplaceholderEditorに同期
+        window.editor.onDidScrollChange((e) => {
+          if (window.placeholderEditor) {
+            if (e.scrollTopChanged) {
+              window.placeholderEditor.setScrollTop(e.scrollTop);
+            }
+            if (e.scrollLeftChanged) {
+              window.placeholderEditor.setScrollLeft(e.scrollLeft);
+            }
+          }
+        });
+        
         // 必要に応じてeditor.getValue()で入力値を取得できます
 
         // ここでスタートボタンを有効化
