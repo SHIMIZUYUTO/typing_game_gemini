@@ -1,6 +1,7 @@
-import { login } from './firebase_auth.js';
+import { login, signUp } from './firebase_auth.js';
 
 const loginForm = document.getElementById('login-form');
+const signupButton = document.getElementById('signup-button');
 
 document.addEventListener('DOMContentLoaded', () => {
   // ログイン画面を表示する
@@ -24,5 +25,23 @@ loginForm.addEventListener('submit', (e) => {
     })
     .catch((error) => {
       alert('メールアドレスもしくはパスワードが間違っています');
+    });
+});
+
+signupButton.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  signUp(email, password)
+    .then(() => {
+      document.getElementById('login-container').style.display = 'none';
+      document.getElementById('typing-container').style.display = 'block';
+      // ログイン後に題材入力欄を表示
+      document.getElementById('custom-theme-box').style.display = 'block';
+    })
+    .catch((error) => {
+      alert('新規登録に失敗しました。\n' + error.message);
     });
 });
