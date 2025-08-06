@@ -197,11 +197,21 @@ export async function startCustomGame() {
 export async function endGame() {
     inputField.disabled = true;
     stopButton.disabled = true;
-    const timeTaken = (Date.now() - startTime) / 1000;
-    const penalty = Object.values(incorrectKeys).reduce((a, b) => a + b, 0);
-    const score = Math.max(0, Math.round(100 - timeTaken - penalty * 2));
+    const timeTaken = (Date.now() - startTime) / 1000; // 秒単位
 
-    resultDisplay.textContent = `ゲーム終了！スコア: ${score}`;
+    const totalChars = codeLines.join('\n').length;
+    const incorrectChars = Object.values(incorrectKeys).reduce((a, b) => a + b, 0);
+    const correctChars = totalChars - incorrectChars;
+
+    // 新しいスコア計算
+    const baseScore = (correctChars / timeTaken) * 100;
+    const accuracy = correctChars / totalChars;
+    const score = Math.round(baseScore * Math.pow(accuracy, 2));
+
+    const totalTypedChars = window.editor.getValue().length;
+    const typingSpeed = (totalTypedChars / timeTaken).toFixed(2);
+
+    resultDisplay.textContent = `ゲーム終了！スコア: ${score} | 打鍵速度: ${typingSpeed} 回/秒`;
     startButton.disabled = false;
     customButton.disabled = false;
 
