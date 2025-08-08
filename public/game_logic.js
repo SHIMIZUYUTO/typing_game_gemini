@@ -95,6 +95,7 @@ export function setupGameEvents() {
 
 // ゲーム開始
 export async function startGame() {
+    await showCountdown();
     // ゲーム初期化・開始処理
     inputField.disabled = false;
     startButton.disabled = true;
@@ -125,6 +126,7 @@ export async function startGame() {
 
 // カスタムゲーム開始
 export async function startCustomGame() {
+    await showCountdown();
     // FirebaseからtopMistakeKeysを取得
     const user = auth.currentUser;
     if (!user) return alert("ログインしてください");
@@ -506,4 +508,36 @@ async function openProgramDetailModal(prog) {
     document.getElementById("close-program-detail").onclick = () => {
         document.getElementById("program-detail-modal").style.display = "none";
     };
+}
+
+// カウントダウン表示
+function showCountdown() {
+    return new Promise(resolve => {
+        let count = 3;
+        const countdown = () => {
+            if (count > 0) {
+                Toastify({
+                    text: `${count}`,
+                    duration: 1000,
+                    gravity: "top",
+                    position: "center",
+                    background: "#333",
+                    stopOnFocus: true,
+                }).showToast();
+                count--;
+                setTimeout(countdown, 1000);
+            } else {
+                Toastify({
+                    text: "スタート！",
+                    duration: 1000,
+                    gravity: "top",
+                    position: "center",
+                    background: "#4CAF50",
+                    stopOnFocus: true,
+                }).showToast();
+                resolve();
+            }
+        };
+        countdown();
+    });
 }
