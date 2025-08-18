@@ -229,8 +229,16 @@ export async function endGame() {
     const accuracy = correctChars / totalChars;
     const score = Math.round(baseScore * Math.pow(accuracy, 2));
 
-    const totalTypedChars = window.editor.getValue().length;
-    const typingSpeed = (totalTypedChars / timeTaken).toFixed(2);
+    // 正しく入力された文字数のみをカウント
+    let correctlyTypedChars = 0;
+    for (let i = 0; i < mistakeFlags.length; i++) {
+        for (let j = 0; j < mistakeFlags[i].length; j++) {
+            if (mistakeFlags[i][j] === "correct") {
+                correctlyTypedChars++;
+            }
+        }
+    }
+    const typingSpeed = (correctlyTypedChars / timeTaken).toFixed(2);
 
     resultDisplay.textContent = `ゲーム終了！スコア: ${score} | 打鍵速度: ${typingSpeed} 回/秒`;
     startButton.disabled = false;
