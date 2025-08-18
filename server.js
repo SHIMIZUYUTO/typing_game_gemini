@@ -57,7 +57,13 @@ app.post("/get-words", async (req, res) => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
-        let prompt = promptText;
+        const lineCount = req.body.lineCount || 18; // デフォルトは18行
+
+        let prompt = promptText.replace(
+            "- 10行以内のプログラムを出力する。",
+            `- ${lineCount}行程度のプログラムを出力する。`
+        );
+
         // カスタムキー
         if (req.body && Array.isArray(req.body.topMistakeKeys) && req.body.topMistakeKeys.length > 0) {
             const keys = req.body.topMistakeKeys.map(k => `"${k}"`).join(", ");
@@ -101,12 +107,11 @@ app.post("/get-words", async (req, res) => {
         // codeText = codeText.replace(/  /g, "    "); // 2つのスペースをスペース4つに変換
         // codeText = codeText.replace(/        /g, "    "); // スペース8個をスペース4つに変換
 
-        // インデントを残して空行だけ除去
         const codeSnippets = codeText
           .split("\n")
         //   .map(line => line.replace(/\s+$/, "")) // 行末のみトリム
-          .filter(line => line.length > 0)
-          .slice(0, 20);
+        .filter(line => line.length > 0)
+          .slice(0, lineCount);
 
 
         res.json({ codeSnippets: codeSnippets });

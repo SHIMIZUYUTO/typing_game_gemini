@@ -24,6 +24,14 @@ let startTime;
 let highScore = 0;
 let mistakeFlags = []; // [行][列]ごとにミス済みかどうか
 let lastPrograms = []; // 直近取得した全プログラム
+let currentDifficulty = 3; // デフォルト難易度
+const difficultyLineCounts = {
+    1: 6,
+    2: 12,
+    3: 18,
+    4: 24,
+    5: 30
+};
 
 export function setupGameEvents() {
     startButton.addEventListener("click", startGame);
@@ -91,13 +99,23 @@ export function setupGameEvents() {
             programsModal.style.display = "none";
         });
     }
+
+    const difficultyButtons = document.querySelectorAll(".difficulty-button");
+    difficultyButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            currentDifficulty = parseInt(button.dataset.level);
+            difficultyButtons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+            console.log(`難易度を${currentDifficulty}に設定しました`);
+        });
+    });
 }
 
 // ゲーム開始
 export async function startGame() {
     await showCountdown();
     // ゲーム初期化・開始処理
-    inputField.disabled = false;
+    window.editor.updateOptions({ readOnly: false });
     startButton.disabled = true;
     stopButton.disabled = false; 
     diffButton.disabled = false;
@@ -139,7 +157,8 @@ export async function startCustomGame() {
 
     const customTheme = document.getElementById("custom-theme-input").value.trim();
     // topMistakeKeysも渡したい場合
-    const body = { topMistakeKeys };
+    const lineCount = difficultyLineCounts[currentDifficulty];
+    const body = { topMistakeKeys, lineCount };
     if (customTheme) body.customTheme = customTheme;
     const response = await fetch("/get-words", {
         method: "POST",
@@ -333,13 +352,21 @@ export function updateIncorrectKeysDisplay() {
 // fetchWordsを修正
 export async function fetchWords(customTheme = "") {
     try {
-        const body = customTheme ? { customTheme } : {};
+        const lineCount = difficultyLineCounts[currentDifficulty];
+        const body = { lineCount };
+        if (customTheme) {
+            body.customTheme = customTheme;
+        }
         const response = await fetch("/get-words", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         });
         const data = await response.json();
+        console.log('Server response:', data); // サーバーからのレスポンスをログに出力
+        if (data.error) {
+            throw new Error(data.error);
+        }
         codeLines = data.codeSnippets || [];
         userInputLines = Array(codeLines.length).fill("");
         if (window.placeholderEditor) {
