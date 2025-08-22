@@ -109,3 +109,26 @@ export async function addProgramMessage(user, programId, role, text) {
         createdAt: new Date()
     });
 }
+
+// クイズ結果を保存
+export async function saveQuizResult(user, resultData) {
+    if (!user || !resultData) return;
+    const resultsCol = collection(db, 'users', user.uid, 'quizResults');
+    await addDoc(resultsCol, {
+        ...resultData,
+        userId: user.uid,
+        timestamp: new Date()
+    });
+}
+
+// 過去のクイズ結果を取得
+export async function getQuizResults(user) {
+    if (!user) return [];
+    const resultsCol = collection(db, 'users', user.uid, 'quizResults');
+    const q = query(resultsCol, orderBy('timestamp', 'desc'), limit(20)); // 直近20件まで
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+}

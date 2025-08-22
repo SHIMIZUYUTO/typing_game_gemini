@@ -111,7 +111,7 @@ app.post("/get-words", async (req, res) => {
           .split("\n")
         //   .map(line => line.replace(/\s+$/, "")) // 行末のみトリム
         .filter(line => line.length > 0)
-          .slice(0, lineCount);
+          .slice(0, 35);
 
 
         res.json({ codeSnippets: codeSnippets });
@@ -203,6 +203,89 @@ app.post("/ask-gemini", async (req, res) => {
         res.json({ answer });
     } catch (error) {
         console.error("Gemini質問APIエラー:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post("/generate-quiz-question", async (req, res) => {
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
+
+        const { code } = req.body;
+        if (!code || code.split('\n').length < 2) {
+            return res.status(400).json({ error: "クイズを生成するには、少なくとも2行以上のコードが必要です。" });
+        }
+
+        const prompt = `
+        あなたはC言語のクイズを生成するエキスパートです。
+        以下のC言語プログラム全体から、「このプログラムの中で間違っている箇所はどこにあるか」を推測する4択クイズを1問作成してください。
+
+        【制約】
+        - プログラムの中から、クイズの問題として適切で、かつ次の行の処理内容の推測が簡単すぎない箇所を自動で選んでください。
+        - 問題文として、一か所のみプログラムの文法をわざとミスしたプログラム全文を出力してください。
+        - その次に続く1行の処理内容を、平易な日本語で説明した文章を「正解の選択肢」としてください。
+        - 「正解の選択肢」が説明する実際のコード行もレスポンスに含めてください。
+        - 文法として間違いはない「不正解の選択肢」を日本語で3つ生成してください。
+        - 回答は必ず以下のJSON形式で、JSONオブジェクトのみを出力してください。説明やマークダウンは一切含めないでください。
+
+        【JSON形式】
+        {
+          "question": "（問題文となるコードスニペット）",
+          "code_to_explain": "（正解の選択肢が説明する、次に来るはずの実際のコード行）",
+          "choices": [
+            "（日本語の選択肢1）",
+            "（日本語の選択肢2）",
+            "（日本語の選択肢3）",
+            "（日本語の選択肢4）"
+          ],
+          "answer": "（正解の日本語選択肢の文字列）"
+        }
+
+        【重要】
+        - 「不正解の選択肢」は、学習者が間違いやすいようなリアルな選択肢を考えてください。
+        - 4つの選択肢（"choices"）の配列には、必ず「正解の選択肢」を1つ含み、残りの3つを「不正解の選択肢」としてください。
+        - "choices"の配列の要素の順番は必ずランダムにしてください。
+        - JSONのキーは必ずダブルクォーテーションで囲んでください。
+        - 出力はJSONオブジェクトのみとし、前後にjsonや説明文を付けないでください。
+
+        【プログラム】
+        ${code}
+        `;
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Gemini API Response for quiz:", JSON.stringify(data, null, 2));
+
+        if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts) {
+            throw new Error("❌ APIのレスポンスが不正です！");
+        }
+
+        // モデルの出力からJSON部分だけを抽出する
+        const rawText = data.candidates[0].content.parts[0].text;
+        const jsonMatch = rawText.match(/\{.*\}/s);
+        if (!jsonMatch) {
+            console.error("Could not find JSON in response:", rawText);
+            throw new Error("❌ APIが有効なクイズデータを返しませんでした。");
+        }
+
+        const quizData = JSON.parse(jsonMatch[0]);
+        res.json(quizData);
+
+    } catch (error) {
+        console.error("Error generating quiz question:", error.message);
         res.status(500).json({ error: error.message });
     }
 });

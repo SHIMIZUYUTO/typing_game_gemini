@@ -57,6 +57,8 @@
           <td><button id="close-diff" disabled>差分を閉じる</button></td>
           <td><button id="custom-button">カスタム</button></td>
           <td><button id="show-programs-button">保存プログラム一覧</button></td>
+          <td><button id="start-quiz-button">問題出題</button></td>
+          <td><button id="quiz-history-button">クイズ履歴</button></td>
         </tr>
         
       </table>
@@ -70,6 +72,56 @@
       <p id="score-display"></p>
       <p id="result-display"></p>
       <p>間違えたキー:　<span id="incorrect-keys-display"></span></p>
+    </div>
+
+    <!-- クイズモーダル -->
+    <div id="quiz-modal" style="display:none;">
+        <div id="quiz-container">
+            <!-- クイズ設定画面 -->
+            <div id="quiz-setup">
+                <h2>クイズ設定</h2>
+                <p>挑戦する問題数を選択してください (3〜10問)</p>
+                <input type="number" id="quiz-num-questions" min="3" max="10" value="5">
+                <button id="start-quiz-confirm-button">クイズ開始</button>
+                <button id="cancel-quiz-button">キャンセル</button>
+            </div>
+
+            <!-- クイズ実行画面 -->
+            <div id="quiz-main" style="display:none;">
+                <h3 id="quiz-question-counter"></h3>
+                <pre id="quiz-code-snippet"></pre>
+                <div id="quiz-choices">
+                    <!-- 選択肢ボタンはJSで生成 -->
+                </div>
+            </div>
+
+            <!-- クイズ結果画面 -->
+            <div id="quiz-results" style="display:none;">
+                <h2>クイズ結果</h2>
+                <p id="quiz-score"></p>
+                <div id="quiz-review"></div>
+                <button id="close-quiz-results-button">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- クイズ履歴モーダル -->
+    <div id="quiz-history-modal" style="display:none;">
+        <div id="quiz-history-container">
+            <div id="quiz-history-header">
+                <h2>クイズ履歴</h2>
+                <button id="close-quiz-history-button">閉じる</button>
+            </div>
+            <div id="quiz-history-list">
+                <!-- 過去のクイズ結果がここにリスト表示される -->
+            </div>
+            <div id="quiz-history-detail" style="display:none;">
+                <button id="back-to-history-list-button">← 履歴一覧に戻る</button>
+                <div id="quiz-history-detail-content">
+                    <!-- 選択されたクイズの詳細な振り返りがここに表示される -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- プログラム一覧モーダル -->
@@ -128,6 +180,7 @@
 
     <script type="module" src="login.js"></script>
     <script type="module" src="typing_game.js"></script>
+    <script type="module" src="quiz_logic.js"></script>
     <script>
       window.MonacoEnvironment = { getWorkerUrl: () => proxy };
       let proxy = URL.createObjectURL(new Blob([`
