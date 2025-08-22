@@ -19,13 +19,16 @@ const quizSetup = document.getElementById('quiz-setup');
 const quizMain = document.getElementById('quiz-main');
 const quizResults = document.getElementById('quiz-results');
 const questionCounter = document.getElementById('quiz-question-counter');
+const questionText = document.getElementById('quiz-question-text'); // New
 const codeSnippet = document.getElementById('quiz-code-snippet');
+const feedbackContainer = document.getElementById('quiz-feedback'); // New
 const choicesContainer = document.getElementById('quiz-choices');
 const scoreDisplay = document.getElementById('quiz-score');
 const reviewContainer = document.getElementById('quiz-review');
 const quizHistoryList = document.getElementById('quiz-history-list');
 const quizHistoryDetail = document.getElementById('quiz-history-detail');
 const quizHistoryDetailContent = document.getElementById('quiz-history-detail-content');
+const quizTypeSelect = document.getElementById('quiz-type-select'); // New
 
 // === QUIZ STATE ===
 let quizQuestions = [];
@@ -35,13 +38,10 @@ let userAnswers = [];
 
 // === INITIALIZATION ===
 function initializeQuiz() {
-    // Main quiz flow listeners
     startQuizButton.addEventListener('click', showQuizSetup);
     cancelQuizButton.addEventListener('click', hideQuizModal);
     closeQuizResultsButton.addEventListener('click', hideQuizModal);
     startQuizConfirmButton.addEventListener('click', startQuiz);
-
-    // History listeners
     quizHistoryButton.addEventListener('click', showQuizHistory);
     closeQuizHistoryButton.addEventListener('click', () => quizHistoryModal.style.display = 'none');
     backToHistoryListButton.addEventListener('click', () => {
@@ -83,6 +83,8 @@ async function startQuiz() {
         return alert("問題数は3から10の間で選択してください。");
     }
 
+    const quizType = quizTypeSelect.value; // Get selected quiz type
+
     const favoritePrograms = (await getUserPrograms(user)).filter(p => p.favorite);
     if (favoritePrograms.length < 1) {
         return alert(`クイズを生成するのに十分な数のお気に入りプログラムがありません。`);
@@ -91,15 +93,22 @@ async function startQuiz() {
     quizSetup.style.display = 'none';
     quizMain.style.display = 'block';
     questionCounter.textContent = '問題生成中...';
-    codeSnippet.textContent = '～頑張ってください～';
+    questionText.textContent = 'Geminiが問題を考えています...';
+    codeSnippet.textContent = '少々お待ちください...';
     choicesContainer.innerHTML = '';
+    feedbackContainer.innerHTML = '';
 
     try {
         const selectedPrograms = Array.from({ length: numQuestions }, () => favoritePrograms[Math.floor(Math.random() * favoritePrograms.length)]);
+        
         const questionPromises = selectedPrograms.map(program =>
-            fetch("/generate-quiz-question", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: program.code }) })
-            .then(res => res.ok ? res.json() : Promise.reject(new Error('問題の生成に失敗しました。')))
+            fetch("/generate-quiz-question", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: program.code, quizType: quizType }) // Pass quizType
+            }).then(res => res.ok ? res.json() : Promise.reject(new Error('問題の生成に失敗しました。')))
         );
+
         quizQuestions = await Promise.all(questionPromises);
         currentQuestionIndex = 0;
         userScore = 0;
@@ -113,14 +122,18 @@ async function startQuiz() {
 }
 
 function displayQuestion() {
+    console.log("Displaying question:", quizQuestions[currentQuestionIndex]); // デバッグ用ログ
     if (currentQuestionIndex >= quizQuestions.length) {
         showResults();
         return;
     }
     const question = quizQuestions[currentQuestionIndex];
     questionCounter.textContent = `問題 ${currentQuestionIndex + 1} / ${quizQuestions.length}`;
-    codeSnippet.textContent = question.question;
+    questionText.textContent = question.questionText;
+    codeSnippet.textContent = question.questionCode;
     choicesContainer.innerHTML = '';
+    feedbackContainer.innerHTML = ''; // Clear previous feedback
+
     question.choices.forEach(choice => {
         const button = document.createElement('button');
         button.textContent = choice;
@@ -132,8 +145,22 @@ function displayQuestion() {
 function handleAnswer(selectedChoice, selectedButton) {
     const question = quizQuestions[currentQuestionIndex];
     const isCorrect = selectedChoice === question.answer;
-    userAnswers.push({ selected: selectedChoice, correct: question.answer });
-    if (isCorrect) userScore++;
+    
+    // Store full question and answer for review
+    userAnswers.push({
+        question: question,
+        selected: selectedChoice,
+        correct: question.answer
+    });
+
+    if (isCorrect) {
+        userScore++;
+        feedbackContainer.textContent = '正解！';
+        feedbackContainer.className = 'correct';
+    } else {
+        feedbackContainer.textContent = '不正解…';
+        feedbackContainer.className = 'incorrect';
+    }
 
     Array.from(choicesContainer.children).forEach(button => {
         button.disabled = true;
@@ -141,7 +168,7 @@ function handleAnswer(selectedChoice, selectedButton) {
         else if (button === selectedButton) button.classList.add('incorrect');
     });
 
-    setTimeout(() => { currentQuestionIndex++; displayQuestion(); }, 1500);
+    setTimeout(() => { currentQuestionIndex++; displayQuestion(); }, 2000); // Increased delay to see feedback
 }
 
 function showResults() {
@@ -149,15 +176,23 @@ function showResults() {
     quizResults.style.display = 'block';
     scoreDisplay.textContent = `結果: ${userScore} / ${quizQuestions.length} 問正解！`;
     reviewContainer.innerHTML = '<h3>問題の振り返り</h3>';
-    const fullQuestionsData = quizQuestions.map((question, index) => {
-        const userAnswer = userAnswers[index];
-        renderReviewItem(reviewContainer, question, userAnswer, index);
-        return { ...question, userAnswer: userAnswer.selected };
+    
+    const fullQuizData = {
+        score: userScore,
+        totalQuestions: quizQuestions.length,
+        questions: userAnswers.map(ua => ({
+            ...ua.question,
+            userAnswer: ua.selected
+        }))
+    };
+
+    fullQuizData.questions.forEach((q, index) => {
+        renderReviewItem(reviewContainer, q, index);
     });
 
     const user = auth.currentUser;
     if (user) {
-        saveQuizResult(user, { score: userScore, totalQuestions: quizQuestions.length, questions: fullQuestionsData })
+        saveQuizResult(user, fullQuizData)
             .then(() => console.log("Quiz result saved."))
             .catch(err => console.error("Failed to save quiz result:", err));
     }
@@ -201,32 +236,33 @@ function displayQuizResultDetails(result) {
 
     const header = document.createElement('h3');
     const date = result.timestamp.toDate ? result.timestamp.toDate() : new Date(result.timestamp.seconds * 1000);
-    header.textContent = `${date.toLocaleString()} の結果`;
+    header.textContent = `${date.toLocaleString()} の結果 (${result.score}/${result.totalQuestions}正解)`;
     quizHistoryDetailContent.appendChild(header);
 
     result.questions.forEach((question, index) => {
-        const userAnswer = { selected: question.userAnswer, correct: question.answer };
-        renderReviewItem(quizHistoryDetailContent, question, userAnswer, index);
+        renderReviewItem(quizHistoryDetailContent, question, index);
     });
 }
 
 // === UTILITY ===
 
-function renderReviewItem(container, question, userAnswer, index) {
+function renderReviewItem(container, question, index) {
     const item = document.createElement('div');
     item.className = 'review-item';
-    const resultText = userAnswer.selected === userAnswer.correct ? '正解' : '不正解';
-    const resultClass = resultText === '正解' ? 'correct' : 'incorrect';
+    const isCorrect = question.userAnswer === question.answer;
+    const resultText = isCorrect ? '正解' : '不正解';
+    const resultClass = isCorrect ? 'correct' : 'incorrect';
 
-    // Handle potential HTML entities in code
-    const escapedCode = question.question.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escapedCode = (question.questionCode || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escapedExplanation = (question.explanation || '').replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
     item.innerHTML = `
         <h4>問題 ${index + 1} <span class="review-answer ${resultClass}">(${resultText})</span></h4>
-        <p>問題文:</p>
+        <p><b>${question.questionText}</b></p>
         <pre>${escapedCode}</pre>
-        <p>あなたの回答: <span class="review-answer ${resultClass}">${userAnswer.selected}</span></p>
-        <p>正解の回答: <span class="review-answer correct">${userAnswer.correct}</span></p>
+        <p>あなたの回答: <span class="review-answer ${resultClass}">${question.userAnswer}</span></p>
+        <p>正解: <span class="review-answer correct">${question.answer}</span></p>
+        ${escapedExplanation ? `<p>解説:</p><pre>${escapedExplanation}</pre>` : ''}
     `;
     container.appendChild(item);
 }

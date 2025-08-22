@@ -80,8 +80,18 @@
             <!-- クイズ設定画面 -->
             <div id="quiz-setup">
                 <h2>クイズ設定</h2>
-                <p>挑戦する問題数を選択してください (3〜10問)</p>
-                <input type="number" id="quiz-num-questions" min="3" max="10" value="5">
+                <div class="quiz-setting-item">
+                    <label for="quiz-type-select">問題形式:</label>
+                    <select id="quiz-type-select">
+                        <option value="predict_output">プログラムの出力結果を予測</option>
+                        <option value="loop_count">ループの実行回数を予測</option>
+                        <option value="predict_next_line_meaning" selected>次に実行される処理を予測</option>
+                    </select>
+                </div>
+                <div class="quiz-setting-item">
+                    <label for="quiz-num-questions">問題数 (3〜10問):</label>
+                    <input type="number" id="quiz-num-questions" min="3" max="10" value="5">
+                </div>
                 <button id="start-quiz-confirm-button">クイズ開始</button>
                 <button id="cancel-quiz-button">キャンセル</button>
             </div>
@@ -89,7 +99,9 @@
             <!-- クイズ実行画面 -->
             <div id="quiz-main" style="display:none;">
                 <h3 id="quiz-question-counter"></h3>
+                <h4 id="quiz-question-text"></h4> <!-- Question text will go here -->
                 <pre id="quiz-code-snippet"></pre>
+                <div id="quiz-feedback"></div> <!-- Feedback like "Correct!" will go here -->
                 <div id="quiz-choices">
                     <!-- 選択肢ボタンはJSで生成 -->
                 </div>

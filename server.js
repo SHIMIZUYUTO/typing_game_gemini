@@ -29,7 +29,7 @@ app.get("/", (req, res) => { // /にアクセスしたらindex.htmlを返す
 // - if、else、for、while、functions などのコードブロックのインデントが適切であることを確認してください。
 // - 二重改行は絶対にしないでください。
 // - 各スニペットでは、文と文の間に適切な改行を入れてください。
-// `;
+// `; 
 
 // MEMO:オープンキャンパス用
 const promptText = `
@@ -212,68 +212,100 @@ app.post("/generate-quiz-question", async (req, res) => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
-        const { code } = req.body;
-        if (!code || code.split('\n').length < 2) {
-            return res.status(400).json({ error: "クイズを生成するには、少なくとも2行以上のコードが必要です。" });
+        const { code, quizType } = req.body;
+        if (!code || !quizType) {
+            return res.status(400).json({ error: "コードとクイズタイプは必須です。" });
         }
 
-        const prompt = `
+        // Base prompt with common instructions
+        const basePrompt = `
         あなたはC言語のクイズを生成するエキスパートです。
-        以下のC言語プログラム全体から、「このプログラムの中で間違っている箇所はどこにあるか」を推測する4択クイズを1問作成してください。
+        以下のC言語プログラムを題材として、指定された形式の4択クイズを1問作成してください。
 
-        【制約】
-        - プログラムの中から、クイズの問題として適切で、かつ次の行の処理内容の推測が簡単すぎない箇所を自動で選んでください。
-        - 問題文として、一か所のみプログラムの文法をわざとミスしたプログラム全文を出力してください。
-        - その次に続く1行の処理内容を、平易な日本語で説明した文章を「正解の選択肢」としてください。
-        - 「正解の選択肢」が説明する実際のコード行もレスポンスに含めてください。
-        - 文法として間違いはない「不正解の選択肢」を日本語で3つ生成してください。
-        - 回答は必ず以下のJSON形式で、JSONオブジェクトのみを出力してください。説明やマークダウンは一切含めないでください。
-
-        【JSON形式】
-        {
-          "question": "（問題文となるコードスニペット）",
-          "code_to_explain": "（正解の選択肢が説明する、次に来るはずの実際のコード行）",
-          "choices": [
-            "（日本語の選択肢1）",
-            "（日本語の選択肢2）",
-            "（日本語の選択肢3）",
-            "（日本語の選択肢4）"
-          ],
-          "answer": "（正解の日本語選択肢の文字列）"
-        }
-
-        【重要】
-        - 「不正解の選択肢」は、学習者が間違いやすいようなリアルな選択肢を考えてください。
-        - 4つの選択肢（"choices"）の配列には、必ず「正解の選択肢」を1つ含み、残りの3つを「不正解の選択肢」としてください。
-        - "choices"の配列の要素の順番は必ずランダムにしてください。
+        【共通の制約】
+        - 回答は必ず以下のJSON形式で、JSONオブジェクトのみを出力してください。
+        - 説明やマークダウン(\\\`\\\`\\\`jsonなど)は一切含めないでください。
         - JSONのキーは必ずダブルクォーテーションで囲んでください。
-        - 出力はJSONオブジェクトのみとし、前後にjsonや説明文を付けないでください。
+        - 選択肢の配列("choices")の要素の順番は必ずランダムにしてください。
+        - 不正解の選択肢は、学習者が間違いやすいような、もっともらしい選択肢を考えてください。
+        - 生成する問題は、プログラムのごく一部に関するものではなく、プログラム全体の動作を理解しないと解けないような、思考力を問う問題にしてください。
+
+        【共通のJSON形式】
+        {
+          "quizType": "（指定されたクイズタイプ）",
+          "questionText": "（ユーザーに問いかける質問文）",
+          "questionCode": "（問題となるプログラムコード）",
+          "choices": [ "（選択肢1）", "（選択肢2）", "（選択肢3）", "（選択肢4）" ],
+          "answer": "（正解の選択肢）",
+          "explanation": "（なぜその答えになるのかの簡単な解説）"
+        }
 
         【プログラム】
+        \\
         ${code}
         `;
+
+        let specificPrompt = "";
+        switch (quizType) {
+            case "predict_output":
+                specificPrompt = `
+                【今回の問題形式】
+                - 形式: "predict_output"
+                - 質問文: "このプログラムを実行した結果、出力される内容はどれですか？"
+                - 問題内容: プログラム全体の最終的な出力結果を予測する問題を作成してください。
+                - 選択肢: 4つの異なる出力結果を提示してください。そのうち1つが正解です。
+                `;
+                break;
+            case "loop_count":
+                specificPrompt = `
+                【今回の問題形式】
+                - 形式: "loop_count"
+                - 質問文: "このプログラムに含まれるfor文またはwhile文は、合計で何回ループしますか？"
+                - 問題内容: プログラム内にfor文かwhile文が存在する場合、そのループが実行される合計回数を問う問題を作成してください。もしループが複数ある場合は、最も主要なループの実行回数を尋ねてください。
+                - 選択肢: 4つの異なる回数を提示してください（例: "5回", "10回", "無限ループ"）。そのうち1つが正解です。
+                - 注意: ループが存在しないプログラムの場合は、エラーではなく、「このプログラムにループはありません」と答える選択肢を正解としてください。
+                `;
+                break;
+            case "predict_next_line_meaning":
+                specificPrompt = `
+                【今回の問題形式】
+                - 形式: "predict_next_line_meaning"
+                - 問題内容: プログラムの中から、次の一行の理解度を問うのに適切な箇所を自動で選んでください。
+                - 質問文: "以下のプログラムの次に実行される処理はどれですか？"
+                - 表示するコード("questionCode"): 選んだ箇所の直前までの2〜5行のコードを提示してください。
+                - 選択肢: 次に実行される一行の処理内容を説明する、平易な日本語の文章を4つ提示してください。
+                - 正解: 4つのうち1つだけを、実際に次に実行されるコードの正しい説明にしてください。
+                - 解説("explanation"): 正解の選択肢が説明している実際のコード行を提示してください。
+                `;
+                break;
+            default:
+                return res.status(400).json({ error: "無効なクイズタイプです。" });
+        }
+
+        const finalPrompt = basePrompt + specificPrompt;
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
+                contents: [{ parts: [{ text: finalPrompt }] }]
             }),
         });
 
         if (!response.ok) {
+            const errorBody = await response.text();
+            console.error("Gemini API Error:", response.status, errorBody);
             throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("Gemini API Response for quiz:", JSON.stringify(data, null, 2));
-
+        
         if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts) {
+            console.error("Invalid Gemini Response:", JSON.stringify(data, null, 2));
             throw new Error("❌ APIのレスポンスが不正です！");
         }
 
-        // モデルの出力からJSON部分だけを抽出する
         const rawText = data.candidates[0].content.parts[0].text;
         const jsonMatch = rawText.match(/\{.*\}/s);
         if (!jsonMatch) {
