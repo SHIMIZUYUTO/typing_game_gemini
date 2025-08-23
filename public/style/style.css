@@ -409,7 +409,8 @@ body {
     padding: 16px;
     border-radius: 4px;
     margin: 16px 0;
-    white-space: pre-wrap;
+    white-space: pre-wrap; /* Changed */
+    word-wrap: break-word;   /* Added */
     font-family: monospace;
 }
 
@@ -447,10 +448,12 @@ body {
     padding: 10px 0;
 }
 
-#quiz-review .review-item pre {
+#quiz-review .review-item pre, #quiz-history-detail-content .review-item pre {
     background-color: #f4f4f4;
     padding: 8px;
     border-radius: 4px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 #quiz-review .review-answer {
