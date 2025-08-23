@@ -226,8 +226,10 @@ app.post("/generate-quiz-question", async (req, res) => {
         - 回答は必ず以下のJSON形式で、JSONオブジェクトのみを出力してください。
         - 説明やマークダウン(\\\`\\\`\\\`jsonなど)は一切含めないでください。
         - JSONのキーは必ずダブルクォーテーションで囲んでください。
+        - JSONの文字列値の中にダブルクォーテーション(\`\"\`)が含まれる場合は、必ずバックスラッシュでエスケープしてください（例: \`\\\\\"\`）。これは絶対に守ってください。
         - 選択肢の配列("choices")の要素の順番は必ずランダムにしてください。
         - 不正解の選択肢は、学習者が間違いやすいような、もっともらしい選択肢を考えてください。
+        - 全く同じ選択肢は絶対に含めないでください。
         - 生成する問題は、プログラムのごく一部に関するものではなく、プログラム全体の動作を理解しないと解けないような、思考力を問う問題にしてください。
 
         【共通のJSON形式】
@@ -313,8 +315,18 @@ app.post("/generate-quiz-question", async (req, res) => {
             throw new Error("❌ APIが有効なクイズデータを返しませんでした。");
         }
 
-        const quizData = JSON.parse(jsonMatch[0]);
-        res.json(quizData);
+        // Clean the JSON string to remove trailing commas
+        const cleanedJsonString = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
+
+        try {
+            const quizData = JSON.parse(cleanedJsonString);
+            res.json(quizData);
+        } catch (parseError) {
+            console.error("Failed to parse cleaned JSON:", parseError);
+            console.error("Original JSON string was:", jsonMatch[0]);
+            console.error("Cleaned JSON string was:", cleanedJsonString);
+            throw new Error("❌ APIが返したデータの解析に失敗しました。");
+        }
 
     } catch (error) {
         console.error("Error generating quiz question:", error.message);
