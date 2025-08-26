@@ -136,7 +136,7 @@ function displayQuestion() {
 
     question.choices.forEach(choice => {
         const button = document.createElement('button');
-        button.textContent = choice;
+        button.textContent = choice.replace(/\n/g, ' ⏎ '); // Replace newlines with return symbol
         button.addEventListener('click', () => handleAnswer(choice, button));
         choicesContainer.appendChild(button);
     });
