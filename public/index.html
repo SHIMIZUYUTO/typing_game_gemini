@@ -16,6 +16,7 @@
       }
     </style>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
 </head>
 <body>
     <!-- ログイン画面 -->
@@ -72,6 +73,10 @@
       <p id="score-display"></p>
       <p id="result-display"></p>
       <p>間違えたキー:　<span id="incorrect-keys-display"></span></p>
+      <div id="comment-evaluation-controls" style="display: none;">
+        <button id="start-commenting-button">コメントを追記・評価する</button>
+        <button id="submit-evaluation-button" style="display: none;">評価を実行</button>
+      </div>
     </div>
 
     <!-- クイズモーダル -->
@@ -168,6 +173,17 @@
       </div>
     </div>
 
+    <!-- コメント評価結果モーダル -->
+    <div id="evaluation-result-modal" style="display:none;">
+        <div id="evaluation-result-container">
+            <h2>コメント評価結果</h2>
+            <div id="evaluation-result-content">
+                <!-- 結果がここに表示される -->
+            </div>
+            <button id="close-evaluation-result-button">閉じる</button>
+        </div>
+    </div>
+
 
     <!-- Firebase SDK とログイン機能をモジュールで読み込む -->
     <script type="module">
@@ -188,7 +204,6 @@
 
     <!-- Monaco Editor CDN -->
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
 
     <script type="module" src="login.js"></script>
     <script type="module" src="typing_game.js"></script>

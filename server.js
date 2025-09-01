@@ -334,4 +334,87 @@ app.post("/generate-quiz-question", async (req, res) => {
     }
 });
 
+app.post("/evaluate-comments", async (req, res) => {
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
+
+        const { codeWithComments } = req.body;
+        if (!codeWithComments) {
+            return res.status(400).json({ error: "評価するコードがありません。" });
+        }
+
+        const prompt = `
+        あなたは経験豊富なシニアソフトウェアエンジニアとして、ジュニア開発者が書いたC言語のプログラムとコメントをレビューしてください。
+        以下の6つの評価基準に基づき、コメントの品質を100点満点で採点し、各項目について具体的なフィードバックを日本語で提供してください。
+
+        【評価基準】
+        1.  **量 (Density)**: コードの量に対してコメントは少なすぎたり多すぎたりしませんか？ 適切なバランスが取れていますか？
+        2.  **意味 (Meaningfulness)**: コメントはコードの単なる翻訳（例: i++; に「iを1増やす」）になっていませんか？ なぜその処理が必要なのか(Why)という意図が説明されていますか？
+        3.  **明瞭さ (Clarity)**: コメントは専門用語を使いすぎず、誰が読んでも分かりやすい言葉で書かれていますか？
+        4.  **正確性 (Accuracy)**: コメントの内容は、対応するコードの動作と正確に一致していますか？
+        5.  **付加価値 (Value-add)**: 一読しただけでは分かりにくい複雑なロジックや、コードの重要な前提条件を補足説明できていますか？
+        6.  **スタイル (Style)**: コメントの書き方（例: // や /* */）やインデント、配置は一貫性があり、読みやすいですか？
+
+        【回答形式】
+        以下のJSON形式で、JSONオブジェクトのみを出力してください。説明やマークダウンは一切含めないでください。
+        JSONの文字列値にダブルクォーテーションが含まれる場合は、必ず \" のようにエスケープしてください。
+
+        {
+          "overallScore": <総合点(0-100)>,
+          "feedback": {
+            "density": "<量に関するフィードバック>",
+            "meaningfulness": "<意味に関するフィードバック>",
+            "clarity": "<明瞭さに関するフィードバック>",
+            "accuracy": "<正確性に関するフィードバック>",
+            "value": "<付加価値に関するフィードバック>",
+            "style": "<スタイルに関するフィードバック>"
+          },
+          "generalComment": "<全体的な評価と、改善に向けた総合的なアドバイス>"
+        }
+
+        【レビュー対象のコード】
+        \`\`\`c
+        ${codeWithComments}
+        \`\`\`
+        `;
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            }),
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            console.error("Gemini API Error:", response.status, errorBody);
+            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const rawText = data.candidates[0].content.parts[0].text;
+        const jsonMatch = rawText.match(/\{.*\}/s);
+        if (!jsonMatch) {
+            console.error("Could not find JSON in response:", rawText);
+            throw new Error("❌ APIが有効な評価データを返しませんでした。");
+        }
+
+        const cleanedJsonString = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
+        try {
+            const evalData = JSON.parse(cleanedJsonString);
+            res.json(evalData);
+        } catch (parseError) {
+            console.error("Failed to parse cleaned JSON for evaluation:", parseError);
+            throw new Error("❌ APIが返した評価データの解析に失敗しました。");
+        }
+
+    } catch (error) {
+        console.error("Error evaluating comments:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
