@@ -1,47 +1,77 @@
 import { login, signUp } from './firebase_auth.js';
+// import { createUserProfile } from './firebase_helper.js'; // No longer needed here
 
 const loginForm = document.getElementById('login-form');
 const signupButton = document.getElementById('signup-button');
+const loginButton = document.getElementById('login-button');
+const usernameField = document.getElementById('username-field');
+const usernameInput = document.getElementById('username');
+
+let isSignUpMode = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ログイン画面を表示する
   document.getElementById('login-container').style.display = 'block';
-  // ログイン前は題材入力欄を非表示
   document.getElementById('custom-theme-box').style.display = 'none';
 });
 
-loginForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
-  login(email, password)
-    .then(() => {
-      document.getElementById('login-container').style.display = 'none';
-      document.getElementById('typing-container').style.display = 'block';
-      // ログイン後に題材入力欄を表示
-      document.getElementById('custom-theme-box').style.display = 'block';
-    })
-    .catch((error) => {
-      alert('メールアドレスもしくはパスワードが間違っています');
-    });
+// '新規登録' button toggles sign up mode
+signupButton.addEventListener('click', () => {
+    isSignUpMode = !isSignUpMode;
+    if (isSignUpMode) {
+        document.querySelector('#login-form h1').textContent = '新規登録';
+        usernameField.style.display = 'block';
+        loginButton.textContent = '登録して開始';
+        signupButton.textContent = 'ログインに戻る';
+        usernameInput.required = true;
+    } else {
+        document.querySelector('#login-form h1').textContent = 'ログイン画面';
+        usernameField.style.display = 'none';
+        loginButton.textContent = 'ログイン';
+        signupButton.textContent = '新規登録';
+        usernameInput.required = false;
+    }
 });
 
-signupButton.addEventListener('click', (e) => {
-  e.preventDefault();
+// Handle both login and sign up
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-  signUp(email, password)
-    .then(() => {
-      document.getElementById('login-container').style.display = 'none';
-      document.getElementById('typing-container').style.display = 'block';
-      // ログイン後に題材入力欄を表示
-      document.getElementById('custom-theme-box').style.display = 'block';
-    })
-    .catch((error) => {
-      alert('新規登録に失敗しました。\n' + error.message);
-    });
+    if (isSignUpMode) {
+        // --- Sign Up Flow ---
+        const username = usernameInput.value;
+        if (!username) {
+            alert('ユーザー名を入力してください。');
+            return;
+        }
+
+        try {
+            // Pass username to the updated signUp function
+            const userCredential = await signUp(email, password, username);
+            if (userCredential && userCredential.user) {
+                showTypingGame();
+            }
+        } catch (error) {
+            alert('新規登録に失敗しました。\n' + error.message);
+        }
+
+    } else {
+        // --- Login Flow ---
+        try {
+            await login(email, password);
+            showTypingGame();
+        } catch (error) {
+            alert('メールアドレスもしくはパスワードが間違っています');
+        }
+    }
 });
+
+function showTypingGame() {
+    document.getElementById('login-container').style.display = 'none';
+    document.getElementById('typing-container').style.display = 'block';
+    document.getElementById('custom-theme-box').style.display = 'block';
+    // This event will be caught by another script to display the username
+    document.dispatchEvent(new Event('userLoggedIn'));
+}

@@ -37,7 +37,7 @@ export const login = (email, password) => {
 };
 
 // 新規登録機能
-export const signUp = (email, password) => {
+export const signUp = (email, password, username) => {
   return createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       const user = userCredential.user;
@@ -46,11 +46,13 @@ export const signUp = (email, password) => {
       // Firestoreにユーザードキュメントを作成
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
+        username: username, // Add username
         email: user.email,
         createdAt: new Date(),
         highScore: 0
       });
       console.log('新しいユーザードキュメントを作成しました');
+      return userCredential; // Return the userCredential
     })
     .catch((error) => {
       console.error('新規登録失敗:', error);

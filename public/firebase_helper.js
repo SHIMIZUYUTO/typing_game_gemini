@@ -1,6 +1,16 @@
 import { auth, db } from './firebase_auth.js';
 import { doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
+// ユーザープロファイル取得
+export async function getUserProfile(user) {
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+        return userDocSnap.data();
+    }
+    return null;
+}
+
 // ハイスコア取得
 export async function getHighScore(user) {
     const userDocRef = doc(db, 'users', user.uid);

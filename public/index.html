@@ -23,18 +23,23 @@
     <div id="login-container">
       <form id="login-form">
         <h1>ログイン画面</h1>
+        <div id="username-field" style="display: none;">
+            <p>ユーザー名</p>
+            <input type="text" id="username">
+        </div>
         <p>メールアドレス</p>
         <input type="email" id="email" required>
         <p>パスワード</p>
         <input type="password" id="password" required>
         <br><br>
         <button id="login-button" type="submit">ログイン</button>
-        <button id="signup-button" type="button">新規登録</button>
+        <button id="signup-button" type="button">→初めての人は新規登録から←</button>
       </form>
     </div>
 
     <!-- タイピング画面 -->
     <div id="typing-container">
+      <div id="user-welcome"></div>
       <h1>⌨タイピング⌨</h1>
       <p>スタートボタンを押してね</p>
       <!-- ここに移動 -->
