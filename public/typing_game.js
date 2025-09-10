@@ -10,9 +10,9 @@ async function displayUsername() {
     const profile = await getUserProfile(user);
 
     if (profile && profile.username) {
-        userWelcome.textContent = `ようこそ、${profile.username}さん`;
+        userWelcome.textContent = `${profile.username}さん`;
     } else {
-        userWelcome.textContent = 'ようこそ、no nameさん';
+        userWelcome.textContent = 'no nameさん';
     }
 }
 
