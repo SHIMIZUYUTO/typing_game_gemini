@@ -1,4 +1,4 @@
-import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserProgram, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage } from './firebase_helper.js';
+import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserTypingSpeed, addTypingSession, updateAverageSpeedIfNeeded, saveUserProgram, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage } from './firebase_helper.js';
 import { auth } from './firebase_auth.js';
 
 // Main Buttons
@@ -142,6 +142,12 @@ async function endGame() {
         await saveTopMistakeKeys(user, sortedKeys);
     }
     await saveUserProgram(user, window.placeholderEditor.getValue());
+
+    // タイピング速度を記録し、必要であれば平均を更新
+    if (typingSpeed) {
+        await addTypingSession(user, parseFloat(typingSpeed));
+        await updateAverageSpeedIfNeeded(user);
+    }
 }
 
 // --- Diff Flow ---

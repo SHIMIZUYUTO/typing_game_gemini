@@ -43,6 +43,44 @@ export async function saveTopMistakeKeys(user, keys) {
     await setDoc(userDocRef, { topMistakeKeys: keys }, { merge: true });
 }
 
+// 平均打鍵速度を保存
+export async function saveUserTypingSpeed(user, speed) {
+    if (!user) return;
+    const userDocRef = doc(db, 'users', user.uid);
+    await setDoc(userDocRef, { averageSpeed: speed }, { merge: true });
+}
+
+// 1回ごとのタイピング速度を記録
+export async function addTypingSession(user, speed) {
+    if (!user) return;
+    const sessionsCol = collection(db, 'users', user.uid, 'typingSessions');
+    await addDoc(sessionsCol, {
+        speed: speed,
+        createdAt: new Date()
+    });
+}
+
+// 5回分溜まったら平均を計算・保存し、記録をリセット
+export async function updateAverageSpeedIfNeeded(user) {
+    if (!user) return;
+    const sessionsCol = collection(db, 'users', user.uid, 'typingSessions');
+    const q = query(sessionsCol, orderBy('createdAt', 'asc'));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.docs.length >= 5) {
+        const speeds = snapshot.docs.map(doc => doc.data().speed);
+        const averageSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+
+        // 平均速度を保存
+        await saveUserTypingSpeed(user, Math.round(averageSpeed * 100) / 100);
+
+        // 計算に使ったセッションを削除
+        for (const docSnap of snapshot.docs) {
+            await deleteDoc(docSnap.ref);
+        }
+    }
+}
+
 // プログラムを保存（最大5つまで、古い順に削除）
 export async function saveUserProgram(user, code) {
     if (!user) return;
