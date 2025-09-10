@@ -1,9 +1,17 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+    // ユーザーが自身のドキュメントとサブコレクションを読み書きできるようにする
+    match /users/{userId}/{documents=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // ランキング機能のため、認証済みのユーザーなら誰でも
+    // usersコレクションのドキュメントを読み取れるようにする
+    match /users/{userId} {
+       allow get: if request.auth != null;
+       allow list: if request.auth != null; // ← クエリのための権限を追記
+       allow write: if request.auth.uid == userId;
     }
   }
 }

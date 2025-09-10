@@ -1,5 +1,5 @@
 import { auth, db } from './firebase_auth.js';
-import { doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+import { doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, limit, where } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
 // ユーザープロファイル取得
 export async function getUserProfile(user) {
@@ -179,4 +179,13 @@ export async function getQuizResults(user) {
         id: doc.id,
         ...doc.data()
     }));
+}
+
+// ランキング取得
+export async function getRanking() {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('averageSpeed', '!=', null), orderBy('averageSpeed', 'desc'));
+    const snapshot = await getDocs(q);
+    // doc.data()に加えてdoc.idも返すように修正
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }

@@ -61,7 +61,11 @@
           <td><button id="stop-button">ストップ</button></td>
           <td><button id="diff-button" disabled>差分を表示</button></td>
           <td><button id="close-diff" disabled>差分を閉じる</button></td>
-          <td><button id="custom-button">カスタム</button></td>
+          <button id="custom-button">Custom Game</button>
+        <button id="ranking-button">Ranking</button>
+    </div>
+
+    <div id="result-display"></div>
           <td><button id="show-programs-button">保存プログラム一覧</button></td>
           <td><button id="start-quiz-button">問題出題</button></td>
           <td><button id="quiz-history-button">クイズ履歴</button></td>
@@ -337,5 +341,15 @@
       });
     </script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script type="module" src="./ranking.js"></script>
+
+    <!-- Ranking Modal -->
+    <div id="ranking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-ranking-modal">&times;</span>
+            <h2>Typing Speed Ranking</h2>
+            <div id="ranking-list"></div>
+        </div>
+    </div>
 </body>
 </html>
