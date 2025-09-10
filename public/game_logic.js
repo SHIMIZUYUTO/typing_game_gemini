@@ -68,7 +68,8 @@ export function setupGameEvents() {
 
 async function startGame() {
     await setupNewGame();
-    await fetchWords();
+    const customTheme = document.getElementById("custom-theme-input").value.trim();
+    await fetchWords(customTheme); // 通常のゲームではtopMistakeKeysは使用しない
     resetGameState();
 }
 
