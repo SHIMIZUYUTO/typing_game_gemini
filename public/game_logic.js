@@ -16,9 +16,20 @@ const incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
 const commentControls = document.getElementById('comment-evaluation-controls');
 const startCommentingButton = document.getElementById('start-commenting-button');
 const submitEvaluationButton = document.getElementById('submit-evaluation-button');
+const reevaluateButton = document.getElementById('reevaluate-button');
 const evaluationResultModal = document.getElementById('evaluation-result-modal');
 const evaluationResultContent = document.getElementById('evaluation-result-content');
 const closeEvaluationResultButton = document.getElementById('close-evaluation-result-button');
+
+// Evaluation weights
+const evaluationWeights = {
+    meaningfulness: 0.3,
+    value: 0.2,
+    accuracy: 0.2,
+    clarity: 0.1,
+    density: 0.1,
+    style: 0.1
+};
 
 // Game State
 let codeLines = [];
@@ -41,6 +52,7 @@ export function setupGameEvents() {
     // Commenting buttons
     startCommentingButton.addEventListener('click', enableCommenting);
     submitEvaluationButton.addEventListener('click', evaluateComments);
+    reevaluateButton.addEventListener('click', enableReevaluation);
     closeEvaluationResultButton.addEventListener('click', () => evaluationResultModal.style.display = 'none');
 
     // Monaco editor listener
@@ -171,13 +183,24 @@ function enableCommenting() {
     window.editor.updateOptions({ readOnly: false });
     startCommentingButton.style.display = 'none';
     submitEvaluationButton.style.display = 'inline-block';
+    reevaluateButton.style.display = 'none';
     resultDisplay.textContent += '\nプログラムにコメントを追記して、「評価を実行」ボタンを押してください。';
+    window.editor.focus();
+}
+
+function enableReevaluation() {
+    window.editor.updateOptions({ readOnly: false });
+    reevaluateButton.style.display = 'none';
+    submitEvaluationButton.style.display = 'inline-block';
+    evaluationDisplay.style.display = 'none';
+    resultDisplay.textContent += '\n再度コメントを修正し、「評価を実行」ボタンを押してください。';
     window.editor.focus();
 }
 
 async function evaluateComments() {
     submitEvaluationButton.disabled = true;
     submitEvaluationButton.textContent = '評価中...';
+    window.editor.updateOptions({ readOnly: true });
 
     const codeWithComments = window.editor.getValue();
 
@@ -194,28 +217,43 @@ async function evaluateComments() {
         }
 
         const result = await response.json();
+        if (!result.scores) {
+            throw new Error('サーバーからの評価データ形式が正しくありません。scoresオブジェクトが含まれていません。');
+        }
         displayEvaluationResult(result);
 
     } catch (error) {
         alert(`エラー: ${error.message}`);
+        window.editor.updateOptions({ readOnly: false });
     } finally {
         submitEvaluationButton.disabled = false;
         submitEvaluationButton.textContent = '評価を実行';
-        startCommentingButton.style.display = 'inline-block';
         submitEvaluationButton.style.display = 'none';
+        reevaluateButton.style.display = 'inline-block';
+        startCommentingButton.style.display = 'none';
     }
 }
 
 function displayEvaluationResult(result) {
-    let contentHTML = `<div class="score">総合評価: ${result.overallScore} / 100 点</div>`;
+    let weightedScore = 0;
+    for (const key in result.scores) {
+        if (evaluationWeights.hasOwnProperty(key)) {
+            const score = result.scores[key];
+            weightedScore += score * evaluationWeights[key];
+        }
+    }
+    const finalScore = Math.round(weightedScore);
+
+    let contentHTML = `<div class="score">あなたの総合スコア: ${finalScore} / 100 点</div>`;
+    // contentHTML += `<p style="font-size: 0.8em; color: #666;">(AIによる参考評価: ${result.overallScore} / 100 点)</p>`;
     contentHTML += `<h3>項目別フィードバック</h3>`;
     contentHTML += `<ul>`;
-    contentHTML += `<li><b>量:</b> ${result.feedback.density}</li>`;
-    contentHTML += `<li><b>意味:</b> ${result.feedback.meaningfulness}</li>`;
-    contentHTML += `<li><b>明瞭さ:</b> ${result.feedback.clarity}</li>`;
-    contentHTML += `<li><b>正確性:</b> ${result.feedback.accuracy}</li>`;
-    contentHTML += `<li><b>付加価値:</b> ${result.feedback.value}</li>`;
-    contentHTML += `<li><b>スタイル:</b> ${result.feedback.style}</li>`;
+    contentHTML += `<li><b>意味 (貢献度: 30%):</b> <span class="score-value">[${result.scores.meaningfulness}点]</span> ${result.feedback.meaningfulness}</li>`;
+    contentHTML += `<li><b>付加価値 (貢献度: 20%):</b> <span class="score-value">[${result.scores.value}点]</span> ${result.feedback.value}</li>`;
+    contentHTML += `<li><b>正確性 (貢献度: 20%):</b> <span class="score-value">[${result.scores.accuracy}点]</span> ${result.feedback.accuracy}</li>`;
+    contentHTML += `<li><b>明瞭さ (貢献度: 10%):</b> <span class="score-value">[${result.scores.clarity}点]</span> ${result.feedback.clarity}</li>`;
+    contentHTML += `<li><b>量 (貢献度: 10%):</b> <span class="score-value">[${result.scores.density}点]</span> ${result.feedback.density}</li>`;
+    contentHTML += `<li><b>スタイル (貢献度: 10%):</b> <span class="score-value">[${result.scores.style}点]</span> ${result.feedback.style}</li>`;
     contentHTML += `</ul>`;
     contentHTML += `<h3>全体的なコメント</h3>`;
     contentHTML += `<p>${result.generalComment}</p>`;
@@ -223,6 +261,10 @@ function displayEvaluationResult(result) {
     evaluationResultContent.innerHTML = contentHTML;
     evaluationResultModal.style.display = 'flex';
 }
+
+
+
+
 
 
 // --- Utility Functions ---
