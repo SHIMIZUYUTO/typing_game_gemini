@@ -180,6 +180,7 @@ function closeDiff() {
 // --- Comment Evaluation Flow ---
 
 function enableCommenting() {
+    startButton.disabled = true;
     window.editor.updateOptions({ readOnly: false });
     startCommentingButton.style.display = 'none';
     submitEvaluationButton.style.display = 'inline-block';
@@ -189,6 +190,7 @@ function enableCommenting() {
 }
 
 function enableReevaluation() {
+    startButton.disabled = true;
     window.editor.updateOptions({ readOnly: false });
     reevaluateButton.style.display = 'none';
     submitEvaluationButton.style.display = 'inline-block';
@@ -198,6 +200,7 @@ function enableReevaluation() {
 }
 
 async function evaluateComments() {
+    startButton.disabled = false;
     submitEvaluationButton.disabled = true;
     submitEvaluationButton.textContent = '評価中...';
     window.editor.updateOptions({ readOnly: true });
