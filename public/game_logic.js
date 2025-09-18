@@ -5,6 +5,7 @@ import { auth } from './firebase_auth.js';
 const startButton = document.getElementById("start-button");
 const stopButton = document.getElementById("stop-button");
 const customButton = document.getElementById("custom-button");
+const refactorPracticeButton = document.getElementById("refactor-practice-button");
 const diffButton = document.getElementById("diff-button");
 const closeDiffBtn = document.getElementById("close-diff");
 
@@ -39,26 +40,24 @@ let incorrectKeys = {};
 let startTime;
 let currentDifficulty = 3;
 const difficultyLineCounts = { 1: 6, 2: 12, 3: 18, 4: 24, 5: 30 };
+let currentGameMode = 'typing'; // 'typing' or 'refactor'
+let contentChangeListener = null; // To hold the disposable listener
 
 // Initial setup
 export function setupGameEvents() {
     // Game buttons
     startButton.addEventListener("click", startGame);
     customButton.addEventListener("click", startCustomGame);
-    stopButton.addEventListener("click", endGame);
-    diffButton.addEventListener('click', showDiff);
-    closeDiffBtn.addEventListener('click', closeDiff);
+    refactorPracticeButton.addEventListener("click", startRefactorGame);
+    stopButton.addEventListener("click", handleStopButtonClick);
+    // diffButton.addEventListener('click', showDiff);
+    // closeDiffBtn.addEventListener('click', closeDiff);
 
     // Commenting buttons
     startCommentingButton.addEventListener('click', enableCommenting);
     submitEvaluationButton.addEventListener('click', evaluateComments);
     reevaluateButton.addEventListener('click', enableReevaluation);
     closeEvaluationResultButton.addEventListener('click', () => evaluationResultModal.style.display = 'none');
-
-    // Monaco editor listener
-    if (window.editor) {
-        window.editor.onDidChangeModelContent(() => checkInput());
-    }
 
     // Difficulty buttons
     const difficultyButtons = document.querySelectorAll(".difficulty-button");
@@ -72,20 +71,24 @@ export function setupGameEvents() {
     
     // Initial button states
     stopButton.disabled = true;
-    diffButton.disabled = true;
-    closeDiffBtn.disabled = true;
+    // diffButton.disabled = true;
+    // closeDiffBtn.disabled = true;
 }
 
-// --- Game Flow ---
+// --- Typing Game Flow ---
 
 async function startGame() {
+    currentGameMode = 'typing';
     await setupNewGame();
     const customTheme = document.getElementById("custom-theme-input").value.trim();
-    await fetchWords(customTheme); // 通常のゲームではtopMistakeKeysは使用しない
+    await fetchWords(customTheme);
     resetGameState();
+    if (contentChangeListener) contentChangeListener.dispose();
+    contentChangeListener = window.editor.onDidChangeModelContent(checkInput);
 }
 
 async function startCustomGame() {
+    currentGameMode = 'typing';
     await setupNewGame();
     const user = auth.currentUser;
     if (!user) return alert("ログインしてください");
@@ -94,15 +97,17 @@ async function startCustomGame() {
     const customTheme = document.getElementById("custom-theme-input").value.trim();
     await fetchWords(customTheme, topMistakeKeys);
     resetGameState();
+    if (contentChangeListener) contentChangeListener.dispose();
+    contentChangeListener = window.editor.onDidChangeModelContent(checkInput);
 }
 
 async function setupNewGame() {
     await showCountdown();
     window.editor.updateOptions({ readOnly: false });
     startButton.disabled = true;
-    stopButton.disabled = false;
     customButton.disabled = true;
-    diffButton.disabled = false;
+    refactorPracticeButton.disabled = true;
+    stopButton.disabled = false;
     commentControls.style.display = 'none';
     resultDisplay.textContent = "";
     incorrectKeys = {};
@@ -119,13 +124,25 @@ function resetGameState() {
     updateInputField();
 }
 
+function handleStopButtonClick() {
+    if (currentGameMode === 'typing') {
+        endGame();
+    } else if (currentGameMode === 'refactor') {
+        endRefactorGame(true); // Pass true to indicate manual stop
+    }
+}
+
 async function endGame() {
+    if (contentChangeListener) contentChangeListener.dispose();
+    contentChangeListener = null;
+
     window.editor.updateOptions({ readOnly: true });
     stopButton.disabled = true;
     startButton.disabled = false;
     customButton.disabled = false;
-    diffButton.disabled = true;
-    closeDiffBtn.disabled = true;
+    refactorPracticeButton.disabled = false;
+    // diffButton.disabled = true;
+    // closeDiffBtn.disabled = true;
     commentControls.style.display = 'block';
 
     const timeTaken = (Date.now() - startTime) / 1000;
@@ -143,7 +160,6 @@ async function endGame() {
 
     resultDisplay.textContent = `ゲーム終了！スコア: ${score} | 打鍵速度: ${typingSpeed} 回/秒`;
 
-    // Save results
     const user = auth.currentUser;
     if (!user) return;
 
@@ -156,12 +172,71 @@ async function endGame() {
     }
     await saveUserProgram(user, window.placeholderEditor.getValue());
 
-    // タイピング速度を記録し、必要であれば平均を更新
     if (typingSpeed) {
         await addTypingSession(user, parseFloat(typingSpeed));
         await updateAverageSpeedIfNeeded(user);
     }
 }
+
+// --- Refactor Practice Game Flow ---
+
+async function startRefactorGame() {
+    currentGameMode = 'refactor';
+    await setupNewGame();
+    resultDisplay.textContent = "お題を生成中...";
+
+    try {
+        const response = await fetch("/get-refactor-puzzle", { method: "POST" });
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'お題の取得に失敗しました。');
+        }
+        const puzzle = await response.json();
+
+        window.placeholderEditor.setValue(puzzle.correctCode);
+        window.editor.setValue(puzzle.scrambledCode);
+        window.editor.focus();
+        resultDisplay.textContent = "左のコードと同じになるように、右のコードを編集してください。";
+        
+        if (contentChangeListener) contentChangeListener.dispose();
+        contentChangeListener = window.editor.onDidChangeModelContent(checkRefactorCompletion);
+
+    } catch (error) {
+        resultDisplay.textContent = `エラー: ${error.message}`;
+        endRefactorGame(true); // End game on error
+    }
+}
+
+function checkRefactorCompletion() {
+    if (!window.editor || !window.placeholderEditor) return;
+    const editorValue = window.editor.getValue();
+    const placeholderValue = window.placeholderEditor.getValue();
+
+    if (editorValue && placeholderValue && editorValue === placeholderValue) {
+        endRefactorGame(false);
+    }
+}
+
+function endRefactorGame(wasStoppedManually) {
+    if (contentChangeListener) {
+        contentChangeListener.dispose();
+        contentChangeListener = null;
+    }
+
+    const timeTaken = (Date.now() - startTime) / 1000;
+    if (!wasStoppedManually) {
+        resultDisplay.textContent = `クリア！ 🎉 かかった時間: ${timeTaken.toFixed(2)}秒`;
+    } else {
+        resultDisplay.textContent = "リファクタリング練習を中断しました。";
+    }
+
+    window.editor.updateOptions({ readOnly: true });
+    stopButton.disabled = true;
+    startButton.disabled = false;
+    customButton.disabled = false;
+    refactorPracticeButton.disabled = false;
+}
+
 
 // --- Diff Flow ---
 function showDiff() {
@@ -172,15 +247,12 @@ function showDiff() {
     // alert(diff); // Removed as per user request
 }
 
-function closeDiff() {
-    // This function is not actively used but kept for consistency
-}
+function closeDiff() {}
 
 
 // --- Comment Evaluation Flow ---
 
 function enableCommenting() {
-    startButton.disabled = true;
     window.editor.updateOptions({ readOnly: false });
     startCommentingButton.style.display = 'none';
     submitEvaluationButton.style.display = 'inline-block';
@@ -190,17 +262,14 @@ function enableCommenting() {
 }
 
 function enableReevaluation() {
-    startButton.disabled = true;
     window.editor.updateOptions({ readOnly: false });
     reevaluateButton.style.display = 'none';
     submitEvaluationButton.style.display = 'inline-block';
-    evaluationDisplay.style.display = 'none';
     resultDisplay.textContent += '\n再度コメントを修正し、「評価を実行」ボタンを押してください。';
     window.editor.focus();
 }
 
 async function evaluateComments() {
-    startButton.disabled = false;
     submitEvaluationButton.disabled = true;
     submitEvaluationButton.textContent = '評価中...';
     window.editor.updateOptions({ readOnly: true });
@@ -265,11 +334,6 @@ function displayEvaluationResult(result) {
     evaluationResultModal.style.display = 'flex';
 }
 
-
-
-
-
-
 // --- Utility Functions ---
 
 function updateInputField() {
@@ -279,6 +343,7 @@ function updateInputField() {
 }
 
 function checkInput() {
+    if (currentGameMode !== 'typing') return;
     if (window.editor.getOption(monaco.editor.EditorOption.readOnly)) return;
     const allInput = window.editor.getValue().split("\n");
     for (let i = 0; i < codeLines.length; i++) {
@@ -290,7 +355,6 @@ function checkInput() {
                 mistakeFlags[i][j] = "correct";
                 continue;
             }
-            // Skip counting auto-completed closing characters as mistakes
             if (
                 currentInput[j] === "}" || currentInput[j] === ")" ||
                 currentInput[j] === "]" || currentInput[j] === ">" ||

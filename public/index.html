@@ -57,20 +57,19 @@
       </div>
       <table>
         <tr>
-          <td><button id="start-button">スタート</button></td>
-          <td><button id="stop-button">ストップ</button></td>
-          <td><button id="diff-button" disabled>差分を表示</button></td>
-          <td><button id="close-diff" disabled>差分を閉じる</button></td>
-          <td><button id="custom-button">カスタム</button></td>
+          <td><button id="start-button">タイピング練習</button></td>
+          <td><button id="custom-button">カスタム練習</button></td>
+          <td><button id="refactor-practice-button">リファクタリング練習</button></td>
+          <td><button id="stop-button" disabled>ストップ</button></td>
+        </tr>
+      </table>
+      <table>
+        <tr>
           <td><button id="ranking-button">ランキング</button></td>
-    </div>
-
-    <div id="result-display"></div>
           <td><button id="show-programs-button">保存プログラム一覧</button></td>
           <td><button id="start-quiz-button">問題出題</button></td>
           <td><button id="quiz-history-button">クイズ履歴</button></td>
         </tr>
-        
       </table>
       
       <p id="word-display"></p>
@@ -329,18 +328,18 @@
         });
       });""
 
-      diffButton.addEventListener("click", () => {
-        if (!window.placeholderEditor || !window.editor) return;
+      // diffButton.addEventListener("click", () => {
+      //   if (!window.placeholderEditor || !window.editor) return;
 
-        const original = window.placeholderEditor.getValue();
-        const modified = window.editor.getValue();
+      //   const original = window.placeholderEditor.getValue();
+      //   const modified = window.editor.getValue();
 
-        // jsdiffを使って差分取得
-        const diff = Diff.createPatch('diff', original, modified);
+      //   // jsdiffを使って差分取得
+      //   const diff = Diff.createPatch('diff', original, modified);
 
-        // 結果をalertやモーダルで表示
-        alert(diff);
-      });
+      //   // 結果をalertやモーダルで表示
+      //   alert(diff);
+      // });
     </script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script type="module" src="./ranking.js"></script>

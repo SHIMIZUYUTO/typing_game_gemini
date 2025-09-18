@@ -432,4 +432,67 @@ app.post("/evaluate-comments", async (req, res) => {
     }
 });
 
+app.post("/get-refactor-puzzle", async (req, res) => {
+    try {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
+
+        const prompt = `
+        You are an expert C programming instructor creating small coding puzzles.
+        Your task is to generate a pair of C code snippets for a refactoring exercise.
+
+        1.  **First, create a simple, correct C program.** It should be between 5 and 10 lines long.
+        2.  **Second, create a "scrambled" version of that program.** This version should have 1 to 3 small, specific errors that can be fixed using common text editor shortcuts. The errors should be one of the following types:
+            *   **Misplaced Line:** A line is in the wrong place (e.g., a variable declaration after its first use). This can be fixed with Cut/Paste or Move Line shortcuts.
+            *   **Incorrect Indentation:** One or two lines have incorrect indentation (either too much or too little). This can be fixed with Tab/Shift+Tab.
+            *   **Duplicated Line:** A line is accidentally duplicated. This can be fixed by deleting a line.
+
+        **IMPORTANT:** Do not introduce syntax errors that would prevent the code from compiling (other than the temporary issue of a misplaced variable declaration). The goal is to fix the structure, not find typos.
+
+        Please provide the output in the following JSON format ONLY. Do not include any other text, explanations, or markdown.
+
+        {
+          "correctCode": "...",
+          "scrambledCode": "..."
+        }
+        `;
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            }),
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            console.error("Gemini API Error:", response.status, errorBody);
+            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const rawText = data.candidates[0].content.parts[0].text;
+        const jsonMatch = rawText.match(/\{.*\}/s);
+        if (!jsonMatch) {
+            console.error("Could not find JSON in response:", rawText);
+            throw new Error("❌ APIが有効なパズルデータを返しませんでした。");
+        }
+
+        const cleanedJsonString = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
+        try {
+            const puzzleData = JSON.parse(cleanedJsonString);
+            res.json(puzzleData);
+        } catch (parseError) {
+            console.error("Failed to parse cleaned JSON for puzzle:", parseError);
+            throw new Error("❌ APIが返したパズルデータの解析に失敗しました。");
+        }
+
+    } catch (error) {
+        console.error("Error fetching refactor puzzle:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
