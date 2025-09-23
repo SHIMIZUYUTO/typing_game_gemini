@@ -352,12 +352,13 @@ app.post("/evaluate-comments", async (req, res) => {
         - 「このプログラムがどのような意図で作られたのか」を補足するコメントはジュニア開発者は書いていない可能性が高いので、その点は評価に含めないでください。
         - 10行程度の短いコードに対してコメントが少ない場合でも、量が少ないこと自体を過度に減点しないでください。
         - コメントが全くない場合は、全ての評価基準で0点とし、フィードバックも「コメントが全くないため評価できません。」とだけ答えてください。
+        - コメントにプログラムと関係ない内容が含まれている場合は、その点を正確に指摘して大幅に減点してください。
 
         【評価基準】
         1.  **量 (Density)**: コードの量に対してコメントは少なすぎたり多すぎたりしませんか？ 適切なバランスが取れていますか？
-        2.  **意味 (Meaningfulness)**: コメントはコードの単なる翻訳（例: i++; に「iを1増やす」）になっていませんか？ なぜその処理が必要なのか(Why)という意図が説明されていますか？
-        3.  **明瞭さ (Clarity)**: コメントは専門用語を使いすぎず、誰が読んでも分かりやすい言葉で書かれていますか？
-        4.  **正確性 (Accuracy)**: コメントの内容は、対応するコードの動作と正確に一致していますか？「あいうえお」のような意味のないコメントはありませんか？
+        2.  **意味 (Meaningfulness)**: コメントはコードの単なる翻訳（例: i++; に「iを1増やす」）になっていませんか？ 
+        3.  **明瞭さ (Clarity)**: コメントは専門用語を使いすぎず、誰が読んでも分かりやすい言葉で書かれていますか？（プログラムに関係ないコメントがある場合はこの項目の得点をかなり下げてください）
+        4.  **正確性 (Accuracy)**: コメントの内容は、対応するコードの動作と正確に一致していますか？「あいうえお」のような意味のないコメントはありませんか？（プログラムと関連しないコメントがある場合はこの項目の得点をかなり下げてください）
         5.  **付加価値 (Value-add)**: 一読しただけでは分かりにくい複雑なロジックや、コードの重要な前提条件を補足説明できていますか？
         6.  **スタイル (Style)**: コメントの書き方（例: // や /* */）やインデント、配置は一貫性があり、読みやすいですか？
 
@@ -438,18 +439,18 @@ app.post("/get-refactor-puzzle", async (req, res) => {
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
         const prompt = `
-        You are an expert C programming instructor creating small coding puzzles.
-        Your task is to generate a pair of C code snippets for a refactoring exercise.
+        あなたはC言語のプログラミング指導の専門家です。
+        あなたのタスクは、リファクタリング練習問題用のC言語コードのスニペットをペアで生成することです。
 
-        1.  **First, create a simple, correct C program.** It should be between 5 and 10 lines long.
-        2.  **Second, create a "scrambled" version of that program.** This version should have 1 to 3 small, specific errors that can be fixed using common text editor shortcuts. The errors should be one of the following types:
-            *   **Misplaced Line:** A line is in the wrong place (e.g., a variable declaration after its first use). This can be fixed with Cut/Paste or Move Line shortcuts.
-            *   **Incorrect Indentation:** One or two lines have incorrect indentation (either too much or too little). This can be fixed with Tab/Shift+Tab.
-            *   **Duplicated Line:** A line is accidentally duplicated. This can be fixed by deleting a line.
+        1.  最初に、シンプルで正しいC言語のプログラムを作成してください。長さは10行程度にしてください。
+        2.  次に、そのプログラムの「ごちゃ混ぜ」バージョンを作成してください。このバージョンには、一般的なテキストエディタのショートカットで修正できる、1〜3個の小さな特定のエラーを含めてください。エラーは以下のいずれかの種類にしてください。
+            ・行の間違い: 行が間違った場所にある（例：変数が使用された後に宣言されている）。これは、切り取り/貼り付けや行の移動ショートカットで修正できます。
+            ・インデントの間違い: 1〜2行のインデントが間違っている（多すぎる、または少なすぎる）。これは、Tab/Shift+Tabで修正できます。
 
-        **IMPORTANT:** Do not introduce syntax errors that would prevent the code from compiling (other than the temporary issue of a misplaced variable declaration). The goal is to fix the structure, not find typos.
-
-        Please provide the output in the following JSON format ONLY. Do not include any other text, explanations, or markdown.
+        重要:
+        ・（変数宣言が一時的にずれる問題以外は）コンパイルの妨げになるような構文エラーは含めないでください。目的はコードの構造を修正することです。
+        ・出力は以下のJSON形式のみで提供してください。他のテキスト、説明、マークダウンは一切含めないでください。
+        ・プログラムのインデントは必ず半角スペース4つで行ってください。
 
         {
           "correctCode": "...",

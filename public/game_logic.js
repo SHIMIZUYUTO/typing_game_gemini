@@ -227,7 +227,7 @@ function endRefactorGame(wasStoppedManually) {
     if (!wasStoppedManually) {
         resultDisplay.textContent = `クリア！ 🎉 かかった時間: ${timeTaken.toFixed(2)}秒`;
     } else {
-        resultDisplay.textContent = "リファクタリング練習を中断しました。";
+        resultDisplay.textContent = "ショートカットキー練習を中断しました。";
     }
 
     window.editor.updateOptions({ readOnly: true });
@@ -257,7 +257,7 @@ function enableCommenting() {
     startCommentingButton.style.display = 'none';
     submitEvaluationButton.style.display = 'inline-block';
     reevaluateButton.style.display = 'none';
-    resultDisplay.textContent += '\nプログラムにコメントを追記して、「評価を実行」ボタンを押してください。';
+    resultDisplay.textContent = '\nプログラムにコメントを追記して、「評価を実行」ボタンを押してください。';
     window.editor.focus();
 }
 
@@ -265,7 +265,7 @@ function enableReevaluation() {
     window.editor.updateOptions({ readOnly: false });
     reevaluateButton.style.display = 'none';
     submitEvaluationButton.style.display = 'inline-block';
-    resultDisplay.textContent += '\n再度コメントを修正し、「評価を実行」ボタンを押してください。';
+    resultDisplay.textContent = '\n再度コメントを修正し、「評価を実行」ボタンを押してください。';
     window.editor.focus();
 }
 
