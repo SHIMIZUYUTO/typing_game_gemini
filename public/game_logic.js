@@ -126,13 +126,13 @@ function resetGameState() {
 
 function handleStopButtonClick() {
     if (currentGameMode === 'typing') {
-        endGame();
+        endGame(true); // Pass true to indicate manual stop
     } else if (currentGameMode === 'refactor') {
         endRefactorGame(true); // Pass true to indicate manual stop
     }
 }
 
-async function endGame() {
+async function endGame(wasStoppedManually) {
     if (contentChangeListener) contentChangeListener.dispose();
     contentChangeListener = null;
 
@@ -141,40 +141,44 @@ async function endGame() {
     startButton.disabled = false;
     customButton.disabled = false;
     refactorPracticeButton.disabled = false;
-    // diffButton.disabled = true;
-    // closeDiffBtn.disabled = true;
-    commentControls.style.display = 'block';
-
-    const timeTaken = (Date.now() - startTime) / 1000;
-    const totalChars = codeLines.join('\n').length;
-    let correctlyTypedChars = 0;
-    for (let i = 0; i < mistakeFlags.length; i++) {
-        for (let j = 0; j < mistakeFlags[i].length; j++) {
-            if (mistakeFlags[i][j] === "correct") correctlyTypedChars++;
+    
+    if (wasStoppedManually) {
+        resultDisplay.textContent = "タイピングが中断されたので記録は保存されません。";
+        commentControls.style.display = 'none'; 
+    } else {
+        // Normal completion logic
+        commentControls.style.display = 'block';
+        const timeTaken = (Date.now() - startTime) / 1000;
+        const totalChars = codeLines.join('\n').length;
+        let correctlyTypedChars = 0;
+        for (let i = 0; i < mistakeFlags.length; i++) {
+            for (let j = 0; j < mistakeFlags[i].length; j++) {
+                if (mistakeFlags[i][j] === "correct") correctlyTypedChars++;
+            }
         }
-    }
-    const accuracy = totalChars > 0 ? correctlyTypedChars / totalChars : 0;
-    const baseScore = (correctlyTypedChars / timeTaken) * 100;
-    const score = Math.round(baseScore * Math.pow(accuracy, 2));
-    const typingSpeed = (correctlyTypedChars / timeTaken).toFixed(2);
+        const accuracy = totalChars > 0 ? correctlyTypedChars / totalChars : 0;
+        const baseScore = (correctlyTypedChars / timeTaken) * 100;
+        const score = Math.round(baseScore * Math.pow(accuracy, 2));
+        const typingSpeed = (correctlyTypedChars / timeTaken).toFixed(2);
 
-    resultDisplay.textContent = `ゲーム終了！スコア: ${score} | 打鍵速度: ${typingSpeed} 回/秒`;
+        resultDisplay.textContent = `ゲーム終了！スコア: ${score} | 打鍵速度: ${typingSpeed} 回/秒`;
 
-    const user = auth.currentUser;
-    if (!user) return;
+        const user = auth.currentUser;
+        if (!user) return;
 
-    if (score > (await getHighScore(user) || 0)) {
-        await saveHighScore(user, score);
-    }
-    const sortedKeys = Object.entries(incorrectKeys).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([key]) => key);
-    if (Object.values(incorrectKeys).some(count => count > 0)) {
-        await saveTopMistakeKeys(user, sortedKeys);
-    }
-    await saveUserProgram(user, window.placeholderEditor.getValue());
+        if (score > (await getHighScore(user) || 0)) {
+            await saveHighScore(user, score);
+        }
+        const sortedKeys = Object.entries(incorrectKeys).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([key]) => key);
+        if (Object.values(incorrectKeys).some(count => count > 0)) {
+            await saveTopMistakeKeys(user, sortedKeys);
+        }
+        await saveUserProgram(user, window.placeholderEditor.getValue());
 
-    if (typingSpeed) {
-        await addTypingSession(user, parseFloat(typingSpeed));
-        await updateAverageSpeedIfNeeded(user);
+        if (typingSpeed) {
+            await addTypingSession(user, parseFloat(typingSpeed));
+            await updateAverageSpeedIfNeeded(user);
+        }
     }
 }
 
@@ -373,7 +377,7 @@ function checkInput() {
 
     // 左右が一致しているかを判定
     if (window.editor.getValue() === window.placeholderEditor.getValue()) {
-        endGame();
+        endGame(false); // 中断せずに完了
     }
 }
 
