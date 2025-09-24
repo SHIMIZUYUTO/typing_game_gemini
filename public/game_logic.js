@@ -375,8 +375,15 @@ function checkInput() {
         }
     }
 
-    // 左右が一致しているかを判定
-    if (window.editor.getValue() === window.placeholderEditor.getValue()) {
+    // Check for completion, ignoring trailing whitespace/newlines in user input
+    const editorValue = window.editor.getValue();
+    const placeholderValue = window.placeholderEditor.getValue();
+    if (editorValue.trimEnd() === placeholderValue) {
+        // Snap the editor value to the correct one to remove trailing lines.
+        if (editorValue !== placeholderValue) {
+            window.editor.setValue(placeholderValue);
+        }
+        // End the game normally
         endGame(false); // 中断せずに完了
     }
 }
