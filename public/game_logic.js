@@ -108,7 +108,13 @@ async function setupNewGame() {
     customButton.disabled = true;
     refactorPracticeButton.disabled = true;
     stopButton.disabled = false;
+    
+    // Reset and hide comment evaluation controls
     commentControls.style.display = 'none';
+    startCommentingButton.style.display = 'inline-block';
+    submitEvaluationButton.style.display = 'none';
+    reevaluateButton.style.display = 'none';
+
     resultDisplay.textContent = "";
     incorrectKeys = {};
     updateIncorrectKeysDisplay();
