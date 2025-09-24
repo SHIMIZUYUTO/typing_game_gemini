@@ -217,7 +217,7 @@ app.post("/generate-quiz-question", async (req, res) => {
             return res.status(400).json({ error: "コードとクイズタイプは必須です。" });
         }
 
-        // Base prompt with common instructions
+        // クイズ生成のための共通指示プロンプト
         const basePrompt = `
         あなたはC言語のクイズを生成するエキスパートです。
         以下のC言語プログラムを題材として、指定された形式の4択クイズを1問作成してください。
@@ -315,7 +315,7 @@ app.post("/generate-quiz-question", async (req, res) => {
             throw new Error("❌ APIが有効なクイズデータを返しませんでした。");
         }
 
-        // Clean the JSON string to remove trailing commas
+        // JSON文字列から末尾のカンマを削除して整形
         const cleanedJsonString = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
 
         try {

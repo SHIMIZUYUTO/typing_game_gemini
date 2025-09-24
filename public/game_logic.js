@@ -40,8 +40,8 @@ let incorrectKeys = {};
 let startTime;
 let currentDifficulty = 3;
 const difficultyLineCounts = { 1: 6, 2: 12, 3: 18, 4: 24, 5: 30 };
-let currentGameMode = 'typing'; // 'typing' or 'refactor'
-let contentChangeListener = null; // To hold the disposable listener
+let currentGameMode = 'typing'; // 'typing' または 'refactor'
+let contentChangeListener = null; // disposableリスナーを保持するため
 
 // Initial setup
 export function setupGameEvents() {
@@ -126,9 +126,9 @@ function resetGameState() {
 
 function handleStopButtonClick() {
     if (currentGameMode === 'typing') {
-        endGame(true); // Pass true to indicate manual stop
+        endGame(true); // 手動での中断を示すためにtrueを渡す
     } else if (currentGameMode === 'refactor') {
-        endRefactorGame(true); // Pass true to indicate manual stop
+        endRefactorGame(true); // 手動での中断を示すためにtrueを渡す
     }
 }
 
@@ -146,7 +146,7 @@ async function endGame(wasStoppedManually) {
         resultDisplay.textContent = "タイピングが中断されたので記録は保存されません。";
         commentControls.style.display = 'none'; 
     } else {
-        // Normal completion logic
+        // 通常の完了処理
         commentControls.style.display = 'block';
         const timeTaken = (Date.now() - startTime) / 1000;
         const totalChars = codeLines.join('\n').length;
@@ -207,7 +207,7 @@ async function startRefactorGame() {
 
     } catch (error) {
         resultDisplay.textContent = `エラー: ${error.message}`;
-        endRefactorGame(true); // End game on error
+        endRefactorGame(true); // エラー時にゲームを終了
     }
 }
 
@@ -248,7 +248,7 @@ function showDiff() {
     const original = window.placeholderEditor.getValue();
     const modified = window.editor.getValue();
     const diff = window.Diff.createPatch('diff', original, modified);
-    // alert(diff); // Removed as per user request
+    // alert(diff); // ユーザーの要望により削除
 }
 
 function closeDiff() {}
