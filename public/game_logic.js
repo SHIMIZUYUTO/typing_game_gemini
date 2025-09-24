@@ -370,6 +370,11 @@ function checkInput() {
             }
         }
     }
+
+    // 左右が一致しているかを判定
+    if (window.editor.getValue() === window.placeholderEditor.getValue()) {
+        endGame();
+    }
 }
 
 function updateIncorrectKeysDisplay() {
