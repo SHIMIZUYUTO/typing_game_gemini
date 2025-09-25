@@ -51,7 +51,7 @@ loginForm.addEventListener('submit', async (e) => {
             // Pass username to the updated signUp function
             const userCredential = await signUp(email, password, username);
             if (userCredential && userCredential.user) {
-                showTypingGame();
+                showHomeScreen();
             }
         } catch (error) {
             alert('新規登録に失敗しました。\n' + error.message);
@@ -61,17 +61,16 @@ loginForm.addEventListener('submit', async (e) => {
         // --- Login Flow ---
         try {
             await login(email, password);
-            showTypingGame();
+            showHomeScreen();
         } catch (error) {
             alert('メールアドレスもしくはパスワードが間違っています');
         }
     }
 });
 
-function showTypingGame() {
+function showHomeScreen() {
     document.getElementById('login-container').style.display = 'none';
-    document.getElementById('typing-container').style.display = 'block';
-    document.getElementById('custom-theme-box').style.display = 'block';
+    document.getElementById('home-container').style.display = 'block';
     // This event will be caught by another script to display the username
     document.dispatchEvent(new Event('userLoggedIn'));
 }

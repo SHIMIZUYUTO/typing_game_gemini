@@ -10,7 +10,8 @@
       #login-container {
         display: block;
       }
-      /* タイピング画面を非表示にする */
+      /* ホーム画面とタイピング画面を非表示にする */
+      #home-container,
       #typing-container {
         display: none;
       }
@@ -37,11 +38,24 @@
       </form>
     </div>
 
+    <!-- ホーム画面 -->
+    <div id="home-container" style="display: none; text-align: center;">
+      <h1>ClatType</h1>
+      <div class="home-menu">
+        <button id="goto-typing-practice">タイピング練習モード</button>
+        <button id="goto-quiz">クイズモード</button>
+        <button id="goto-ai-question">保存された質問へAIへの質問モード</button>
+        <button id="goto-shortcut-practice">ショートカットキー練習モード</button>
+        <button id="goto-ranking">ランキング表示</button>
+      </div>
+    </div>
+
     <!-- タイピング画面 -->
-    <div id="typing-container">
+    <div id="typing-container" style="display: none;">
+      <button id="back-to-home-button" style="position: absolute; top: 10px; left: 10px;">戻る</button>
       <div id="user-welcome"></div>
-      <h1>⌨ClatType⌨</h1>
-      <p>スタートボタンを押してね</p>
+      <h1 style="text-align: center;">タイピング練習モード</h1>
+      <p>あいうえお</p>
       <!-- ここに移動 -->
       <div id="custom-theme-box" style="margin-bottom:8px; display:none;">
         <label for="custom-theme-input">好きな題材:</label>
@@ -352,5 +366,24 @@
             <div id="ranking-list"></div>
         </div>
     </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const gotoTypingPracticeButton = document.getElementById('goto-typing-practice');
+        const backToHomeButton = document.getElementById('back-to-home-button');
+        const homeContainer = document.getElementById('home-container');
+        const typingContainer = document.getElementById('typing-container');
+
+        gotoTypingPracticeButton.addEventListener('click', () => {
+          homeContainer.style.display = 'none';
+          typingContainer.style.display = 'block';
+        });
+
+        backToHomeButton.addEventListener('click', () => {
+          typingContainer.style.display = 'none';
+          homeContainer.style.display = 'block';
+        });
+      });
+    </script>
 </body>
 </html>
