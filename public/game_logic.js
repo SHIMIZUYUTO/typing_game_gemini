@@ -33,6 +33,7 @@ const evaluationWeights = {
 };
 
 // Game State
+let isGameEnding = false;
 let codeLines = [];
 let userInputLines = [];
 let mistakeFlags = [];
@@ -102,6 +103,7 @@ async function startCustomGame() {
 }
 
 async function setupNewGame() {
+    isGameEnding = false; // Reset the flag
     await showCountdown();
     window.editor.updateOptions({ readOnly: false });
     startButton.disabled = true;
@@ -139,6 +141,9 @@ function handleStopButtonClick() {
 }
 
 async function endGame(wasStoppedManually) {
+    if (isGameEnding) return; // Prevent double execution
+    isGameEnding = true; // Set the flag
+
     if (contentChangeListener) contentChangeListener.dispose();
     contentChangeListener = null;
 
