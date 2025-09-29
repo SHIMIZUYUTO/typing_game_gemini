@@ -161,18 +161,19 @@ async function endGame(wasStoppedManually) {
         commentControls.style.display = 'block';
         const timeTaken = (Date.now() - startTime) / 1000;
         const totalChars = codeLines.join('\n').length;
-        let correctlyTypedChars = 0;
-        for (let i = 0; i < mistakeFlags.length; i++) {
-            for (let j = 0; j < mistakeFlags[i].length; j++) {
-                if (mistakeFlags[i][j] === "correct") correctlyTypedChars++;
-            }
-        }
+        const totalMistakes = Object.values(incorrectKeys).reduce((sum, count) => sum + count, 0);
+        const correctlyTypedChars = Math.max(0, totalChars - totalMistakes);
         const accuracy = totalChars > 0 ? correctlyTypedChars / totalChars : 0;
+
+        // デバッグ用に値を出力
+        console.log(`Accuracy Debug: totalChars=${totalChars}, correctlyTypedChars=${correctlyTypedChars}, accuracy=${accuracy}`);
+
         const baseScore = (correctlyTypedChars / timeTaken) * 100;
-        const score = Math.round(baseScore * Math.pow(accuracy, 2));
+        const accuracyBonus = Math.pow(accuracy, 2);
+        const score = Math.round(baseScore * accuracyBonus);
         const typingSpeed = (correctlyTypedChars / timeTaken).toFixed(2);
 
-        resultDisplay.textContent = `ゲーム終了！スコア: ${score} | 打鍵速度: ${typingSpeed} 回/秒`;
+        resultDisplay.textContent = `ゲーム終了！スコア: ${score} (スピード: ${Math.round(baseScore)} × スコア倍率: ${accuracyBonus.toFixed(2)}) | 打鍵速度: ${typingSpeed} 回/秒`;
 
         const user = auth.currentUser;
         if (!user) return;
