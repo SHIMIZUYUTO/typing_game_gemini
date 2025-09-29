@@ -377,11 +377,13 @@
         gotoTypingPracticeButton.addEventListener('click', () => {
           homeContainer.style.display = 'none';
           typingContainer.style.display = 'block';
+          document.getElementById('custom-theme-box').style.display = 'block';
         });
 
         backToHomeButton.addEventListener('click', () => {
           typingContainer.style.display = 'none';
           homeContainer.style.display = 'block';
+          document.getElementById('custom-theme-box').style.display = 'none';
         });
       });
     </script>
