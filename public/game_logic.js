@@ -33,6 +33,8 @@ const evaluationWeights = {
 };
 
 // Game State
+let mouseMoveCount = 0;
+let editorMouseListener = null;
 let isGameEnding = false;
 let codeLines = [];
 let userInputLines = [];
@@ -201,6 +203,10 @@ async function startRefactorGame() {
     await setupNewGame();
     resultDisplay.textContent = "お題を生成中...";
 
+    mouseMoveCount = 0;
+    editorMouseListener = () => { mouseMoveCount++; };
+    window.editor.getDomNode().addEventListener('mousedown', editorMouseListener);
+
     try {
         const response = await fetch("/get-refactor-puzzle", { method: "POST" });
         if (!response.ok) {
@@ -239,9 +245,21 @@ function endRefactorGame(wasStoppedManually) {
         contentChangeListener = null;
     }
 
+    // マウスリスナーの解除
+    if (editorMouseListener) {
+        window.editor.getDomNode().removeEventListener('mousedown', editorMouseListener);
+        editorMouseListener = null;
+    }
+
     const timeTaken = (Date.now() - startTime) / 1000;
     if (!wasStoppedManually) {
-        resultDisplay.textContent = `クリア！ 🎉 かかった時間: ${timeTaken.toFixed(2)}秒`;
+        let mouseMessage = '';
+        if (mouseMoveCount > 0) {
+            mouseMessage = `\nカーソル操作：${mouseMoveCount}回　できるだけホームポジションから手を離さないようにしよう！`;
+        } else {
+            mouseMessage = `\nカーソル操作：0回　その調子！`;
+        }
+        resultDisplay.textContent = `クリア！ 🎉 かかった時間: ${timeTaken.toFixed(2)}秒` + mouseMessage;
     } else {
         resultDisplay.textContent = "ショートカットキー練習を中断しました。";
     }
