@@ -41,19 +41,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentPrograms = [];
     let activeTab = 'favorite';
     let currentProgramId = null;
+    let currentChatMessages = []; // Use state variable for chat
 
-    // --- Chat Functions ---
-    const renderChatHistory = (messages) => {
+    // --- Chat Functions (Refactored) ---
+    const renderChatHistory = () => {
         chatHistory.innerHTML = '';
-        messages.forEach(msg => {
+        currentChatMessages.forEach(msg => {
             const msgDiv = document.createElement('div');
-            // Apply the correct CSS classes based on style.css
             const roleClass = msg.role === 'user' ? 'chat-user' : 'chat-gemini';
             msgDiv.classList.add('chat-msg', roleClass);
             msgDiv.textContent = msg.text;
             chatHistory.appendChild(msgDiv);
         });
-        chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to bottom
+        chatHistory.scrollTop = chatHistory.scrollHeight;
     };
 
     const askGemini = async () => {
@@ -62,13 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!user || !question || !currentProgramId) return;
 
         const code = detailCode.textContent;
-        const history = Array.from(chatHistory.children).map(div => ({
-            role: div.classList.contains('role-user') ? 'user' : 'model',
-            text: div.textContent
-        }));
+        const historyForAPI = [...currentChatMessages];
 
-        // Add user message to UI immediately
-        renderChatHistory([...history, { role: 'user', text: question }]);
+        const newUserMessage = { role: 'user', text: question };
+        currentChatMessages.push(newUserMessage);
+        renderChatHistory();
         await addProgramMessage(user, currentProgramId, 'user', question);
         questionInput.value = '';
         askButton.disabled = true;
@@ -77,19 +75,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch('/ask-gemini', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, question, history })
+                body: JSON.stringify({ code, question, history: historyForAPI })
             });
-
             if (!response.ok) throw new Error('API request failed');
             const data = await response.json();
 
-            renderChatHistory([...history, { role: 'user', text: question }, { role: 'model', text: data.answer }]);
+            const newAiMessage = { role: 'model', text: data.answer };
+            currentChatMessages.push(newAiMessage);
+            renderChatHistory();
             await addProgramMessage(user, currentProgramId, 'model', data.answer);
 
         } catch (error) {
             console.error("Error asking Gemini:", error);
-            // Remove the user's message if the API call fails
-            renderChatHistory(history);
+            currentChatMessages.pop(); // Remove user message on failure
+            renderChatHistory();
         } finally {
             askButton.disabled = false;
         }
@@ -104,16 +103,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const user = auth.currentUser;
         if (!user) return;
 
-        const messages = await getProgramMessages(user, program.id);
-        renderChatHistory(messages);
+        currentChatMessages = await getProgramMessages(user, program.id);
+        renderChatHistory();
     };
 
     // --- Render and Event Listeners for Program List ---
     const renderPrograms = () => {
         programsList.innerHTML = '';
-        const filteredPrograms = currentPrograms.filter(p => {
-            return activeTab === 'favorite' ? p.favorite : !p.favorite;
-        });
+        const filteredPrograms = currentPrograms.filter(p => activeTab === 'favorite' ? p.favorite : !p.favorite);
 
         if (filteredPrograms.length === 0) {
             programsList.innerHTML = `<li>表示するプログラムがありません。</li>`;
@@ -123,23 +120,23 @@ document.addEventListener("DOMContentLoaded", () => {
         filteredPrograms.forEach(program => {
             const li = document.createElement('li');
             li.dataset.id = program.id;
-            li.addEventListener('click', () => openDetailView(program)); // Open detail view on click
+            li.addEventListener('click', () => openDetailView(program));
 
             const pre = document.createElement('pre');
             pre.textContent = program.code;
 
             const star = document.createElement('span');
             star.className = 'favorite-star';
-            star.textContent = '★'; // Always use the solid star
+            star.textContent = '★';
             if (program.favorite) {
                 star.classList.add('favorited');
             }
             star.addEventListener('click', async (e) => {
-                e.stopPropagation(); // Prevent li click event
+                e.stopPropagation();
                 const user = auth.currentUser;
                 if (!user) return;
                 await toggleFavoriteProgram(user, program.id, program.favorite);
-                await openProgramsModal(); 
+                await openProgramsModal();
             });
 
             li.appendChild(star);
@@ -157,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentPrograms = await getUserPrograms(user);
         renderPrograms();
         programsModal.style.display = 'block';
-        detailModal.style.display = 'none'; // Ensure detail is hidden
+        detailModal.style.display = 'none';
     };
 
     showProgramsButton.addEventListener('click', openProgramsModal);
@@ -183,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Detail Modal Listeners ---
     closeDetailModal.addEventListener('click', () => {
         detailModal.style.display = 'none';
-        programsModal.style.display = 'block'; // Re-show list modal
+        programsModal.style.display = 'block';
     });
 
     askButton.addEventListener('click', askGemini);
@@ -202,6 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
         for (const msg of messages) {
             await deleteProgramMessage(user, currentProgramId, msg.id);
         }
-        renderChatHistory([]); // Clear UI
+        currentChatMessages = []; // Clear state
+        renderChatHistory(); // Clear UI
     });
 });
