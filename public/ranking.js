@@ -1,7 +1,7 @@
 import { auth } from './firebase_auth.js';
 import { getRanking } from './firebase_helper.js';
 
-const rankingButton = document.getElementById('ranking-button');
+const rankingButton = document.getElementById('goto-ranking');
 const rankingModal = document.getElementById('ranking-modal');
 const closeRankingModal = document.getElementById('close-ranking-modal');
 const rankingList = document.getElementById('ranking-list');
