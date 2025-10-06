@@ -2,25 +2,16 @@ import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, sav
 import { auth } from './firebase_auth.js';
 
 // Main Buttons
-const startButton = document.getElementById("start-button");
-const stopButton = document.getElementById("stop-button");
-const customButton = document.getElementById("custom-button");
-const refactorPracticeButton = document.getElementById("refactor-practice-button");
-const diffButton = document.getElementById("diff-button");
-const closeDiffBtn = document.getElementById("close-diff");
+let startButton, stopButton, customButton, refactorPracticeButton, diffButton, closeDiffBtn;
 
 // Main UI Elements
-const resultDisplay = document.getElementById("result-display");
-const incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
+let resultDisplay, incorrectKeysDisplay;
 
 // Comment Evaluation UI
-const commentControls = document.getElementById('comment-evaluation-controls');
-const startCommentingButton = document.getElementById('start-commenting-button');
-const submitEvaluationButton = document.getElementById('submit-evaluation-button');
-const reevaluateButton = document.getElementById('reevaluate-button');
-const evaluationResultModal = document.getElementById('evaluation-result-modal');
-const evaluationResultContent = document.getElementById('evaluation-result-content');
-const closeEvaluationResultButton = document.getElementById('close-evaluation-result-button');
+let commentControls, startCommentingButton, submitEvaluationButton, reevaluateButton, evaluationResultModal, evaluationResultContent, closeEvaluationResultButton;
+
+// Diff Editor UI
+let showDiffButton, diffEditorModal, closeDiffModal;
 
 // Evaluation weights
 const evaluationWeights = {
@@ -33,6 +24,7 @@ const evaluationWeights = {
 };
 
 // Game State
+let diffEditor = null;
 let mouseMoveCount = 0;
 let editorMouseListener = null;
 let isGameEnding = false;
@@ -46,21 +38,53 @@ const difficultyLineCounts = { 1: 7, 2: 10, 3: 15, 4: 20, 5: 25 };
 let currentGameMode = 'typing'; // 'typing' または 'refactor'
 let contentChangeListener = null; // disposableリスナーを保持するため
 
+function initializeDOMElements() {
+    // Main Buttons
+    startButton = document.getElementById("start-button");
+    stopButton = document.getElementById("stop-button");
+    customButton = document.getElementById("custom-button");
+    refactorPracticeButton = document.getElementById("refactor-practice-button");
+    diffButton = document.getElementById("diff-button");
+    closeDiffBtn = document.getElementById("close-diff");
+
+    // Main UI Elements
+    resultDisplay = document.getElementById("result-display");
+    incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
+
+    // Comment Evaluation UI
+    commentControls = document.getElementById('comment-evaluation-controls');
+    startCommentingButton = document.getElementById('start-commenting-button');
+    submitEvaluationButton = document.getElementById('submit-evaluation-button');
+    reevaluateButton = document.getElementById('reevaluate-button');
+    evaluationResultModal = document.getElementById('evaluation-result-modal');
+    evaluationResultContent = document.getElementById('evaluation-result-content');
+    closeEvaluationResultButton = document.getElementById('close-evaluation-result-button');
+
+    // Diff Editor UI
+    showDiffButton = document.getElementById('show-diff-button');
+    diffEditorModal = document.getElementById('diff-editor-modal');
+    closeDiffModal = document.getElementById('close-diff-modal');
+}
+
 // Initial setup
 export function setupGameEvents() {
+    initializeDOMElements(); // Initialize all DOM elements safely
+
     // Game buttons
     startButton.addEventListener("click", startGame);
     customButton.addEventListener("click", startCustomGame);
     refactorPracticeButton.addEventListener("click", startRefactorGame);
     stopButton.addEventListener("click", handleStopButtonClick);
-    // diffButton.addEventListener('click', showDiff);
-    // closeDiffBtn.addEventListener('click', closeDiff);
 
     // Commenting buttons
     startCommentingButton.addEventListener('click', enableCommenting);
     submitEvaluationButton.addEventListener('click', evaluateComments);
     reevaluateButton.addEventListener('click', enableReevaluation);
     closeEvaluationResultButton.addEventListener('click', () => evaluationResultModal.style.display = 'none');
+
+    // Diff editor buttons
+    showDiffButton.addEventListener('click', showDiff);
+    closeDiffModal.addEventListener('click', () => diffEditorModal.style.display = 'none');
 
     // Difficulty buttons
     const difficultyButtons = document.querySelectorAll(".difficulty-button");
@@ -74,8 +98,6 @@ export function setupGameEvents() {
     
     // Initial button states
     stopButton.disabled = true;
-    // diffButton.disabled = true;
-    // closeDiffBtn.disabled = true;
 }
 
 // --- Typing Game Flow ---
@@ -112,6 +134,7 @@ async function setupNewGame() {
     customButton.disabled = true;
     refactorPracticeButton.disabled = true;
     stopButton.disabled = false;
+    showDiffButton.disabled = false;
     
     // Reset and hide comment evaluation controls
     commentControls.style.display = 'none';
@@ -149,12 +172,11 @@ async function endGame(wasStoppedManually) {
     if (contentChangeListener) contentChangeListener.dispose();
     contentChangeListener = null;
 
-    window.editor.updateOptions({ readOnly: true });
     stopButton.disabled = true;
     startButton.disabled = false;
     customButton.disabled = false;
     refactorPracticeButton.disabled = false;
-    
+    showDiffButton.disabled = true;
     if (wasStoppedManually) {
         resultDisplay.textContent = "タイピングが中断されたので記録は保存されません。";
         commentControls.style.display = 'none'; 
@@ -284,19 +306,31 @@ function endRefactorGame(wasStoppedManually) {
     startButton.disabled = false;
     customButton.disabled = false;
     refactorPracticeButton.disabled = false;
+    showDiffButton.disabled = true;
 }
-
 
 // --- Diff Flow ---
 function showDiff() {
     if (!window.placeholderEditor || !window.editor) return;
-    const original = window.placeholderEditor.getValue();
-    const modified = window.editor.getValue();
-    const diff = window.Diff.createPatch('diff', original, modified);
-    // alert(diff); // ユーザーの要望により削除
-}
 
-function closeDiff() {}
+    const originalModel = window.placeholderEditor.getModel();
+    const modifiedModel = window.editor.getModel();
+
+    if (!diffEditor) {
+        diffEditor = monaco.editor.createDiffEditor(document.getElementById('diff-editor-container'), {
+            originalEditable: false,
+            readOnly: true,
+            automaticLayout: true
+        });
+    }
+
+    diffEditor.setModel({
+        original: originalModel,
+        modified: modifiedModel
+    });
+
+    diffEditorModal.style.display = 'block';
+}
 
 
 // --- Comment Evaluation Flow ---

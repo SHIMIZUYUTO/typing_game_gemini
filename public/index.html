@@ -81,6 +81,7 @@
           <td><button id="show-programs-button">保存プログラム一覧</button></td>
           <td><button id="start-quiz-button">問題出題</button></td>
           <td><button id="quiz-history-button">クイズ履歴</button></td>
+          <td><button id="show-diff-button" disabled>差分を表示</button></td>
         </tr>
       </table>
       
@@ -205,6 +206,14 @@
                 <!-- 結果がここに表示される -->
             </div>
             <button id="close-evaluation-result-button">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Diff Editor Modal -->
+    <div id="diff-editor-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000;">
+        <div style="position: absolute; top: 5%; left: 5%; width: 90%; height: 90%; background: #fff; border-radius: 8px; overflow: hidden;">
+            <button id="close-diff-modal" style="position: absolute; top: 10px; right: 15px; z-index: 10; padding: 5px 12px; cursor: pointer;">閉じる</button>
+            <div id="diff-editor-container" style="width: 100%; height: 100%;"></div>
         </div>
     </div>
 
