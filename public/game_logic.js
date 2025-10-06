@@ -215,6 +215,18 @@ async function startRefactorGame() {
         }
         const puzzle = await response.json();
 
+        // Display hints
+        const hintsContainer = document.getElementById('shortcut-hints');
+        if (puzzle.hints && puzzle.hints.length > 0) {
+            const hintsHtml = puzzle.hints.map((hint, index) => 
+                `<div>${index + 1}. ${hint.name} (<b>${hint.keys}</b>)</div>`
+            ).join('');
+            hintsContainer.innerHTML = `<b>ヒント:</b><br>${hintsHtml}`;
+            hintsContainer.style.display = 'block';
+        } else {
+            hintsContainer.style.display = 'none';
+        }
+
         window.placeholderEditor.setValue(puzzle.correctCode);
         window.editor.setValue(puzzle.scrambledCode);
         window.editor.focus();
@@ -250,6 +262,9 @@ function endRefactorGame(wasStoppedManually) {
         window.editor.getDomNode().removeEventListener('mousedown', editorMouseListener);
         editorMouseListener = null;
     }
+
+    // Hide hints
+    document.getElementById('shortcut-hints').style.display = 'none';
 
     const timeTaken = (Date.now() - startTime) / 1000;
     if (!wasStoppedManually) {

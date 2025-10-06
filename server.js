@@ -438,53 +438,38 @@ app.post("/get-refactor-puzzle", async (req, res) => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
-        // Define different puzzle types with their specific instructions
         const puzzleTypes = [
-            {
-                type: 'MOVE_LINES',
-                instruction: '行が間違った場所にある（例：変数が使用された後に宣言されている）。これは、切り取り/貼り付けや行の移動ショートカットで修正できます。'
-            },
-            {
-                type: 'INDENTATION',
-                instruction: '1〜2行のインデントが間違っている（多すぎる、または少なすぎる）。これは、Tab/Shift+Tabで修正できます。'
-            },
-            {
-                type: 'DUPLICATE_LINE',
-                instruction: 'コードの実行に必要な、ほぼ同一の行が1行欠けている。これは、行の複製ショートカット（Shift+Alt+↓など）で修正できます。'
-            },
-            {
-                type: 'DELETE_LINE',
-                instruction: '明らかに不要な行（デバッグ用のprintfなど）が1行だけ含まれている。これは、行の削除ショートカット（Ctrl+Shift+Kなど）で修正できます。'
-            },
-            {
-                type: 'TOGGLE_COMMENT',
-                instruction: '実行されるべきコード行が1行だけコメントアウトされている。これは、行コメントの切り替えショートカット（Ctrl+/など）で修正できます。'
-            },
-            {
-                type: 'JOIN_LINES',
-                instruction: '1つの文が不自然に2行に分割されている。これは、行の結合ショートカット（Ctrl+Jなど）で修正できます。'
-            },
-            {
-                type: 'MULTI_CURSOR_EDIT',
-                instruction: '複数の行にわたって、同じ単語（3文字以上）を別の単語に修正する必要がある（例：すべての「tmp」を「temp」に置換）。これは、マルチカーソル編集（Ctrl+Dなど）で修正できます。'
-            }
+            { name: '行の移動', keys: 'Alt + ↓/↑', instruction: '行が間違った場所にある（例：変数が使用された後に宣言されている）。' },
+            { name: 'インデント修正', keys: 'Tab / Shift+Tab', instruction: '1〜2行のインデントが間違っている（多すぎる、または少なすぎる）。' },
+            { name: '行の複製', keys: 'Shift + Alt + ↓/↑', instruction: 'コードの実行に必要な、ほぼ同一の行が1行欠けている。' },
+            { name: '行の削除', keys: 'Ctrl + Shift + K', instruction: '明らかに不要な行（デバッグ用のprintfなど）が1行だけ含まれている。' },
+            { name: '行コメントの切り替え', keys: 'Ctrl + /', instruction: '実行されるべきコード行が1行だけコメントアウトされている。' },
+            { name: '複数カーソル編集', keys: 'Ctrl + F', instruction: '複数の行にわたって、同じ単語（3文字以上）を別の単語に修正する必要がある（例：「tmp」を「temp」に）。' }
         ];
 
-        // Select a random puzzle type
-        const selectedPuzzle = puzzleTypes[Math.floor(Math.random() * puzzleTypes.length)];
+        // ランダムに3つのパズルタイプを選択
+        const selectedPuzzles = [];
+        const availableTypes = [...puzzleTypes];
+        for (let i = 0; i < 3; i++) {
+            if (availableTypes.length === 0) break;
+            const randomIndex = Math.floor(Math.random() * availableTypes.length);
+            selectedPuzzles.push(availableTypes.splice(randomIndex, 1)[0]);
+        }
+
+        const instructions = selectedPuzzles.map(p => `・ ${p.instruction}`).join('\n');
 
         const prompt = `
         あなたはC言語のプログラミング指導の専門家です。
         あなたのタスクは、リファクタリング練習問題用のC言語コードのスニペットをペアで生成することです。
 
         1.  最初に、シンプルで正しいC言語のプログラムを、長さ15行程度で作成してください。
-        2.  次に、そのプログラムの「ごちゃ混ぜ」バージョンを作成してください。このバージョンには、以下の種類のエラーを3つ程度含めてください。
-            ・${selectedPuzzle.instruction}
+        2.  次に、そのプログラムの「ごちゃ混ぜ」バージョンを作成してください。このバージョンには、以下の種類のエラーをそれぞれ1つずつ、合計${selectedPuzzles.length}個含めてください。
+${instructions}
 
         重要:
         ・（変数宣言が一時的にずれる問題以外は）コンパイルの妨げになるような構文エラーは含めないでください。目的はコードの構造を修正することです。
         ・出力は以下のJSON形式のみで提供してください。他のテキスト、説明、マークダウンは一切含めないでください。
-        ・プログラムのインデントは必ず半角スペース4つで行ってください。
+        ・プログラムのインデントは必ず半角スペース4つで行ってください。半角スペース2つで表現しないでください。
 
         {
           "correctCode": "...",
@@ -518,6 +503,8 @@ app.post("/get-refactor-puzzle", async (req, res) => {
         const cleanedJsonString = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
         try {
             const puzzleData = JSON.parse(cleanedJsonString);
+            // Add hints to the response
+            puzzleData.hints = selectedPuzzles.map(p => ({ name: p.name, keys: p.keys }));
             res.json(puzzleData);
         } catch (parseError) {
             console.error("Failed to parse cleaned JSON for puzzle:", parseError);
