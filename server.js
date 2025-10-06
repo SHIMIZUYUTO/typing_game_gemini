@@ -438,14 +438,48 @@ app.post("/get-refactor-puzzle", async (req, res) => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
+        // Define different puzzle types with their specific instructions
+        const puzzleTypes = [
+            {
+                type: 'MOVE_LINES',
+                instruction: '行が間違った場所にある（例：変数が使用された後に宣言されている）。これは、切り取り/貼り付けや行の移動ショートカットで修正できます。'
+            },
+            {
+                type: 'INDENTATION',
+                instruction: '1〜2行のインデントが間違っている（多すぎる、または少なすぎる）。これは、Tab/Shift+Tabで修正できます。'
+            },
+            {
+                type: 'DUPLICATE_LINE',
+                instruction: 'コードの実行に必要な、ほぼ同一の行が1行欠けている。これは、行の複製ショートカット（Shift+Alt+↓など）で修正できます。'
+            },
+            {
+                type: 'DELETE_LINE',
+                instruction: '明らかに不要な行（デバッグ用のprintfなど）が1行だけ含まれている。これは、行の削除ショートカット（Ctrl+Shift+Kなど）で修正できます。'
+            },
+            {
+                type: 'TOGGLE_COMMENT',
+                instruction: '実行されるべきコード行が1行だけコメントアウトされている。これは、行コメントの切り替えショートカット（Ctrl+/など）で修正できます。'
+            },
+            {
+                type: 'JOIN_LINES',
+                instruction: '1つの文が不自然に2行に分割されている。これは、行の結合ショートカット（Ctrl+Jなど）で修正できます。'
+            },
+            {
+                type: 'MULTI_CURSOR_EDIT',
+                instruction: '複数の行にわたって、同じ単語（3文字以上）を別の単語に修正する必要がある（例：すべての「tmp」を「temp」に置換）。これは、マルチカーソル編集（Ctrl+Dなど）で修正できます。'
+            }
+        ];
+
+        // Select a random puzzle type
+        const selectedPuzzle = puzzleTypes[Math.floor(Math.random() * puzzleTypes.length)];
+
         const prompt = `
         あなたはC言語のプログラミング指導の専門家です。
         あなたのタスクは、リファクタリング練習問題用のC言語コードのスニペットをペアで生成することです。
 
-        1.  最初に、シンプルで正しいC言語のプログラムを作成してください。長さは15行程度にしてください。
-        2.  次に、そのプログラムの「ごちゃ混ぜ」バージョンを作成してください。このバージョンには、一般的なテキストエディタのショートカットで修正できる、3～5個の小さな特定のエラーを含めてください。エラーは以下のいずれかの種類にしてください。
-            ・行の間違い: 行が間違った場所にある（例：変数が使用された後に宣言されている）。これは、切り取り/貼り付けや行の移動ショートカットで修正できます。
-            ・インデントの間違い: 1〜2行のインデントが間違っている（多すぎる、または少なすぎる）。これは、Tab/Shift+Tabで修正できます。
+        1.  最初に、シンプルで正しいC言語のプログラムを、長さ15行程度で作成してください。
+        2.  次に、そのプログラムの「ごちゃ混ぜ」バージョンを作成してください。このバージョンには、以下の種類のエラーを3つ程度含めてください。
+            ・${selectedPuzzle.instruction}
 
         重要:
         ・（変数宣言が一時的にずれる問題以外は）コンパイルの妨げになるような構文エラーは含めないでください。目的はコードの構造を修正することです。
