@@ -26,32 +26,29 @@ body {
     height: 450px;
     margin: 0 auto;
     display: flex;
-    gap: 0;
+    gap: 1%; /* Use gap for spacing */
 }
 
 #placeholder-field,
 #input-field {
     position: relative;
-    width: 45%;
+    flex: 1; /* Let flexbox handle the width */
     height: 100%;
     border: 2px solid #ccc;
     border-radius: 5px;
     font-size: 18px;
     margin: 0;
-    /* Monaco Editorの背景色やその他の調整はここで */
 }
 
 #placeholder-field {
     z-index: 0;
     color: rgba(0, 0, 0, 0.3);
     pointer-events: none;
-    margin-right: 0.5%;
 }
 
 #input-field {
     z-index: 1;
     background: transparent;
-    margin-left: 0.5%;
 }
 
 #diff-container {
