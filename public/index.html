@@ -379,15 +379,19 @@
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         const gotoTypingPracticeButton = document.getElementById('goto-typing-practice');
+        const gotoShortcutPracticeButton = document.getElementById('goto-shortcut-practice');
         const backToHomeButton = document.getElementById('back-to-home-button');
         const homeContainer = document.getElementById('home-container');
         const typingContainer = document.getElementById('typing-container');
 
-        gotoTypingPracticeButton.addEventListener('click', () => {
+        const navigateToGame = () => {
           homeContainer.style.display = 'none';
           typingContainer.style.display = 'block';
           document.getElementById('custom-theme-box').style.display = 'block';
-        });
+        };
+
+        gotoTypingPracticeButton.addEventListener('click', navigateToGame);
+        gotoShortcutPracticeButton.addEventListener('click', navigateToGame);
 
         backToHomeButton.addEventListener('click', () => {
           typingContainer.style.display = 'none';
