@@ -70,16 +70,14 @@
       </div>
       <table>
         <tr>
-          <div id="typing-buttons">
-            <td><button id="start-button">タイピング練習</button></td>
-            <td><button id="custom-button">カスタムタイピング</button></td>
-            <td><button id="show-programs-button">保存プログラム一覧</button></td>
-            <td><button id="start-quiz-button">問題出題</button></td>
-            <td><button id="quiz-history-button">クイズ履歴</button></td>
-          </div>
-          <div id="shortcut-buttons">
-            <td><button id="refactor-practice-button">ショートカットキー練習</button></td>
-          </div>
+          <td class="typing-mode-btn"><button id="start-button">タイピング練習</button></td>
+          <td class="typing-mode-btn"><button id="custom-button">カスタムタイピング</button></td>
+          <td class="typing-mode-btn"><button id="show-programs-button">保存プログラム一覧</button></td>
+          <td class="typing-mode-btn"><button id="start-quiz-button">問題出題</button></td>
+          <td class="typing-mode-btn"><button id="quiz-history-button">クイズ履歴</button></td>
+          
+          <td class="shortcut-mode-btn"><button id="refactor-practice-button">ショートカットキー練習</button></td>
+          
           <td><button id="stop-button" disabled>中断</button></td>
           <td><button id="show-diff-button" disabled>差分を表示</button></td>
         </tr>
@@ -388,17 +386,22 @@
         const navigateToTypingGame = () => {
           homeContainer.style.display = 'none';
           typingContainer.style.display = 'block';
+          
+          document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'table-cell');
+          document.querySelectorAll('.shortcut-mode-btn').forEach(el => el.style.display = 'none');
+
           document.getElementById('difficulty-buttons').style.display = 'block';
-          document.getElementById('typing-buttons').style.display = 'block';
-          document.getElementById('shortcut-buttons').style.display = 'none';
           document.getElementById('custom-theme-box').style.display = 'block';
         };
         const navigateToShortcutPractice = () => {
           homeContainer.style.display = 'none';
           typingContainer.style.display = 'block';
+
+          document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'none');
+          document.querySelectorAll('.shortcut-mode-btn').forEach(el => el.style.display = 'table-cell');
+
           document.getElementById('difficulty-buttons').style.display = 'none';
-          document.getElementById('typing-buttons').style.display = 'none';
-          document.getElementById('shortcut-buttons').style.display = 'block';
+          document.getElementById('custom-theme-box').style.display = 'none';
         };
 
         gotoTypingPracticeButton.addEventListener('click', navigateToTypingGame);
