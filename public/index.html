@@ -70,17 +70,17 @@
       </div>
       <table>
         <tr>
-          <td><button id="start-button">タイピング練習</button></td>
-          <td><button id="custom-button">カスタムタイピング</button></td>
-          <td><button id="refactor-practice-button">ショートカットキー練習</button></td>
+          <div id="typing-buttons">
+            <td><button id="start-button">タイピング練習</button></td>
+            <td><button id="custom-button">カスタムタイピング</button></td>
+            <td><button id="show-programs-button">保存プログラム一覧</button></td>
+            <td><button id="start-quiz-button">問題出題</button></td>
+            <td><button id="quiz-history-button">クイズ履歴</button></td>
+          </div>
+          <div id="shortcut-buttons">
+            <td><button id="refactor-practice-button">ショートカットキー練習</button></td>
+          </div>
           <td><button id="stop-button" disabled>中断</button></td>
-        </tr>
-      </table>
-      <table>
-        <tr>
-          <td><button id="show-programs-button">保存プログラム一覧</button></td>
-          <td><button id="start-quiz-button">問題出題</button></td>
-          <td><button id="quiz-history-button">クイズ履歴</button></td>
           <td><button id="show-diff-button" disabled>差分を表示</button></td>
         </tr>
       </table>
@@ -384,17 +384,21 @@
         const homeContainer = document.getElementById('home-container');
         const typingContainer = document.getElementById('typing-container');
 
+        // タイピングとショートカット練習の画面遷移関数
         const navigateToTypingGame = () => {
           homeContainer.style.display = 'none';
           typingContainer.style.display = 'block';
           document.getElementById('difficulty-buttons').style.display = 'block';
+          document.getElementById('typing-buttons').style.display = 'block';
+          document.getElementById('shortcut-buttons').style.display = 'none';
           document.getElementById('custom-theme-box').style.display = 'block';
         };
         const navigateToShortcutPractice = () => {
           homeContainer.style.display = 'none';
           typingContainer.style.display = 'block';
           document.getElementById('difficulty-buttons').style.display = 'none';
-          // document.getElementById('custom-theme-box').style.display = 'none';
+          document.getElementById('typing-buttons').style.display = 'none';
+          document.getElementById('shortcut-buttons').style.display = 'block';
         };
 
         gotoTypingPracticeButton.addEventListener('click', navigateToTypingGame);
