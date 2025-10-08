@@ -384,14 +384,21 @@
         const homeContainer = document.getElementById('home-container');
         const typingContainer = document.getElementById('typing-container');
 
-        const navigateToGame = () => {
+        const navigateToTypingGame = () => {
           homeContainer.style.display = 'none';
           typingContainer.style.display = 'block';
+          document.getElementById('difficulty-buttons').style.display = 'block';
           document.getElementById('custom-theme-box').style.display = 'block';
         };
+        const navigateToShortcutPractice = () => {
+          homeContainer.style.display = 'none';
+          typingContainer.style.display = 'block';
+          document.getElementById('difficulty-buttons').style.display = 'none';
+          // document.getElementById('custom-theme-box').style.display = 'none';
+        };
 
-        gotoTypingPracticeButton.addEventListener('click', navigateToGame);
-        gotoShortcutPracticeButton.addEventListener('click', navigateToGame);
+        gotoTypingPracticeButton.addEventListener('click', navigateToTypingGame);
+        gotoShortcutPracticeButton.addEventListener('click', navigateToShortcutPractice);
 
         backToHomeButton.addEventListener('click', () => {
           typingContainer.style.display = 'none';
