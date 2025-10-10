@@ -8,9 +8,60 @@ body {
 }
 
 #typing-container {
-    position: relative; /* Set context for absolute positioning */
-    display: none;
+    position: relative;
+    display: none; /* Initially hidden, JS will change to 'flex' */
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100dvh;
+    overflow: hidden;
+    background-color: #1e1e1e; /* VS Codeの背景色 */
+    color: #cccccc; /* VS Codeのテキスト色 */
+    padding: 0 20px; /* 左右の余白 */
+    box-sizing: border-box;
 }
+
+#typing-container p, #typing-container label {
+    color: #cccccc;
+}
+
+#typing-container h1 {
+    color: #ffffff;
+}
+
+/* VS Codeのようなボタン */
+#typing-container button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#typing-container button:hover {
+    background-color: #444444;
+}
+
+#typing-container button:disabled {
+    background-color: #252526;
+    color: #777777;
+    cursor: not-allowed;
+}
+
+/* アクティブの難易度調整ボタン */
+.difficulty-button.active {
+    background-color: #007acc; /* VS Code blue */
+    color: white;
+    border-color: #007acc;
+}
+
+/* ショトカヒントボックス */
+#shortcut-hints {
+    background-color: #252526 !important; /* Override inline style */
+    border: 1px solid #333;
+}
+
 
 #user-welcome {
     position: absolute;
