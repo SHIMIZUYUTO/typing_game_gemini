@@ -80,6 +80,8 @@
           
           <td><button id="stop-button" disabled>中断</button></td>
           <td><button id="show-diff-button" disabled>差分を表示</button></td>
+          <td id="submit-eval-cell" style="display: none;"><button id="submit-evaluation-button">評価を実行</button></td>
+          <td id="reevaluate-cell" style="display: none;"><button id="reevaluate-button">再評価する</button></td>
         </tr>
       </table>
       
@@ -92,13 +94,7 @@
         <div id="diff-container"></div> <!-- ここに移動 -->
       </div>
       <p id="score-display"></p>
-      <p id="result-display"></p>
       <p id ="incorrect-keys">間違えたキー:　<span id="incorrect-keys-display"></span></p>
-      <div id="comment-evaluation-controls" style="display: none;">
-        <button id="start-commenting-button">コメントを追記・評価する</button>
-        <button id="submit-evaluation-button" style="display: none;">評価を実行</button>
-        <button id="reevaluate-button" style="display: none;">再評価する</button>
-      </div>
     </div>
     </div>
 
@@ -212,6 +208,23 @@
         <div style="position: absolute; top: 5%; left: 5%; width: 90%; height: 90%; background: #fff; border-radius: 8px; overflow: hidden;">
             <button id="close-diff-modal" style="position: absolute; top: 10px; right: 15px; z-index: 10; padding: 5px 12px; cursor: pointer;">閉じる</button>
             <div id="diff-editor-container" style="width: 100%; height: 100%;"></div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="result-modal-overlay">
+        <div class="result-modal-content">
+            <button id="close-result-modal" class="close-button">&times;</button>
+            <h2>結果発表！</h2>
+            <div id="result-modal-score-container">
+                <span class="score-label">SCORE</span>
+                <span id="result-modal-score"></span>
+            </div>
+            <div id="result-modal-breakdown"></div>
+            <div id="result-modal-speed"></div>
+            <div class="result-modal-actions">
+                <button id="start-commenting-button">コメントを追記・評価する</button>
+            </div>
         </div>
     </div>
 
@@ -385,7 +398,7 @@
         // タイピングとショートカット練習の画面遷移関数
         const navigateToTypingGame = () => {
           homeContainer.style.display = 'none';
-          typingContainer.style.display = 'block';
+          typingContainer.style.display = 'flex';
           document.getElementById('game-mode-title').textContent = 'タイピング練習モード';
           
           document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'table-cell');
@@ -394,13 +407,11 @@
           document.getElementById('difficulty-buttons').style.display = 'block';
           document.getElementById('custom-theme-box').style.display = 'block';
           document.getElementById('incorrect-keys').style.display = 'block';
-          document.getElementById('comment-evaluation-controls').style.display = 'none';
-          document.getElementById('result-display').style.display = 'block';
           document.getElementById('score-display').style.display = 'block';
         };
         const navigateToShortcutPractice = () => {
           homeContainer.style.display = 'none';
-          typingContainer.style.display = 'block';
+          typingContainer.style.display = 'flex';
           document.getElementById('game-mode-title').textContent = 'ショートカットキー練習モード';
 
           document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'none');
@@ -409,9 +420,9 @@
           document.getElementById('difficulty-buttons').style.display = 'none';
           document.getElementById('custom-theme-box').style.display = 'none';
           document.getElementById('incorrect-keys').style.display = 'none';
-          document.getElementById('comment-evaluation-controls').style.display = 'none';
-          // document.getElementById('result-display').style.display = 'none';
           document.getElementById('score-display').style.display = 'none';
+          document.getElementById('submit-eval-cell').style.display = 'none';
+          document.getElementById('reevaluate-cell').style.display = 'none';
         };
 
         gotoTypingPracticeButton.addEventListener('click', navigateToTypingGame);

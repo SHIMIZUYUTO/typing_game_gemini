@@ -17,7 +17,6 @@ async function displayUsername() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    setupGameEvents();
     // Listen for the custom event dispatched from login.js
     document.addEventListener('userLoggedIn', displayUsername);
 

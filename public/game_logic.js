@@ -5,13 +5,16 @@ import { auth } from './firebase_auth.js';
 let startButton, stopButton, customButton, refactorPracticeButton, diffButton, closeDiffBtn;
 
 // Main UI Elements
-let resultDisplay, incorrectKeysDisplay;
+let incorrectKeysDisplay;
 
 // Comment Evaluation UI
-let commentControls, startCommentingButton, submitEvaluationButton, reevaluateButton, evaluationResultModal, evaluationResultContent, closeEvaluationResultButton;
+let startCommentingButton, submitEvaluationButton, reevaluateButton, evaluationResultModal, evaluationResultContent, closeEvaluationResultButton, submitEvalCell, reevaluateCell;
 
 // Diff Editor UI
 let showDiffButton, diffEditorModal, closeDiffModal;
+
+// Result Modal UI
+let resultModal, closeResultModal, resultModalScore, resultModalBreakdown, resultModalSpeed;
 
 // Evaluation weights
 const evaluationWeights = {
@@ -48,14 +51,14 @@ function initializeDOMElements() {
     closeDiffBtn = document.getElementById("close-diff");
 
     // Main UI Elements
-    resultDisplay = document.getElementById("result-display");
     incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
 
     // Comment Evaluation UI
-    commentControls = document.getElementById('comment-evaluation-controls');
     startCommentingButton = document.getElementById('start-commenting-button');
     submitEvaluationButton = document.getElementById('submit-evaluation-button');
     reevaluateButton = document.getElementById('reevaluate-button');
+    submitEvalCell = document.getElementById('submit-eval-cell');
+    reevaluateCell = document.getElementById('reevaluate-cell');
     evaluationResultModal = document.getElementById('evaluation-result-modal');
     evaluationResultContent = document.getElementById('evaluation-result-content');
     closeEvaluationResultButton = document.getElementById('close-evaluation-result-button');
@@ -64,6 +67,13 @@ function initializeDOMElements() {
     showDiffButton = document.getElementById('show-diff-button');
     diffEditorModal = document.getElementById('diff-editor-modal');
     closeDiffModal = document.getElementById('close-diff-modal');
+
+    // Result Modal UI
+    resultModal = document.getElementById('result-modal');
+    closeResultModal = document.getElementById('close-result-modal');
+    resultModalScore = document.getElementById('result-modal-score');
+    resultModalBreakdown = document.getElementById('result-modal-breakdown');
+    resultModalSpeed = document.getElementById('result-modal-speed');
 }
 
 // Initial setup
@@ -77,7 +87,10 @@ export function setupGameEvents() {
     stopButton.addEventListener("click", handleStopButtonClick);
 
     // Commenting buttons
-    startCommentingButton.addEventListener('click', enableCommenting);
+    startCommentingButton.addEventListener('click', () => {
+        resultModal.style.display = 'none'; // Hide result modal
+        enableCommenting();
+    });
     submitEvaluationButton.addEventListener('click', evaluateComments);
     reevaluateButton.addEventListener('click', enableReevaluation);
     closeEvaluationResultButton.addEventListener('click', () => evaluationResultModal.style.display = 'none');
@@ -85,6 +98,9 @@ export function setupGameEvents() {
     // Diff editor buttons
     showDiffButton.addEventListener('click', showDiff);
     closeDiffModal.addEventListener('click', () => diffEditorModal.style.display = 'none');
+
+    // Result modal buttons
+    closeResultModal.addEventListener('click', () => resultModal.style.display = 'none');
 
     // Difficulty buttons
     const difficultyButtons = document.querySelectorAll(".difficulty-button");
@@ -137,12 +153,9 @@ async function setupNewGame() {
     showDiffButton.disabled = false;
     
     // Reset and hide comment evaluation controls
-    commentControls.style.display = 'none';
-    startCommentingButton.style.display = 'inline-block';
-    submitEvaluationButton.style.display = 'none';
-    reevaluateButton.style.display = 'none';
+    submitEvalCell.style.display = 'none';
+    reevaluateCell.style.display = 'none';
 
-    resultDisplay.textContent = "";
     incorrectKeys = {};
     updateIncorrectKeysDisplay();
     startTime = Date.now();
@@ -178,18 +191,15 @@ async function endGame(wasStoppedManually) {
     refactorPracticeButton.disabled = false;
     showDiffButton.disabled = true;
     if (wasStoppedManually) {
-        resultDisplay.textContent = "タイピングが中断されたので記録は保存されません。";
-        commentControls.style.display = 'none'; 
+        // The resultDisplay element was removed, so this line is no longer needed.
     } else {
-        // 通常の完了処理
-        commentControls.style.display = 'block';
+        // Populate and show the result modal
         const timeTaken = (Date.now() - startTime) / 1000;
         const totalChars = codeLines.join('\n').length;
         const totalMistakes = Object.values(incorrectKeys).reduce((sum, count) => sum + count, 0);
         const correctlyTypedChars = Math.max(0, totalChars - totalMistakes);
         const accuracy = totalChars > 0 ? correctlyTypedChars / totalChars : 0;
 
-        // デバッグ用に値を出力
         console.log(`Accuracy Debug: totalChars=${totalChars}, correctlyTypedChars=${correctlyTypedChars}, accuracy=${accuracy}`);
 
         const baseScore = (correctlyTypedChars / timeTaken) * 100;
@@ -197,7 +207,10 @@ async function endGame(wasStoppedManually) {
         const score = Math.round(baseScore * accuracyBonus);
         const typingSpeed = (correctlyTypedChars / timeTaken).toFixed(2);
 
-        resultDisplay.textContent = `ゲーム終了！スコア: ${score} (スピード: ${Math.round(baseScore)} × スコア倍率: ${accuracyBonus.toFixed(2)}) | 打鍵速度: ${typingSpeed} 回/秒`;
+        resultModalScore.textContent = score;
+        resultModalBreakdown.textContent = `(スピードスコア: ${Math.round(baseScore)} × スコア倍率: ${accuracyBonus.toFixed(2)})`;
+        resultModalSpeed.textContent = `打鍵速度: ${typingSpeed} 回/秒`;
+        resultModal.style.display = 'flex';
 
         const user = auth.currentUser;
         if (!user) return;
@@ -210,6 +223,7 @@ async function endGame(wasStoppedManually) {
             await saveTopMistakeKeys(user, sortedKeys);
         }
         await saveUserProgram(user, window.placeholderEditor.getValue());
+        addCodeToHistory(window.placeholderEditor.getValue());
 
         if (typingSpeed) {
             await addTypingSession(user, parseFloat(typingSpeed));
@@ -296,9 +310,10 @@ function endRefactorGame(wasStoppedManually) {
         } else {
             mouseMessage = `\nカーソル操作：0回　その調子！`;
         }
-        resultDisplay.textContent = `クリア！ 🎉 かかった時間: ${timeTaken.toFixed(2)}秒` + mouseMessage;
+        // TODO: Add a result modal for refactor game as well.
+        alert(`クリア！ 🎉 かかった時間: ${timeTaken.toFixed(2)}秒` + mouseMessage);
     } else {
-        resultDisplay.textContent = "ショートカットキー練習を中断しました。";
+        // No action needed, the game is just stopped.
     }
 
     window.editor.updateOptions({ readOnly: true });
@@ -308,7 +323,6 @@ function endRefactorGame(wasStoppedManually) {
     refactorPracticeButton.disabled = false;
     showDiffButton.disabled = true;
 }
-
 // --- Diff Flow ---
 function showDiff() {
     if (!window.placeholderEditor || !window.editor) return;
@@ -337,18 +351,17 @@ function showDiff() {
 
 function enableCommenting() {
     window.editor.updateOptions({ readOnly: false });
-    startCommentingButton.style.display = 'none';
-    submitEvaluationButton.style.display = 'inline-block';
-    reevaluateButton.style.display = 'none';
-    resultDisplay.textContent = '\nプログラムにコメントを追記して、「評価を実行」ボタンを押してください。';
+    submitEvalCell.style.display = 'table-cell';
+    reevaluateCell.style.display = 'none';
+    Toastify({ text: "プログラムにコメントを追記して、「評価を実行」ボタンを押してください。", duration: 4000, gravity: "top", position: "center", style: { background: "#007acc" } }).showToast();
     window.editor.focus();
 }
 
 function enableReevaluation() {
     window.editor.updateOptions({ readOnly: false });
-    reevaluateButton.style.display = 'none';
-    submitEvaluationButton.style.display = 'inline-block';
-    resultDisplay.textContent = '\n再度コメントを修正し、「評価を実行」ボタンを押してください。';
+    reevaluateCell.style.display = 'none';
+    submitEvalCell.style.display = 'table-cell';
+    Toastify({ text: "再度コメントを修正し、「評価を実行」ボタンを押してください。", duration: 4000, gravity: "top", position: "center", style: { background: "#007acc" } }).showToast();
     window.editor.focus();
 }
 
@@ -383,9 +396,8 @@ async function evaluateComments() {
     } finally {
         submitEvaluationButton.disabled = false;
         submitEvaluationButton.textContent = '評価を実行';
-        submitEvaluationButton.style.display = 'none';
-        reevaluateButton.style.display = 'inline-block';
-        startCommentingButton.style.display = 'none';
+        submitEvalCell.style.display = 'none';
+        reevaluateCell.style.display = 'table-cell';
     }
 }
 

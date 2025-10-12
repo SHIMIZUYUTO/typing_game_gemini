@@ -752,3 +752,94 @@ body {
     overflow-y: auto;
     flex-grow: 1;
 }
+
+/* --- Result Modal --- */
+.result-modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 4000;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes pop-in {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.result-modal-content {
+    background: #252526;
+    color: #cccccc;
+    padding: 24px 32px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    text-align: center;
+    animation: pop-in 0.3s ease-out;
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+}
+
+.result-modal-content h2 {
+    color: #ffffff;
+    margin-top: 0;
+}
+
+#result-modal-score-container {
+    margin: 20px 0;
+}
+
+#result-modal-score-container .score-label {
+    font-size: 1.2em;
+    color: #888;
+}
+
+#result-modal-score {
+    font-size: 4em;
+    font-weight: bold;
+    color: #ffffff;
+    display: block;
+}
+
+#result-modal-breakdown,
+#result-modal-speed {
+    margin-bottom: 20px;
+}
+
+.result-modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.result-modal-actions button {
+    /* General button styles are already applied */
+    padding: 10px 20px;
+    font-size: 1em;
+}
+
+.result-modal-content .close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    color: #888;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.result-modal-content .close-button:hover {
+    color: #fff;
+}
