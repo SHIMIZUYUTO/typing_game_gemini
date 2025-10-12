@@ -14,7 +14,7 @@ body {
     height: 100vh;
     max-height: 100dvh;
     overflow: hidden;
-    background-color: #1e1e1e; /* VS Codeの背景色 */
+    background-color: #282828; /* VS Codeの背景色 */
     color: #cccccc; /* VS Codeのテキスト色 */
     padding: 0 20px; /* 左右の余白 */
     box-sizing: border-box;
