@@ -813,7 +813,9 @@ body {
 }
 
 #result-modal-breakdown,
-#result-modal-speed {
+#result-modal-speed,
+#result-modal-accuracy,
+#result-modal-mistakes {
     margin-bottom: 20px;
 }
 

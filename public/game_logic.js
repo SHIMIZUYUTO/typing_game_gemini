@@ -14,7 +14,7 @@ let startCommentingButton, submitEvaluationButton, reevaluateButton, evaluationR
 let showDiffButton, diffEditorModal, closeDiffModal;
 
 // Result Modal UI
-let resultModal, closeResultModal, resultModalScore, resultModalBreakdown, resultModalSpeed;
+let resultModal, closeResultModal, resultModalScore, resultModalBreakdown, resultModalSpeed, resultModalAccuracy, resultModalMistakes;
 
 // Evaluation weights
 const evaluationWeights = {
@@ -74,6 +74,8 @@ function initializeDOMElements() {
     resultModalScore = document.getElementById('result-modal-score');
     resultModalBreakdown = document.getElementById('result-modal-breakdown');
     resultModalSpeed = document.getElementById('result-modal-speed');
+    resultModalAccuracy = document.getElementById('result-modal-accuracy');
+    resultModalMistakes = document.getElementById('result-modal-mistakes');
 }
 
 // Initial setup
@@ -210,6 +212,19 @@ async function endGame(wasStoppedManually) {
         resultModalScore.textContent = score;
         resultModalBreakdown.textContent = `(スピードスコア: ${Math.round(baseScore)} × スコア倍率: ${accuracyBonus.toFixed(2)})`;
         resultModalSpeed.textContent = `打鍵速度: ${typingSpeed} 回/秒`;
+
+        // Display accuracy and top mistakes
+        const accuracyPercent = (accuracy * 100).toFixed(1);
+        resultModalAccuracy.textContent = `精度: ${accuracyPercent}%`;
+
+        const sortedMistakes = Object.entries(incorrectKeys).sort(([, a], [, b]) => b - a).slice(0, 5);
+        if (sortedMistakes.length > 0) {
+            const mistakesHtml = sortedMistakes.map(([key, count]) => `<span>「${key === ' ' ? 'Space' : key}」: ${count}回</span>`).join(' ');
+            resultModalMistakes.innerHTML = `<b>主なミス:</b> ${mistakesHtml}`;
+        } else {
+            resultModalMistakes.textContent = 'ミスはありませんでした！🎉';
+        }
+
         resultModal.style.display = 'flex';
 
         const user = auth.currentUser;
