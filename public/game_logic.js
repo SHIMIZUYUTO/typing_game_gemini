@@ -344,7 +344,7 @@ function endRefactorGame(wasStoppedManually) {
         resultModalAccuracy.style.display = 'none';
         resultModalMistakes.style.display = 'none';
         document.getElementById('start-commenting-button').style.display = 'none';
-        document.querySelector('#result-modal h2').textContent = 'リファクタリング完了！';
+        document.querySelector('#result-modal h2').textContent = '結果発表！';
         const scoreLabel = document.querySelector('#result-modal .score-label');
         if(scoreLabel) scoreLabel.textContent = 'TIME';
 
