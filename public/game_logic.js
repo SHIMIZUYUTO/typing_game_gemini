@@ -252,7 +252,7 @@ async function endGame(wasStoppedManually) {
 async function startRefactorGame() {
     currentGameMode = 'refactor';
     await setupNewGame();
-    resultDisplay.textContent = "お題を生成中...";
+    // resultDisplay.textContent = "お題を生成中...";
 
     mouseMoveCount = 0;
     editorMouseListener = () => { mouseMoveCount++; };
@@ -281,13 +281,13 @@ async function startRefactorGame() {
         window.placeholderEditor.setValue(puzzle.correctCode);
         window.editor.setValue(puzzle.scrambledCode);
         window.editor.focus();
-        resultDisplay.textContent = "左のコードと同じになるように、右のコードを編集してください。";
+        // resultDisplay.textContent = "左のコードと同じになるように、右のコードを編集してください。";
         
         if (contentChangeListener) contentChangeListener.dispose();
         contentChangeListener = window.editor.onDidChangeModelContent(checkRefactorCompletion);
 
     } catch (error) {
-        resultDisplay.textContent = `エラー: ${error.message}`;
+        // resultDisplay.textContent = `エラー: ${error.message}`;
         endRefactorGame(true); // エラー時にゲームを終了
     }
 }
