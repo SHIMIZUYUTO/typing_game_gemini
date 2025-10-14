@@ -15,6 +15,13 @@
       #typing-container {
         display: none;
       }
+      .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
     </style>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
@@ -68,22 +75,20 @@
         <button class="difficulty-button" data-level="4">4</button>
         <button class="difficulty-button" data-level="5">5</button>
       </div>
-      <table>
-        <tr>
-          <td class="typing-mode-btn"><button id="start-button">通常モード</button></td>
-          <td class="typing-mode-btn"><button id="custom-button">カスタムモード</button></td>
-          <td class="typing-mode-btn"><button id="show-programs-button">保存プログラム一覧</button></td>
-          <td class="typing-mode-btn"><button id="start-quiz-button">問題出題</button></td>
-          <td class="typing-mode-btn"><button id="quiz-history-button">クイズ履歴</button></td>
-          
-          <td class="shortcut-mode-btn"><button id="refactor-practice-button">スタート</button></td>
-          
-          <td><button id="stop-button" disabled>中断</button></td>
-          <td><button id="show-diff-button" disabled>差分を表示</button></td>
-          <td id="submit-eval-cell" style="display: none;"><button id="submit-evaluation-button">評価を実行</button></td>
-          <td id="reevaluate-cell" style="display: none;"><button id="reevaluate-button">再評価する</button></td>
-        </tr>
-      </table>
+      <div class="button-container">
+        <span class="typing-mode-btn"><button id="start-button">通常モード</button></span>
+        <span class="typing-mode-btn"><button id="custom-button">カスタムモード</button></span>
+        <span class="typing-mode-btn"><button id="show-programs-button">保存プログラム一覧</button></span>
+        <span class="typing-mode-btn"><button id="start-quiz-button">問題出題</button></span>
+        <span class="typing-mode-btn"><button id="quiz-history-button">クイズ履歴</button></span>
+        
+        <span class="shortcut-mode-btn"><button id="refactor-practice-button">スタート</button></span>
+        
+        <span><button id="stop-button" disabled>中断</button></span>
+        <span><button id="show-diff-button" disabled>差分を表示</button></span>
+        <span id="submit-eval-cell" style="display: none;"><button id="submit-evaluation-button">評価を実行</button></span>
+        <span id="reevaluate-cell" style="display: none;"><button id="reevaluate-button">再評価する</button></span>
+      </div>
       
       <div id="shortcut-hints" style="display: none; margin-bottom: 10px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;"></div>
 
@@ -403,7 +408,7 @@
           typingContainer.style.display = 'flex';
           document.getElementById('game-mode-title').textContent = 'タイピング練習モード';
           
-          document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'table-cell');
+          document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'inline-block');
           document.querySelectorAll('.shortcut-mode-btn').forEach(el => el.style.display = 'none');
 
           document.getElementById('difficulty-buttons').style.display = 'block';
@@ -417,7 +422,7 @@
           document.getElementById('game-mode-title').textContent = 'ショートカットキー練習モード';
 
           document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'none');
-          document.querySelectorAll('.shortcut-mode-btn').forEach(el => el.style.display = 'table-cell');
+          document.querySelectorAll('.shortcut-mode-btn').forEach(el => el.style.display = 'inline-block');
 
           document.getElementById('difficulty-buttons').style.display = 'none';
           document.getElementById('custom-theme-box').style.display = 'none';
