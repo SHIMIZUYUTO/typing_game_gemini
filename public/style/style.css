@@ -49,12 +49,7 @@ body {
     cursor: not-allowed;
 }
 
-/* アクティブの難易度調整ボタン */
-.difficulty-button.active {
-    background-color: #007acc; /* VS Code blue */
-    color: white;
-    border-color: #007acc;
-}
+
 
 /* ショトカヒントボックス */
 #shortcut-hints {
@@ -419,18 +414,17 @@ body {
 }
 
 .difficulty-button {
-    padding: 8px 16px;
-    border: 1px solid #ccc;
-    background-color: #f0f0f0;
-    cursor: pointer;
     margin-right: 5px;
-    border-radius: 4px;
 }
 
-.difficulty-button.active {
-    background-color: #4CAF50;
+#typing-container .difficulty-button:hover {
+    background-color: #444444;
+}
+
+#typing-container .difficulty-button.active {
+    background-color: #007acc; /* VS Code のアクティブな青 */
     color: white;
-    border-color: #4CAF50;
+    border-color: #007acc;
 }
 
 /* クイズモーダル */
