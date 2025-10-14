@@ -1,6 +1,6 @@
 body {
     position: relative;
-    /* overflow: hidden; */ /* これがあるとモーダルのスクロールが効かなくなる */
+    overflow: hidden; /* スクロールしないようにする */
 }
 
 #login-container {
