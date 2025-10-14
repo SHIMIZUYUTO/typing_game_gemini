@@ -22,6 +22,14 @@
         justify-content: center;
         margin-bottom: 16px;
       }
+      .settings-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
     </style>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
@@ -63,23 +71,25 @@
       <div id="user-welcome"></div>
       <h1 id="game-mode-title" style="text-align: center;">タイピング練習モード</h1>
       <!-- ここに移動 -->
-      <div id="custom-theme-box" style="margin-bottom:8px; display:none;">
-        <label for="custom-theme-input">好きな題材:</label>
-        <input type="text" id="custom-theme-input" placeholder="自由に入力してください" style="width: 200px;">
-      </div>
-      <div id="difficulty-buttons">
-        <p>タイピング難易度選択:</p>
-        <button class="difficulty-button active" data-level="1">1</button>
-        <button class="difficulty-button" data-level="2">2</button>
-        <button class="difficulty-button" data-level="3">3</button>
-        <button class="difficulty-button" data-level="4">4</button>
-        <button class="difficulty-button" data-level="5">5</button>
+      <div class="settings-container">
+        <div id="custom-theme-box" style="margin-bottom:8px; display:none;">
+          <label for="custom-theme-input">好きな題材:</label>
+          <input type="text" id="custom-theme-input" placeholder="自由に入力してください" style="width: 200px;">
+        </div>
+        <div id="difficulty-buttons">
+          <p>タイピング難易度選択:</p>
+          <button class="difficulty-button active" data-level="1">1</button>
+          <button class="difficulty-button" data-level="2">2</button>
+          <button class="difficulty-button" data-level="3">3</button>
+          <button class="difficulty-button" data-level="4">4</button>
+          <button class="difficulty-button" data-level="5">5</button>
+        </div>
       </div>
       <div class="button-container">
         <span class="typing-mode-btn"><button id="start-button">通常モード</button></span>
         <span class="typing-mode-btn"><button id="custom-button">カスタムモード</button></span>
-        <span class="typing-mode-btn"><button id="show-programs-button">保存プログラム一覧</button></span>
-        <span class="typing-mode-btn"><button id="start-quiz-button">問題出題</button></span>
+        <!-- <span class="typing-mode-btn"><button id="show-programs-button">保存プログラム一覧</button></span> -->
+        <!-- <span class="typing-mode-btn"><button id="start-quiz-button">問題出題</button></span> -->
         <span class="typing-mode-btn"><button id="quiz-history-button">クイズ履歴</button></span>
         
         <span class="shortcut-mode-btn"><button id="refactor-practice-button">スタート</button></span>
