@@ -102,7 +102,17 @@ export function setupGameEvents() {
     closeDiffModal.addEventListener('click', () => diffEditorModal.style.display = 'none');
 
     // Result modal buttons
-    closeResultModal.addEventListener('click', () => resultModal.style.display = 'none');
+    closeResultModal.addEventListener('click', () => {
+        resultModal.style.display = 'none';
+        // Reset modal for typing game
+        resultModalSpeed.style.display = 'block';
+        resultModalAccuracy.style.display = 'block';
+        resultModalMistakes.style.display = 'block';
+        document.getElementById('start-commenting-button').style.display = 'block';
+        document.querySelector('#result-modal h2').textContent = '結果発表！';
+        const scoreLabel = document.querySelector('#result-modal .score-label');
+        if(scoreLabel) scoreLabel.textContent = 'SCORE';
+    });
 
     // Difficulty buttons
     const difficultyButtons = document.querySelectorAll(".difficulty-button");
@@ -325,8 +335,20 @@ function endRefactorGame(wasStoppedManually) {
         } else {
             mouseMessage = `\nカーソル操作：0回　その調子！`;
         }
-        // TODO: Add a result modal for refactor game as well.
-        alert(`クリア！ 🎉 かかった時間: ${timeTaken.toFixed(2)}秒` + mouseMessage);
+        // Show result modal for refactor game
+        resultModalScore.textContent = `${timeTaken.toFixed(2)}秒`;
+        resultModalBreakdown.innerHTML = mouseMessage.replace(/\n/g, '<br>');
+
+        // Hide irrelevant fields and change labels
+        resultModalSpeed.style.display = 'none';
+        resultModalAccuracy.style.display = 'none';
+        resultModalMistakes.style.display = 'none';
+        document.getElementById('start-commenting-button').style.display = 'none';
+        document.querySelector('#result-modal h2').textContent = 'リファクタリング完了！';
+        const scoreLabel = document.querySelector('#result-modal .score-label');
+        if(scoreLabel) scoreLabel.textContent = 'TIME';
+
+        resultModal.style.display = 'flex';
     } else {
         // No action needed, the game is just stopped.
     }
