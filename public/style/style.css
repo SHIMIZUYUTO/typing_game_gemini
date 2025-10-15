@@ -4,7 +4,48 @@ body {
 }
 
 #login-container {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #282828;
+    color: #cccccc;
+}
+
+#login-container h1 {
+    color: #ffffff;
+}
+
+#login-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#login-container input {
+    background-color: #3c3c3c;
+    color: #cccccc;
+    border: 1px solid #555555;
+    padding: 10px;
+    margin: 5px 0 15px 0;
+    border-radius: 4px;
+    width: 250px;
+}
+
+#login-container button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    margin: 5px;
+}
+
+#login-container button:hover {
+    background-color: #444444;
 }
 
 #typing-container {
