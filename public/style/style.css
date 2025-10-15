@@ -48,6 +48,38 @@ body {
     background-color: #444444;
 }
 
+#home-container {
+    display: none; /* 初期状態では非表示 */
+    flex-direction: column;
+    justify-content: flex-start; /* 上寄せに変更 */
+    padding-top: 15vh; /* 上からの余白を追加 */
+    align-items: center;
+    height: 100vh;
+    background-color: #282828;
+    color: #cccccc;
+}
+
+#home-container h1 {
+    color: #ffffff;
+    margin-bottom: 40px; /* ボタンとの間隔 */
+}
+
+#home-container .home-menu button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 12px 24px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    margin: 10px;
+    min-width: 200px; /* ボタンの幅を統一 */
+}
+
+#home-container .home-menu button:hover {
+    background-color: #444444;
+}
+
 #typing-container {
     position: relative;
     display: none; /* Initially hidden, JS will change to 'flex' */

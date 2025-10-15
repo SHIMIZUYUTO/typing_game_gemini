@@ -70,7 +70,7 @@ loginForm.addEventListener('submit', async (e) => {
 
 function showHomeScreen() {
     document.getElementById('login-container').style.display = 'none';
-    document.getElementById('home-container').style.display = 'block';
+    document.getElementById('home-container').style.display = 'flex';
     // This event will be caught by another script to display the username
     document.dispatchEvent(new Event('userLoggedIn'));
 }
