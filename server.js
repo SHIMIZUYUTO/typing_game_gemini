@@ -441,7 +441,6 @@ app.post("/get-refactor-puzzle", async (req, res) => {
         const puzzleTypes = [
             { name: '行の移動', keys: 'Alt + ↓/↑', instruction: '行が間違った場所にある（例：変数が使用された後に宣言されている）。' },
             { name: 'インデント修正', keys: 'Tab / Shift+Tab', instruction: '1〜2行のインデントが間違っている（多すぎる、または少なすぎる）。' },
-            { name: '行の複製', keys: 'Shift + Alt + ↓/↑', instruction: 'コードの実行に必要な、ほぼ同一の行が1行欠けている。' },
             { name: '行の削除', keys: 'Ctrl + Shift + K', instruction: '明らかに不要な行（デバッグ用のprintfなど）が1行だけ含まれている。' },
             { name: '行コメントの切り替え', keys: 'Ctrl + /', instruction: '実行されるべきコード行が1行だけコメントアウトされている。' },
             { name: 'キーワード置換', keys: 'Ctrl + F → Ctrl + H', instruction: '複数の行にわたって、同じ単語（3文字以上）を別の単語に修正する必要がある（例：「tmp」を「temp」に）。' }
