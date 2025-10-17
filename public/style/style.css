@@ -80,7 +80,7 @@ body {
     background-color: #444444;
 }
 
-#typing-start-menu {
+#typing-start-menu, #shortcut-start-menu {
     display: none;
     flex-direction: column;
     justify-content: flex-start;
@@ -91,7 +91,7 @@ body {
     color: #cccccc;
 }
 
-#typing-start-menu h1 {
+#typing-start-menu h1, #shortcut-start-menu h1 {
     color: #ffffff;
     margin-bottom: 40px;
 }
@@ -104,7 +104,7 @@ body {
     margin-bottom: 30px;
 }
 
-#typing-start-menu .start-menu-buttons button {
+#typing-start-menu .start-menu-buttons button, #shortcut-start-menu .start-menu-buttons button {
     background-color: #333333;
     color: #ffffff;
     border: 1px solid #555555;
@@ -116,7 +116,7 @@ body {
     min-width: 200px;
 }
 
-#typing-start-menu .start-menu-buttons button:hover {
+#typing-start-menu .start-menu-buttons button:hover, #shortcut-start-menu .start-menu-buttons button:hover {
     background-color: #444444;
 }
 

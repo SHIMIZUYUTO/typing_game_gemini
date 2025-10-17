@@ -2,7 +2,7 @@ import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, sav
 import { auth } from './firebase_auth.js';
 
 // Main Buttons
-let startButton, stopButton, customButton, refactorPracticeButton, diffButton, closeDiffBtn;
+let startButton, stopButton, customButton, refactorPracticeButton, diffButton, closeDiffBtn, startShortcutPracticeButton;
 
 // Main UI Elements
 let incorrectKeysDisplay;
@@ -47,6 +47,7 @@ function initializeDOMElements() {
     stopButton = document.getElementById("stop-button");
     customButton = document.getElementById("custom-button");
     refactorPracticeButton = document.getElementById("refactor-practice-button");
+    startShortcutPracticeButton = document.getElementById('start-shortcut-practice-button');
     diffButton = document.getElementById("diff-button");
     closeDiffBtn = document.getElementById("close-diff");
 
@@ -86,6 +87,7 @@ export function setupGameEvents() {
     if (startButton) startButton.addEventListener("click", startGame);
     if (customButton) customButton.addEventListener("click", startCustomGame);
     if (refactorPracticeButton) refactorPracticeButton.addEventListener("click", startRefactorGame);
+    if (startShortcutPracticeButton) startShortcutPracticeButton.addEventListener("click", startRefactorGame);
     if (stopButton) stopButton.addEventListener("click", handleStopButtonClick);
 
     // Commenting buttons

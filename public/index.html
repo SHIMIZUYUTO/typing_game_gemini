@@ -91,6 +91,15 @@
         </div>
     </div>
 
+    <!-- ショートカットキー練習スタートメニュー -->
+    <div id="shortcut-start-menu" style="display: none;">
+        <h1>ショートカットキー練習</h1>
+        <div class="start-menu-buttons">
+            <button id="start-shortcut-practice-button">練習開始</button>
+            <button id="back-to-home-from-shortcut-menu">ホームに戻る</button>
+        </div>
+    </div>
+
     <!-- タイピング画面 -->
     <div id="typing-container" style="display: none;">
       <button id="back-to-start-menu-from-typing" style="position: absolute; top: 10px; left: 10px;">スタートメニューへ</button>
@@ -411,6 +420,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         const homeContainer = document.getElementById('home-container');
         const typingStartMenu = document.getElementById('typing-start-menu');
+        const shortcutStartMenu = document.getElementById('shortcut-start-menu');
         const typingContainer = document.getElementById('typing-container');
         const resultModal = document.getElementById('result-modal');
 
@@ -423,6 +433,11 @@
         const backToStartMenuFromTyping = document.getElementById('back-to-start-menu-from-typing');
         const backToStartMenuButton = document.getElementById('back-to-start-menu-button');
 
+        const startShortcutPracticeButton = document.getElementById('start-shortcut-practice-button');
+        const backToHomeFromShortcutMenu = document.getElementById('back-to-home-from-shortcut-menu');
+
+        let activeGameMode = 'typing'; // 'typing' or 'shortcut'
+
         // Home -> Typing Start Menu
         gotoTypingPracticeButton.addEventListener('click', () => {
             homeContainer.style.display = 'none';
@@ -431,8 +446,11 @@
 
         // Start Menu -> Typing Game
         const startPractice = () => {
+            activeGameMode = 'typing';
             typingStartMenu.style.display = 'none';
             typingContainer.style.display = 'flex';
+            // Ensure the title is correct
+            document.getElementById('game-mode-title').textContent = 'タイピング練習モード';
         };
         startButton.addEventListener('click', startPractice);
         customButton.addEventListener('click', startPractice);
@@ -443,26 +461,48 @@
             homeContainer.style.display = 'flex';
         });
 
-        // Typing Game -> Start Menu
+        // Typing Game -> Correct Start Menu
         backToStartMenuFromTyping.addEventListener('click', () => {
             typingContainer.style.display = 'none';
-            typingStartMenu.style.display = 'flex';
+            if (activeGameMode === 'shortcut') {
+                shortcutStartMenu.style.display = 'flex';
+
+            } else {
+                typingStartMenu.style.display = 'flex';
+            }
         });
 
-        // Result Modal -> Start Menu
+        // Result Modal -> Correct Start Menu
         backToStartMenuButton.addEventListener('click', () => {
             resultModal.style.display = 'none';
             typingContainer.style.display = 'none';
-            typingStartMenu.style.display = 'flex';
+            if (activeGameMode === 'shortcut') {
+                shortcutStartMenu.style.display = 'flex';
+            } else {
+                typingStartMenu.style.display = 'flex';
+            }
         });
 
-        // --- Shortcut Practice Navigation (Note: This might be affected by the HTML changes) ---
-        const navigateToShortcutPractice = () => {
+        // --- Shortcut Practice Navigation ---
+        // Home -> Shortcut Start Menu
+        gotoShortcutPracticeButton.addEventListener('click', () => {
           homeContainer.style.display = 'none';
+          shortcutStartMenu.style.display = 'flex';
+        });
+
+        // Shortcut Start Menu -> Shortcut Practice Game
+        startShortcutPracticeButton.addEventListener('click', () => {
+          activeGameMode = 'shortcut';
+          shortcutStartMenu.style.display = 'none';
           typingContainer.style.display = 'flex';
           document.getElementById('game-mode-title').textContent = 'ショートカットキー練習モード';
-        };
-        gotoShortcutPracticeButton.addEventListener('click', navigateToShortcutPractice);
+        });
+
+        // Shortcut Start Menu -> Home
+        backToHomeFromShortcutMenu.addEventListener('click', () => {
+          shortcutStartMenu.style.display = 'none';
+          homeContainer.style.display = 'flex';
+        });
 
       });
     </script>
