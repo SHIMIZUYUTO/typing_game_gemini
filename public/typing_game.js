@@ -158,10 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     showProgramsButton.addEventListener('click', openProgramsModal);
 
-    closeProgramsModal.addEventListener('click', () => {
-        programsModal.style.display = 'none';
-    });
-
     tabFavorite.addEventListener('click', () => {
         activeTab = 'favorite';
         tabFavorite.classList.add('active-tab');

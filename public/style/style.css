@@ -250,22 +250,48 @@ body {
     display: none;
 }
 
-/* プログラム一覧モーダル */
-#programs-modal {
+/* AI Chat Page Container */
+#ai-chat-container {
     display: none;
-    position: fixed;
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 70%;
-    background: #fff;
-    border: 1px solid #ccc;
-    z-index: 1000;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    border-radius: 8px;
-    /* paddingはheaderとlistで分けるので不要 */
+    position: relative;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100dvh;
     overflow: hidden;
-    min-width: 320px;
+    background-color: #282828;
+    color: #cccccc;
+    padding: 60px 40px 20px 40px; /* Add padding for the absolute positioned back button */
+    box-sizing: border-box;
+}
+
+#ai-chat-container h2 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 20px;
+}
+
+/* --- Program List View --- */
+#programs-modal {
+    /* This is not a modal anymore, but a view container */
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+    display: flex; /* Use flex to structure header and list */
+    flex-direction: column;
+}
+
+#programs-modal-header {
+    position: static;
+    background: transparent;
+    padding: 0 0 8px 0;
+    border-bottom: 1px solid #555;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .programs-modal-header-row {
@@ -273,126 +299,191 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 4px;
 }
 
-#programs-modal-header {
-    position: sticky;
-    top: 0;
-    background: #fff;
-    z-index: 10;
-    padding: 16px 24px 8px 24px;
-    border-bottom: 1px solid #eee;
+#close-programs-modal {
+    display: none; /* This button is obsolete */
+}
+
+#programs-tabs button {
+    padding: 8px 18px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 15px;
+    color: #ccc;
+    margin-right: 2px;
+    border-radius: 5px 5px 0 0;
+}
+
+#programs-tabs button:hover {
+    background: #3c3c3c;
+}
+
+#programs-tabs button.active-tab {
+    background: #282828;
+    border-color: #555;
+    border-bottom: 2px solid #007acc;
+    font-weight: bold;
+    color: #fff;
+}
+
+#programs-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    overflow-y: auto;
+    flex-grow: 1; /* Take remaining space */
+}
+
+#programs-list li {
+    border: 1px solid #3c3c3c;
+    border-radius: 4px;
+    padding: 12px 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+#programs-list li:hover {
+    background-color: #3c3c3c;
+}
+
+#programs-list li pre {
+    background: transparent;
+    padding: 0;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    flex-grow: 1;
+    margin: 0;
+    color: #ccc;
+}
+
+/* --- Program Detail (Chat) View --- */
+#program-detail-modal {
+    /* This is not a modal anymore, but a view container */
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    display: none; /* Controlled by JS */
+    flex-direction: column;
+}
+
+#program-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+#program-detail-header button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+#program-detail-header button:hover {
+    background-color: #444444;
+}
+
+#detail-program-code {
+    background: #1e1e1e;
+    border: 1px solid #3c3c3c;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    white-space: pre-wrap;
+    color: #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+#gemini-chat-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent chat from overflowing container */
+}
+
+.chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    background: #1e1e1e;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #3c3c3c;
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-#programs-modal-header h2 {
-    margin: 0;
-    font-size: 20px;
-    color: #222;
+.chat-msg {
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 80%;
+    line-height: 1.4;
+    white-space: pre-wrap; /* Ensure long lines wrap */
+    word-break: break-word;
 }
 
-#close-programs-modal {
-    background: #f44336;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    padding: 6px 14px;
-    font-size: 14px;
-    cursor: pointer;
-    margin: 0;
-}
-#close-programs-modal:hover {
-    background: #d32f2f;
+.chat-user {
+    background: #004d99; /* A shade of blue */
+    color: #e0e0e0;
+    align-self: flex-end;
 }
 
-#programs-tabs {
-    margin-bottom: 0;
-}
-#programs-tabs button {
-    padding: 6px 18px;
-    border: none;
-    background: #eee;
-    cursor: pointer;
-    font-size: 15px;
-    border-radius: 5px 5px 0 0;
-    margin-right: 2px;
-}
-#programs-tabs button.active-tab {
-    background: #fff;
-    border-bottom: 2px solid #4caf50;
-    font-weight: bold;
+.chat-gemini {
+    background: #37373d; /* A shade of grey */
+    color: #e0e0e0;
+    align-self: flex-start;
 }
 
-#programs-list {
-    list-style: none;
-    padding: 0 24px 0 24px;
-    margin: 0;
-    height: calc(100% - 110px); /* headerの高さ分を引く */
-    overflow-y: auto;
-}
-#programs-list li {
-    border-bottom: 1px solid #eee;
-    padding: 12px 0 8px 0;
-    margin-bottom: 0;
+.chat-input-row {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
-/* 保存プログラム一覧のスタイル */
-.saved-program-code {
-    background: #eee;
-    padding: 8px;
-    overflow: auto;
+.chat-input-row input {
+    flex-grow: 1;
+    background-color: #3c3c3c;
+    color: #cccccc;
+    border: 1px solid #555555;
+    padding: 10px;
     border-radius: 4px;
     font-size: 14px;
-    margin-bottom: 4px;
 }
 
-.saved-program-date {
-    color: #666;
-    font-size: 12px;
-    margin-bottom: 6px;
-}
-
-.program-question-input {
-    width: 60%;
-    margin-bottom: 4px;
-    padding: 4px;
-    font-size: 14px;
-}
-
-.ask-gemini-btn {
-    margin-left: 8px;
-    padding: 4px 10px;
-    font-size: 14px;
-    background: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
+.chat-input-row button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
     cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0 16px;
+}
+.chat-input-row button:hover {
+    background-color: #444444;
 }
 
-.ask-gemini-btn:hover {
-    background: #388e3c;
-}
-
-.gemini-answer {
-    margin: 8px 0;
-    color: #333;
-    background: #f9f9f9;
-    padding: 6px;
-    border-radius: 3px;
-    font-size: 14px;
-    white-space: pre-wrap;
-}
-
-/* お気に入りスターのスタイル */
+/* Favorite Star Style */
 .favorite-star {
     cursor: pointer;
-    font-size: 20px;
+    font-size: 24px;
     user-select: none;
-    margin-right: 8px;
+    margin-right: 12px;
     transition: color 0.2s;
 }
 
@@ -401,133 +492,10 @@ body {
 }
 
 .favorite-star:not(.favorited) {
-    color: #ccc;
+    color: #666;
 }
-
-/* タブのスタイル */
-#programs-tabs {
-    margin-bottom: 10px;
-}
-#programs-tabs button {
-    padding: 6px 18px;
-    border: none;
-    background: #eee;
-    cursor: pointer;
-    font-size: 15px;
-    border-radius: 5px 5px 0 0;
-    margin-right: 2px;
-}
-#programs-tabs button.active-tab {
-    background: #fff;
-    border-bottom: 2px solid #4caf50;
-    font-weight: bold;
-}
-
-#program-detail-modal {
-    display: none;
-    position: fixed;
-    top: 12%;
-    left: 15%;
-    width: 70%;
-    background: #fff;
-    border: 1px solid #ccc;
-    z-index: 2000;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    border-radius: 8px;
-    padding: 24px;
-}
-#close-program-detail {
-    background: #f44336;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    padding: 6px 14px;
-    font-size: 14px;
-    cursor: pointer;
-    margin: 0;
-}
-
-#program-detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-#detail-program-code {
-    background: #eee;
-    padding: 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-bottom: 12px;
-    white-space: pre-wrap;
-}
-#gemini-chat-area {
-    margin-top: 12px;
-}
-#detail-question-input {
-    width: 60%;
-    padding: 4px;
-    font-size: 14px;
-}
-#detail-ask-gemini {
-    margin-left: 8px;
-    padding: 4px 10px;
-    font-size: 14px;
-    background: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-}
-#detail-gemini-answer {
-    margin: 8px 0;
-    color: #333;
-    background: #f9f9f9;
-    padding: 6px;
-    border-radius: 3px;
-    font-size: 14px;
-    white-space: pre-wrap;
-}
-
-/* チャット履歴のスタイル */
-.chat-history {
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 12px;
-    background: #f8f8f8;
-    padding: 8px;
-    border-radius: 4px;
-}
-.chat-msg {
-    margin-bottom: 8px;
-    padding: 6px 8px;
-    border-radius: 4px;
-}
-.chat-user {
-    background: #e3f2fd;
-    text-align: right;
-}
-.chat-gemini {
-    background: #f1f8e9;
-    text-align: left;
-}
-.chat-input-row {
-    display: flex;
-    gap: 8px;
-}
-
-#clear-chat-history {
-    margin-left: 8px;
-    padding: 4px 10px;
-    font-size: 14px;
-    background: #f44336;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-}
-#clear-chat-history:hover {
-    background: #d32f2f;
+.favorite-star:not(.favorited):hover {
+    color: #888;
 }
 
 /* レスポンシブ対応例 */

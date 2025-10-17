@@ -186,34 +186,40 @@
         </div>
     </div>
 
-    <!-- プログラム一覧モーダル -->
-    <div id="programs-modal">
-      <div id="programs-modal-header">
-        <div class="programs-modal-header-row">
-          <h2>保存されたプログラム一覧</h2>
-          <button id="close-programs-modal">閉じる</button>
-        </div>
-        <div id="programs-tabs">
-          <button id="tab-favorite" class="active-tab">★ お気に入り</button>
-          <button id="tab-normal">通常</button>
-        </div>
-      </div>
-      <ul id="programs-list"></ul>
-    </div>
+    <!-- AIに質問モード画面 -->
+    <div id="ai-chat-container" style="display: none;">
+      <button id="back-to-home-from-ai-chat" style="position: absolute; top: 10px; left: 10px;">ホームへ戻る</button>
 
-    <!-- プログラム詳細モーダル（トークルーム） -->
-    <div id="program-detail-modal" style="display:none;">
-      <div id="program-detail-header">
-        <button id="close-program-detail">閉じる</button>
-        <span class="favorite-star" id="detail-favorite-star">☆</span>
+      <!-- プログラム一覧 -->
+      <div id="programs-modal">
+        <div id="programs-modal-header">
+          <div class="programs-modal-header-row">
+            <h2>保存されたプログラム一覧</h2>
+            <!-- この閉じるボタンは後でJSで非表示にするか、別の機能を持たせる -->
+            <button id="close-programs-modal">閉じる</button> 
+          </div>
+          <div id="programs-tabs">
+            <button id="tab-favorite" class="active-tab">★ お気に入り</button>
+            <button id="tab-normal">通常</button>
+          </div>
+        </div>
+        <ul id="programs-list"></ul>
       </div>
-      <pre id="detail-program-code"></pre>
-      <div id="gemini-chat-area">
-        <div id="chat-history" class="chat-history"></div>
-        <div class="chat-input-row">
-          <input type="text" id="detail-question-input" placeholder="このプログラムについて質問">
-          <button id="detail-ask-gemini">Geminiに質問</button>
-          <button id="clear-chat-history">履歴削除</button>
+
+      <!-- プログラム詳細（トークルーム） -->
+      <div id="program-detail-modal" style="display:none;">
+        <div id="program-detail-header">
+          <button id="close-program-detail">一覧へ戻る</button>
+          <span class="favorite-star" id="detail-favorite-star">☆</span>
+        </div>
+        <pre id="detail-program-code"></pre>
+        <div id="gemini-chat-area">
+          <div id="chat-history" class="chat-history"></div>
+          <div class="chat-input-row">
+            <input type="text" id="detail-question-input" placeholder="このプログラムについて質問">
+            <button id="detail-ask-gemini">Geminiに質問</button>
+            <button id="clear-chat-history">履歴削除</button>
+          </div>
         </div>
       </div>
     </div>
@@ -423,9 +429,11 @@
         const shortcutStartMenu = document.getElementById('shortcut-start-menu');
         const typingContainer = document.getElementById('typing-container');
         const resultModal = document.getElementById('result-modal');
+        const aiChatContainer = document.getElementById('ai-chat-container');
 
         const gotoTypingPracticeButton = document.getElementById('goto-typing-practice');
         const gotoShortcutPracticeButton = document.getElementById('goto-shortcut-practice');
+        const showProgramsButton = document.getElementById('show-programs-button');
         
         const startButton = document.getElementById('start-button');
         const customButton = document.getElementById('custom-button');
@@ -435,6 +443,7 @@
 
         const startShortcutPracticeButton = document.getElementById('start-shortcut-practice-button');
         const backToHomeFromShortcutMenu = document.getElementById('back-to-home-from-shortcut-menu');
+        const backToHomeFromAiChat = document.getElementById('back-to-home-from-ai-chat');
 
         let activeGameMode = 'typing'; // 'typing' or 'shortcut'
 
@@ -442,6 +451,18 @@
         gotoTypingPracticeButton.addEventListener('click', () => {
             homeContainer.style.display = 'none';
             typingStartMenu.style.display = 'flex';
+        });
+
+        // Home -> AI Chat Page
+        showProgramsButton.addEventListener('click', () => {
+            homeContainer.style.display = 'none';
+            aiChatContainer.style.display = 'block';
+        });
+
+        // AI Chat Page -> Home
+        backToHomeFromAiChat.addEventListener('click', () => {
+            aiChatContainer.style.display = 'none';
+            homeContainer.style.display = 'flex';
         });
 
         // Start Menu -> Typing Game
