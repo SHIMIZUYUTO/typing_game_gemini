@@ -67,40 +67,35 @@
       </div>
     </div>
 
+    <!-- タイピングスタートメニュー -->
+    <div id="typing-start-menu" style="display: none;">
+        <h1>タイピング練習</h1>
+        <div class="settings-container">
+            <div id="difficulty-buttons">
+                <p>タイピング難易度選択:</p>
+                <button class="difficulty-button active" data-level="1">1</button>
+                <button class="difficulty-button" data-level="2">2</button>
+                <button class="difficulty-button" data-level="3">3</button>
+                <button class="difficulty-button" data-level="4">4</button>
+                <button class="difficulty-button" data-level="5">5</button>
+            </div>
+            <div id="custom-theme-box" style="margin-bottom:8px;">
+                <label for="custom-theme-input">好きな題材:</label>
+                <input type="text" id="custom-theme-input" placeholder="自由に入力してください" style="width: 200px;">
+            </div>
+        </div>
+        <div class="start-menu-buttons">
+            <button id="start-button">通常モードで開始</button>
+            <button id="custom-button">カスタムモードで開始</button>
+            <button id="back-to-home-from-start-menu">ホームに戻る</button>
+        </div>
+    </div>
+
     <!-- タイピング画面 -->
     <div id="typing-container" style="display: none;">
-      <button id="back-to-home-button" style="position: absolute; top: 10px; left: 10px;">戻る</button>
+      <button id="back-to-start-menu-from-typing" style="position: absolute; top: 10px; left: 10px;">スタートメニューへ</button>
       <div id="user-welcome"></div>
       <h1 id="game-mode-title" style="text-align: center;">タイピング練習モード</h1>
-      <!-- ここに移動 -->
-      <div class="settings-container">
-        <div id="button-container">
-        <span class="typing-mode-btn"><button id="start-button">通常モード</button></span>
-        <span class="typing-mode-btn"><button id="custom-button">カスタムモード</button></span>
-        <!-- <span class="typing-mode-btn"><button id="show-programs-button">保存プログラム一覧</button></span> -->
-        <!-- <span class="typing-mode-btn"><button id="start-quiz-button">問題出題</button></span> -->
-        <!-- <span class="typing-mode-btn"><button id="quiz-history-button">クイズ履歴</button></span> -->
-        
-        <span class="shortcut-mode-btn"><button id="refactor-practice-button">スタート</button></span>
-        
-        <span><button id="stop-button" disabled>中断</button></span>
-        <span><button id="show-diff-button" disabled>差分を表示</button></span>
-        <span id="submit-eval-cell" style="display: none;"><button id="submit-evaluation-button">評価を実行</button></span>
-        <span id="reevaluate-cell" style="display: none;"><button id="reevaluate-button">再評価する</button></span>
-      </div>
-        <div id="custom-theme-box" style="margin-bottom:8px; display:none;">
-          <label for="custom-theme-input">好きな題材:</label>
-          <input type="text" id="custom-theme-input" placeholder="自由に入力してください" style="width: 200px;">
-        </div>
-        <div id="difficulty-buttons">
-          <p>タイピング難易度選択:</p>
-          <button class="difficulty-button active" data-level="1">1</button>
-          <button class="difficulty-button" data-level="2">2</button>
-          <button class="difficulty-button" data-level="3">3</button>
-          <button class="difficulty-button" data-level="4">4</button>
-          <button class="difficulty-button" data-level="5">5</button>
-        </div>
-      </div>
       
       <div id="shortcut-hints" style="display: none; margin-bottom: 10px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;"></div>
 
@@ -112,7 +107,12 @@
       </div>
       <p id="score-display"></p>
       <p id ="incorrect-keys">間違えたキー:　<span id="incorrect-keys-display"></span></p>
-    </div>
+      <div id="typing-game-buttons" style="text-align: center; margin-top: 10px;">
+        <button id="stop-button" disabled>中断</button>
+        <button id="show-diff-button" disabled>差分を表示</button>
+        <span id="submit-eval-cell" style="display: none;"><button id="submit-evaluation-button">評価を実行</button></span>
+        <span id="reevaluate-cell" style="display: none;"><button id="reevaluate-button">再評価する</button></span>
+      </div>
     </div>
 
     <!-- クイズモーダル -->
@@ -243,6 +243,7 @@
             <div id="result-modal-mistakes"></div>
             <div class="result-modal-actions">
                 <button id="start-commenting-button">コメントを追記・評価する</button>
+                <button id="back-to-start-menu-button">スタートメニューへ</button>
             </div>
         </div>
     </div>
@@ -408,51 +409,61 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
+        const homeContainer = document.getElementById('home-container');
+        const typingStartMenu = document.getElementById('typing-start-menu');
+        const typingContainer = document.getElementById('typing-container');
+        const resultModal = document.getElementById('result-modal');
+
         const gotoTypingPracticeButton = document.getElementById('goto-typing-practice');
         const gotoShortcutPracticeButton = document.getElementById('goto-shortcut-practice');
-        const backToHomeButton = document.getElementById('back-to-home-button');
-        const homeContainer = document.getElementById('home-container');
-        const typingContainer = document.getElementById('typing-container');
+        
+        const startButton = document.getElementById('start-button');
+        const customButton = document.getElementById('custom-button');
+        const backToHomeFromStartMenu = document.getElementById('back-to-home-from-start-menu');
+        const backToStartMenuFromTyping = document.getElementById('back-to-start-menu-from-typing');
+        const backToStartMenuButton = document.getElementById('back-to-start-menu-button');
 
-        // タイピングとショートカット練習の画面遷移関数
-        const navigateToTypingGame = () => {
-          homeContainer.style.display = 'none';
-          typingContainer.style.display = 'flex';
-          document.getElementById('game-mode-title').textContent = 'タイピング練習モード';
-          
-          document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'inline-block');
-          document.querySelectorAll('.shortcut-mode-btn').forEach(el => el.style.display = 'none');
+        // Home -> Typing Start Menu
+        gotoTypingPracticeButton.addEventListener('click', () => {
+            homeContainer.style.display = 'none';
+            typingStartMenu.style.display = 'flex';
+        });
 
-          document.getElementById('difficulty-buttons').style.display = 'block';
-          document.getElementById('custom-theme-box').style.display = 'block';
-          document.getElementById('incorrect-keys').style.display = 'block';
-          document.getElementById('score-display').style.display = 'block';
+        // Start Menu -> Typing Game
+        const startPractice = () => {
+            typingStartMenu.style.display = 'none';
+            typingContainer.style.display = 'flex';
         };
+        startButton.addEventListener('click', startPractice);
+        customButton.addEventListener('click', startPractice);
+
+        // Start Menu -> Home
+        backToHomeFromStartMenu.addEventListener('click', () => {
+            typingStartMenu.style.display = 'none';
+            homeContainer.style.display = 'flex';
+        });
+
+        // Typing Game -> Start Menu
+        backToStartMenuFromTyping.addEventListener('click', () => {
+            typingContainer.style.display = 'none';
+            typingStartMenu.style.display = 'flex';
+        });
+
+        // Result Modal -> Start Menu
+        backToStartMenuButton.addEventListener('click', () => {
+            resultModal.style.display = 'none';
+            typingContainer.style.display = 'none';
+            typingStartMenu.style.display = 'flex';
+        });
+
+        // --- Shortcut Practice Navigation (Note: This might be affected by the HTML changes) ---
         const navigateToShortcutPractice = () => {
           homeContainer.style.display = 'none';
           typingContainer.style.display = 'flex';
           document.getElementById('game-mode-title').textContent = 'ショートカットキー練習モード';
-
-          document.querySelectorAll('.typing-mode-btn').forEach(el => el.style.display = 'none');
-          document.querySelectorAll('.shortcut-mode-btn').forEach(el => el.style.display = 'inline-block');
-
-          document.getElementById('difficulty-buttons').style.display = 'none';
-          document.getElementById('custom-theme-box').style.display = 'none';
-          document.getElementById('incorrect-keys').style.display = 'none';
-          document.getElementById('score-display').style.display = 'none';
-          document.getElementById('submit-eval-cell').style.display = 'none';
-          document.getElementById('reevaluate-cell').style.display = 'none';
         };
-
-        gotoTypingPracticeButton.addEventListener('click', navigateToTypingGame);
         gotoShortcutPracticeButton.addEventListener('click', navigateToShortcutPractice);
 
-        backToHomeButton.addEventListener('click', () => {
-          typingContainer.style.display = 'none';
-          homeContainer.style.display = 'flex';
-          document.getElementById('result-display').textContent = '';
-          document.getElementById('custom-theme-box').style.display = 'none';
-        });
       });
     </script>
 </body>

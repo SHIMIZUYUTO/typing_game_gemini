@@ -11,7 +11,6 @@ let isSignUpMode = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('login-container').style.display = 'block';
-  document.getElementById('custom-theme-box').style.display = 'none';
 });
 
 // '新規登録' button toggles sign up mode

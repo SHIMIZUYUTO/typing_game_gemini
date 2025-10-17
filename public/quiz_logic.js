@@ -42,7 +42,7 @@ function initializeQuiz() {
     cancelQuizButton.addEventListener('click', hideQuizModal);
     closeQuizResultsButton.addEventListener('click', hideQuizModal);
     startQuizConfirmButton.addEventListener('click', startQuiz);
-    quizHistoryButton.addEventListener('click', showQuizHistory);
+    if (quizHistoryButton) quizHistoryButton.addEventListener('click', showQuizHistory);
     closeQuizHistoryButton.addEventListener('click', () => quizHistoryModal.style.display = 'none');
     backToHistoryListButton.addEventListener('click', () => {
         quizHistoryDetail.style.display = 'none';

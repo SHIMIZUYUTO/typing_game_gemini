@@ -83,26 +83,26 @@ export function setupGameEvents() {
     initializeDOMElements(); // Initialize all DOM elements safely
 
     // Game buttons
-    startButton.addEventListener("click", startGame);
-    customButton.addEventListener("click", startCustomGame);
-    refactorPracticeButton.addEventListener("click", startRefactorGame);
-    stopButton.addEventListener("click", handleStopButtonClick);
+    if (startButton) startButton.addEventListener("click", startGame);
+    if (customButton) customButton.addEventListener("click", startCustomGame);
+    if (refactorPracticeButton) refactorPracticeButton.addEventListener("click", startRefactorGame);
+    if (stopButton) stopButton.addEventListener("click", handleStopButtonClick);
 
     // Commenting buttons
-    startCommentingButton.addEventListener('click', () => {
+    if (startCommentingButton) startCommentingButton.addEventListener('click', () => {
         resultModal.style.display = 'none'; // Hide result modal
         enableCommenting();
     });
-    submitEvaluationButton.addEventListener('click', evaluateComments);
-    reevaluateButton.addEventListener('click', enableReevaluation);
-    closeEvaluationResultButton.addEventListener('click', () => evaluationResultModal.style.display = 'none');
+    if (submitEvaluationButton) submitEvaluationButton.addEventListener('click', evaluateComments);
+    if (reevaluateButton) reevaluateButton.addEventListener('click', enableReevaluation);
+    if (closeEvaluationResultButton) closeEvaluationResultButton.addEventListener('click', () => evaluationResultModal.style.display = 'none');
 
     // Diff editor buttons
-    showDiffButton.addEventListener('click', showDiff);
-    closeDiffModal.addEventListener('click', () => diffEditorModal.style.display = 'none');
+    if (showDiffButton) showDiffButton.addEventListener('click', showDiff);
+    if (closeDiffModal) closeDiffModal.addEventListener('click', () => diffEditorModal.style.display = 'none');
 
     // Result modal buttons
-    closeResultModal.addEventListener('click', () => {
+    if (closeResultModal) closeResultModal.addEventListener('click', () => {
         resultModal.style.display = 'none';
         // Reset modal for typing game
         resultModalSpeed.style.display = 'block';
@@ -158,15 +158,15 @@ async function setupNewGame() {
     isGameEnding = false; // Reset the flag
     await showCountdown();
     window.editor.updateOptions({ readOnly: false });
-    startButton.disabled = true;
-    customButton.disabled = true;
-    refactorPracticeButton.disabled = true;
-    stopButton.disabled = false;
-    showDiffButton.disabled = false;
+    if (startButton) startButton.disabled = true;
+    if (customButton) customButton.disabled = true;
+    if (refactorPracticeButton) refactorPracticeButton.disabled = true;
+    if (stopButton) stopButton.disabled = false;
+    if (showDiffButton) showDiffButton.disabled = false;
     
     // Reset and hide comment evaluation controls
-    submitEvalCell.style.display = 'none';
-    reevaluateCell.style.display = 'none';
+    if (submitEvalCell) submitEvalCell.style.display = 'none';
+    if (reevaluateCell) reevaluateCell.style.display = 'none';
 
     incorrectKeys = {};
     updateIncorrectKeysDisplay();
@@ -197,15 +197,18 @@ async function endGame(wasStoppedManually) {
     if (contentChangeListener) contentChangeListener.dispose();
     contentChangeListener = null;
 
-    stopButton.disabled = true;
-    startButton.disabled = false;
-    customButton.disabled = false;
-    refactorPracticeButton.disabled = false;
-    showDiffButton.disabled = true;
+    if (stopButton) stopButton.disabled = true;
+    if (startButton) startButton.disabled = false;
+    if (customButton) customButton.disabled = false;
+    if (refactorPracticeButton) refactorPracticeButton.disabled = false;
+    if (showDiffButton) showDiffButton.disabled = true;
+
     if (wasStoppedManually) {
-        // The resultDisplay element was removed, so this line is no longer needed.
+        // Game was stopped manually, just hide the typing container and show the start menu.
+        document.getElementById('typing-container').style.display = 'none';
+        document.getElementById('typing-start-menu').style.display = 'flex';
     } else {
-        // Populate and show the result modal
+        // Game finished normally, populate and show the result modal
         const timeTaken = (Date.now() - startTime) / 1000;
         const totalChars = codeLines.join('\n').length;
         const totalMistakes = Object.values(incorrectKeys).reduce((sum, count) => sum + count, 0);
@@ -248,7 +251,6 @@ async function endGame(wasStoppedManually) {
             await saveTopMistakeKeys(user, sortedKeys);
         }
         await saveUserProgram(user, window.placeholderEditor.getValue());
-        addCodeToHistory(window.placeholderEditor.getValue());
 
         if (typingSpeed) {
             await addTypingSession(user, parseFloat(typingSpeed));
@@ -354,11 +356,11 @@ function endRefactorGame(wasStoppedManually) {
     }
 
     window.editor.updateOptions({ readOnly: true });
-    stopButton.disabled = true;
-    startButton.disabled = false;
-    customButton.disabled = false;
-    refactorPracticeButton.disabled = false;
-    showDiffButton.disabled = true;
+    if (stopButton) stopButton.disabled = true;
+    if (startButton) startButton.disabled = false;
+    if (customButton) customButton.disabled = false;
+    if (refactorPracticeButton) refactorPracticeButton.disabled = false;
+    if (showDiffButton) showDiffButton.disabled = true;
 }
 // --- Diff Flow ---
 function showDiff() {
