@@ -457,12 +457,14 @@
         showProgramsButton.addEventListener('click', () => {
             homeContainer.style.display = 'none';
             aiChatContainer.style.display = 'block';
+            document.body.style.overflow = 'auto'; // スクロールを有効にする
         });
 
         // AI Chat Page -> Home
         backToHomeFromAiChat.addEventListener('click', () => {
             aiChatContainer.style.display = 'none';
             homeContainer.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // スクロールを無効にする
         });
 
         // Start Menu -> Typing Game

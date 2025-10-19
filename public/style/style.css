@@ -255,9 +255,7 @@ body {
     display: none;
     position: relative;
     flex-direction: column;
-    height: 100vh;
-    max-height: 100dvh;
-    overflow: hidden;
+    min-height: 100vh; /* Allow container to grow */
     background-color: #282828;
     color: #cccccc;
     padding: 60px 40px 20px 40px; /* Add padding for the absolute positioned back button */
