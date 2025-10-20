@@ -1,8 +1,13 @@
 import { auth } from './firebase_auth.js';
 import { getUserPrograms, saveQuizResult, getQuizResults } from './firebase_helper.js';
 
+// === PAGE CONTAINERS ===
+const homeContainer = document.getElementById('home-container');
+const quizPageContainer = document.getElementById('quiz-page-container');
+
 // === ELEMENTS ===
 const quizHistoryModal = document.getElementById('quiz-history-modal');
+const startQuizButton = document.getElementById('start-quiz-button');
 const startQuizConfirmButton = document.getElementById('start-quiz-confirm-button');
 const quizHistoryButton = document.getElementById('quiz-history-button');
 const closeQuizHistoryButton = document.getElementById('close-quiz-history-button');
@@ -31,6 +36,13 @@ let userAnswers = [];
 
 // === INITIALIZATION ===
 function initializeQuiz() {
+    // Event listener to enter quiz mode from home
+    startQuizButton.addEventListener('click', () => {
+        homeContainer.style.display = 'none';
+        quizPageContainer.style.display = 'block';
+        showQuizSetup(); // Reset to the setup screen every time
+    });
+
     // Event listeners for buttons within the quiz page
     startQuizConfirmButton.addEventListener('click', startQuiz);
     if (quizHistoryButton) quizHistoryButton.addEventListener('click', showQuizHistory);
@@ -41,9 +53,6 @@ function initializeQuiz() {
         quizHistoryDetail.style.display = 'none';
         quizHistoryList.style.display = 'block';
     });
-
-    // Initial setup view
-    showQuizSetup();
 }
 
 // === MAIN QUIZ FLOW ===
