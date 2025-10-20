@@ -1,34 +1,27 @@
 import { auth } from './firebase_auth.js';
 import { getUserPrograms, saveQuizResult, getQuizResults } from './firebase_helper.js';
 
-// === MODAL ELEMENTS ===
-const quizModal = document.getElementById('quiz-modal');
+// === ELEMENTS ===
 const quizHistoryModal = document.getElementById('quiz-history-modal');
-
-// === BUTTONS ===
-const startQuizButton = document.getElementById('start-quiz-button');
-const cancelQuizButton = document.getElementById('cancel-quiz-button');
 const startQuizConfirmButton = document.getElementById('start-quiz-confirm-button');
-const closeQuizResultsButton = document.getElementById('close-quiz-results-button');
 const quizHistoryButton = document.getElementById('quiz-history-button');
 const closeQuizHistoryButton = document.getElementById('close-quiz-history-button');
 const backToHistoryListButton = document.getElementById('back-to-history-list-button');
 
-// === UI PANES & CONTAINERS ===
 const quizSetup = document.getElementById('quiz-setup');
 const quizMain = document.getElementById('quiz-main');
 const quizResults = document.getElementById('quiz-results');
 const questionCounter = document.getElementById('quiz-question-counter');
-const questionText = document.getElementById('quiz-question-text'); // New
+const questionText = document.getElementById('quiz-question-text');
 const codeSnippet = document.getElementById('quiz-code-snippet');
-const feedbackContainer = document.getElementById('quiz-feedback'); // New
+const feedbackContainer = document.getElementById('quiz-feedback');
 const choicesContainer = document.getElementById('quiz-choices');
 const scoreDisplay = document.getElementById('quiz-score');
 const reviewContainer = document.getElementById('quiz-review');
 const quizHistoryList = document.getElementById('quiz-history-list');
 const quizHistoryDetail = document.getElementById('quiz-history-detail');
 const quizHistoryDetailContent = document.getElementById('quiz-history-detail-content');
-const quizTypeSelect = document.getElementById('quiz-type-select'); // New
+const quizTypeSelect = document.getElementById('quiz-type-select');
 
 // === QUIZ STATE ===
 let quizQuestions = [];
@@ -38,52 +31,42 @@ let userAnswers = [];
 
 // === INITIALIZATION ===
 function initializeQuiz() {
-    startQuizButton.addEventListener('click', showQuizSetup);
-    cancelQuizButton.addEventListener('click', hideQuizModal);
-    closeQuizResultsButton.addEventListener('click', hideQuizModal);
+    // Event listeners for buttons within the quiz page
     startQuizConfirmButton.addEventListener('click', startQuiz);
     if (quizHistoryButton) quizHistoryButton.addEventListener('click', showQuizHistory);
+    
+    // Listeners for the separate history modal
     closeQuizHistoryButton.addEventListener('click', () => quizHistoryModal.style.display = 'none');
     backToHistoryListButton.addEventListener('click', () => {
         quizHistoryDetail.style.display = 'none';
         quizHistoryList.style.display = 'block';
     });
+
+    // Initial setup view
+    showQuizSetup();
 }
 
 // === MAIN QUIZ FLOW ===
 
-async function showQuizSetup() {
+function showQuizSetup() {
+    quizMain.style.display = 'none';
+    quizResults.style.display = 'none';
+    quizSetup.style.display = 'flex'; // Use flex as defined in new CSS
+}
+
+async function startQuiz() {
     const user = auth.currentUser;
     if (!user) {
         alert("クイズを始めるにはログインしてください。");
         return;
     }
-    const allPrograms = await getUserPrograms(user);
-    const favoritePrograms = allPrograms.filter(p => p.favorite);
-    if (favoritePrograms.length === 0) {
-        alert("クイズを生成するには、お気に入りに登録したプログラムが1つ以上必要です。");
-        return;
-    }
-    quizMain.style.display = 'none';
-    quizResults.style.display = 'none';
-    quizSetup.style.display = 'block';
-    quizModal.style.display = 'flex';
-}
-
-function hideQuizModal() {
-    quizModal.style.display = 'none';
-}
-
-async function startQuiz() {
-    const user = auth.currentUser;
-    if (!user) return alert("ログインが必要です。");
 
     const numQuestions = parseInt(document.getElementById('quiz-num-questions').value, 10);
     if (isNaN(numQuestions) || numQuestions < 3 || numQuestions > 10) {
         return alert("問題数は3から10の間で選択してください。");
     }
 
-    const quizType = quizTypeSelect.value; // Get selected quiz type
+    const quizType = quizTypeSelect.value;
 
     const favoritePrograms = (await getUserPrograms(user)).filter(p => p.favorite);
     if (favoritePrograms.length < 1) {
@@ -91,7 +74,7 @@ async function startQuiz() {
     }
 
     quizSetup.style.display = 'none';
-    quizMain.style.display = 'block';
+    quizMain.style.display = 'flex'; // Use flex
     questionCounter.textContent = '問題生成中...';
     questionText.textContent = 'Geminiが問題を考えています...';
     codeSnippet.textContent = '少々お待ちください...';
@@ -105,7 +88,7 @@ async function startQuiz() {
             fetch("/generate-quiz-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code: program.code, quizType: quizType }) // Pass quizType
+                body: JSON.stringify({ code: program.code, quizType: quizType })
             }).then(res => res.ok ? res.json() : Promise.reject(new Error('問題の生成に失敗しました。')))
         );
 
@@ -117,12 +100,11 @@ async function startQuiz() {
     } catch (error) {
         console.error("Error starting quiz:", error);
         alert(error.message || "クイズの開始中にエラーが発生しました。");
-        hideQuizModal();
+        showQuizSetup(); // Go back to setup on error
     }
 }
 
 function displayQuestion() {
-    console.log("Displaying question:", quizQuestions[currentQuestionIndex]); // デバッグ用ログ
     if (currentQuestionIndex >= quizQuestions.length) {
         showResults();
         return;
@@ -132,11 +114,11 @@ function displayQuestion() {
     questionText.textContent = question.questionText;
     codeSnippet.textContent = question.questionCode;
     choicesContainer.innerHTML = '';
-    feedbackContainer.innerHTML = ''; // Clear previous feedback
+    feedbackContainer.innerHTML = '';
 
     question.choices.forEach(choice => {
         const button = document.createElement('button');
-        button.textContent = choice.replace(/\n/g, ' ⏎ '); // Replace newlines with return symbol
+        button.textContent = choice.replace(/\n/g, ' ⏎ ');
         button.addEventListener('click', () => handleAnswer(choice, button));
         choicesContainer.appendChild(button);
     });
@@ -146,7 +128,6 @@ function handleAnswer(selectedChoice, selectedButton) {
     const question = quizQuestions[currentQuestionIndex];
     const isCorrect = selectedChoice === question.answer;
     
-    // Store full question and answer for review
     userAnswers.push({
         question: question,
         selected: selectedChoice,
@@ -164,16 +145,16 @@ function handleAnswer(selectedChoice, selectedButton) {
 
     Array.from(choicesContainer.children).forEach(button => {
         button.disabled = true;
-        if (button.textContent === question.answer) button.classList.add('correct');
+        if (button.textContent.replace(/ ⏎ /g, '\n') === question.answer) button.classList.add('correct');
         else if (button === selectedButton) button.classList.add('incorrect');
     });
 
-    setTimeout(() => { currentQuestionIndex++; displayQuestion(); }, 2000); // Increased delay to see feedback
+    setTimeout(() => { currentQuestionIndex++; displayQuestion(); }, 2000);
 }
 
 function showResults() {
     quizMain.style.display = 'none';
-    quizResults.style.display = 'block';
+    quizResults.style.display = 'flex'; // Use flex
     scoreDisplay.textContent = `結果: ${userScore} / ${quizQuestions.length} 問正解！`;
     reviewContainer.innerHTML = '<h3>問題の振り返り</h3>';
     
@@ -268,4 +249,10 @@ function renderReviewItem(container, question, index) {
 }
 
 // === KICK-OFF ===
-initializeQuiz();
+// This script is a module, so it runs when imported. 
+// We need to make sure the DOM is ready.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeQuiz);
+} else {
+    initializeQuiz();
+}

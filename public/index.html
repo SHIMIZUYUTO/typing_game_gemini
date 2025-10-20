@@ -124,46 +124,46 @@
       </div>
     </div>
 
-    <!-- クイズモーダル -->
-    <div id="quiz-modal" style="display:none;">
-        <div id="quiz-container">
-            <!-- クイズ設定画面 -->
-            <div id="quiz-setup">
-                <h2>クイズ設定</h2>
-                <div class="quiz-setting-item">
-                    <label for="quiz-type-select">問題形式:</label>
-                    <select id="quiz-type-select">
-                        <option value="predict_output" selected>プログラムの出力結果を予測</option>
-                        <option value="loop_count">ループの実行回数を予測</option>
-                        <option value="predict_next_line_meaning">次に実行される処理を予測</option>
-                    </select>
-                </div>
-                <div class="quiz-setting-item">
-                    <label for="quiz-num-questions">問題数 (3〜10問):</label>
-                    <input type="number" id="quiz-num-questions" min="3" max="10" value="5">
-                </div>
-                <button id="start-quiz-confirm-button">クイズ開始</button>
-                <button id="cancel-quiz-button">キャンセル</button>
+    <!-- クイズページ -->
+    <div id="quiz-page-container" style="display:none;">
+        <button id="back-to-home-from-quiz" style="position: absolute; top: 10px; left: 10px;">ホームへ戻る</button>
+        
+        <!-- クイズ設定画面 -->
+        <div id="quiz-setup">
+            <h1>クイズモード</h1>
+            <div class="quiz-setting-item">
+                <label for="quiz-type-select">問題形式:</label>
+                <select id="quiz-type-select">
+                    <option value="predict_output" selected>プログラムの出力結果を予測</option>
+                    <option value="loop_count">ループの実行回数を予測</option>
+                    <option value="predict_next_line_meaning">次に実行される処理を予測</option>
+                </select>
             </div>
+            <div class="quiz-setting-item">
+                <label for="quiz-num-questions">問題数 (3〜10問):</label>
+                <input type="number" id="quiz-num-questions" min="3" max="10" value="5">
+            </div>
+            <button id="start-quiz-confirm-button">クイズ開始</button>
+            <button id="quiz-history-button">過去の履歴を見る</button>
+        </div>
 
-            <!-- クイズ実行画面 -->
-            <div id="quiz-main" style="display:none;">
-                <h3 id="quiz-question-counter"></h3>
-                <h4 id="quiz-question-text"></h4> <!-- Question text will go here -->
-                <pre id="quiz-code-snippet"></pre>
-                <div id="quiz-feedback"></div> <!-- Feedback like "Correct!" will go here -->
-                <div id="quiz-choices">
-                    <!-- 選択肢ボタンはJSで生成 -->
-                </div>
+        <!-- クイズ実行画面 -->
+        <div id="quiz-main" style="display:none;">
+            <h3 id="quiz-question-counter"></h3>
+            <h4 id="quiz-question-text"></h4>
+            <pre id="quiz-code-snippet"></pre>
+            <div id="quiz-feedback"></div>
+            <div id="quiz-choices">
+                <!-- 選択肢ボタンはJSで生成 -->
             </div>
+        </div>
 
-            <!-- クイズ結果画面 -->
-            <div id="quiz-results" style="display:none;">
-                <h2>クイズ結果</h2>
-                <p id="quiz-score"></p>
-                <div id="quiz-review"></div>
-                <button id="close-quiz-results-button">閉じる</button>
-            </div>
+        <!-- クイズ結果画面 -->
+        <div id="quiz-results" style="display:none;">
+            <h2>クイズ結果</h2>
+            <p id="quiz-score"></p>
+            <div id="quiz-review"></div>
+            <button id="back-to-home-from-quiz-result">ホームへ戻る</button>
         </div>
     </div>
 
@@ -430,10 +430,12 @@
         const typingContainer = document.getElementById('typing-container');
         const resultModal = document.getElementById('result-modal');
         const aiChatContainer = document.getElementById('ai-chat-container');
+        const quizPageContainer = document.getElementById('quiz-page-container'); // 新しいクイズページコンテナ
 
         const gotoTypingPracticeButton = document.getElementById('goto-typing-practice');
         const gotoShortcutPracticeButton = document.getElementById('goto-shortcut-practice');
         const showProgramsButton = document.getElementById('show-programs-button');
+        const startQuizButton = document.getElementById('start-quiz-button'); // クイズ開始ボタン
         
         const startButton = document.getElementById('start-button');
         const customButton = document.getElementById('custom-button');
@@ -444,6 +446,8 @@
         const startShortcutPracticeButton = document.getElementById('start-shortcut-practice-button');
         const backToHomeFromShortcutMenu = document.getElementById('back-to-home-from-shortcut-menu');
         const backToHomeFromAiChat = document.getElementById('back-to-home-from-ai-chat');
+        const backToHomeFromQuiz = document.getElementById('back-to-home-from-quiz'); // クイズページからホームへ
+        const backToHomeFromQuizResult = document.getElementById('back-to-home-from-quiz-result'); // クイズ結果からホームへ
 
         let activeGameMode = 'typing'; // 'typing' or 'shortcut'
 
@@ -460,12 +464,26 @@
             document.body.style.overflow = 'auto'; // スクロールを有効にする
         });
 
+        // Home -> Quiz Page
+        startQuizButton.addEventListener('click', () => {
+            homeContainer.style.display = 'none';
+            quizPageContainer.style.display = 'block';
+        });
+
         // AI Chat Page -> Home
         backToHomeFromAiChat.addEventListener('click', () => {
             aiChatContainer.style.display = 'none';
             homeContainer.style.display = 'flex';
             document.body.style.overflow = 'hidden'; // スクロールを無効にする
         });
+
+        // Quiz Page -> Home
+        const backToHomeFromQuizFunc = () => {
+            quizPageContainer.style.display = 'none';
+            homeContainer.style.display = 'flex';
+        };
+        backToHomeFromQuiz.addEventListener('click', backToHomeFromQuizFunc);
+        backToHomeFromQuizResult.addEventListener('click', backToHomeFromQuizFunc);
 
         // Start Menu -> Typing Game
         const startPractice = () => {
