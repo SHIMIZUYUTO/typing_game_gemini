@@ -97,7 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
         currentProgramId = program.id;
         detailCode.textContent = program.code;
         programsModal.style.display = 'none';
-        detailModal.style.display = 'block';
+        detailModal.style.display = 'flex'; // Changed to flex
+        document.body.style.overflow = 'hidden'; // Disable body scroll
 
         const user = auth.currentUser;
         if (!user) return;
@@ -175,7 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Detail Modal Listeners ---
     closeDetailModal.addEventListener('click', () => {
         detailModal.style.display = 'none';
-        programsModal.style.display = 'block';
+        programsModal.style.display = 'flex'; // Changed to flex
+        document.body.style.overflow = 'auto'; // Re-enable body scroll
     });
 
     askButton.addEventListener('click', askGemini);
