@@ -392,7 +392,7 @@ function showDiff() {
 
 function enableCommenting() {
     window.editor.updateOptions({ readOnly: false });
-    submitEvalCell.style.display = 'table-cell';
+    submitEvalCell.style.display = 'inline';
     reevaluateCell.style.display = 'none';
     Toastify({ text: "プログラムにコメントを追記して、「評価を実行」ボタンを押してください。", duration: 4000, gravity: "top", position: "center", style: { background: "#007acc" } }).showToast();
     window.editor.focus();
@@ -401,7 +401,7 @@ function enableCommenting() {
 function enableReevaluation() {
     window.editor.updateOptions({ readOnly: false });
     reevaluateCell.style.display = 'none';
-    submitEvalCell.style.display = 'table-cell';
+    submitEvalCell.style.display = 'inline';
     Toastify({ text: "再度コメントを修正し、「評価を実行」ボタンを押してください。", duration: 4000, gravity: "top", position: "center", style: { background: "#007acc" } }).showToast();
     window.editor.focus();
 }
@@ -438,7 +438,7 @@ async function evaluateComments() {
         submitEvaluationButton.disabled = false;
         submitEvaluationButton.textContent = '評価を実行';
         submitEvalCell.style.display = 'none';
-        reevaluateCell.style.display = 'table-cell';
+        reevaluateCell.style.display = 'inline';
     }
 }
 

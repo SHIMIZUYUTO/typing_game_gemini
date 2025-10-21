@@ -600,7 +600,8 @@ body {
     font-size: 16px;
 }
 
-#quiz-page-container button {
+#quiz-page-container button,
+#back-to-home-from-ai-chat {
     background-color: #333333;
     color: #ffffff;
     border: 1px solid #555555;
@@ -612,7 +613,8 @@ body {
     min-width: 200px;
 }
 
-#quiz-page-container button:hover {
+#quiz-page-container button:hover,
+#back-to-home-from-ai-chat:hover {
     background-color: #444444;
 }
 
