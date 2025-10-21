@@ -573,12 +573,12 @@ body {
     align-items: center;
     width: 100%;
     max-width: 800px;
+    margin: 0 auto; /* Force horizontal centering */
 }
 
 /* --- Quiz Setup --- */
 .quiz-setting-item {
     margin-bottom: 20px;
-    width: 100%;
     max-width: 400px;
 }
 
@@ -586,6 +586,7 @@ body {
     display: block;
     margin-bottom: 8px;
     font-size: 16px;
+    text-align: center; /* Center the label text */
 }
 
 #quiz-page-container select,
@@ -616,9 +617,6 @@ body {
 }
 
 /* --- Quiz Main --- */
-#quiz-main h3, #quiz-main h4 {
-    align-self: flex-start;
-}
 
 #quiz-code-snippet {
     background-color: #1e1e1e;
