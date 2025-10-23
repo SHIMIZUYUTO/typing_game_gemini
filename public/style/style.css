@@ -393,6 +393,20 @@ body {
     background-color: #444444;
 }
 
+#back-to-home-from-ai-chat {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#back-to-home-from-ai-chat:hover {
+    background-color: #444444;
+}
+
 #detail-program-code {
     background: #1e1e1e;
     border: 1px solid #3c3c3c;
@@ -600,8 +614,7 @@ body {
     font-size: 16px;
 }
 
-#quiz-page-container button,
-#back-to-home-from-ai-chat {
+#quiz-page-container button {
     background-color: #333333;
     color: #ffffff;
     border: 1px solid #555555;
@@ -613,8 +626,7 @@ body {
     min-width: 200px;
 }
 
-#quiz-page-container button:hover,
-#back-to-home-from-ai-chat:hover {
+#quiz-page-container button:hover {
     background-color: #444444;
 }
 
