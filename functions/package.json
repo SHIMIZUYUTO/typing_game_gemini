@@ -7,8 +7,7 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log",
-    "build": "tsc"
+    "logs": "firebase functions:log"
   },
   "engines": {
     "node": "20"
@@ -24,9 +23,7 @@
   "devDependencies": {
     "eslint": "^8.15.0",
     "eslint-config-google": "^0.14.0",
-    "firebase-functions-test": "^3.1.0",
-    "typescript": "^5.0.0",
-    "@types/express": "^4.17.21"
+    "firebase-functions-test": "^3.1.0"
   },
   "private": true
 }
