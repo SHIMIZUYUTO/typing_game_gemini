@@ -73,6 +73,26 @@
     ],
     "rewrites": [
       {
+        "source": "/get-words",
+        "function": "api"
+      },
+      {
+        "source": "/ask-gemini",
+        "function": "api"
+      },
+      {
+        "source": "/generate-quiz-question",
+        "function": "api"
+      },
+      {
+        "source": "/evaluate-comments",
+        "function": "api"
+      },
+      {
+        "source": "/get-refactor-puzzle",
+        "function": "api"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
