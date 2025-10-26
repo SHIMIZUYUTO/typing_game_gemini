@@ -42,15 +42,11 @@ app.post("/get-words", async (req, res) => {
         // カスタムキー
         if (req.body && Array.isArray(req.body.topMistakeKeys) && req.body.topMistakeKeys.length > 0) {
             const keys = req.body.topMistakeKeys.map(k => `"${k}"`).join(", ");
-            prompt = `${prompt}
-            また、以下の文字（キー）が多めに含まれるようなCプログラムを生成してください: ${keys}
-            `;
+            prompt = `${prompt}\n            また、以下の文字（キー）が多めに含まれるようなCプログラムを生成してください: ${keys}\n            `;
         }
         // 好きな題材から生成
         if (req.body && req.body.customTheme && req.body.customTheme.length > 0) {
-            prompt = `${prompt}
-            また、プログラムの内容や変数名、処理内容などに「${req.body.customTheme}」という題材を必ず盛り込んでください。題材がジャンルであればプログラムのジャンルを変更してください。関数の作成のようなプログラムに自体に関わる題材の場合は、それが含まれるプログラムを作成してください。いずれの題材にしても、プログラム中に日本語は含まないでください。
-            `;
+            prompt = `${prompt}\n            また、プログラムの内容や変数名、処理内容などに「${req.body.customTheme}」という題材を必ず盛り込んでください。題材がジャンルであればプログラムのジャンルを変更してください。関数の作成のようなプログラムに自体に関わる題材の場合は、それが含まれるプログラムを作成してください。いずれの題材にしても、プログラム中に日本語は含まないでください。\n            `;
         }
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -329,7 +325,7 @@ app.post("/evaluate-comments", async (req, res) => {
         【回答形式】
         以下のJSON形式で、JSONオブジェクトのみを出力してください。説明やマークダウンは一切含めないでください。
         JSONの各キーは必ずダブルクォーテーションで囲んでください。
-        JSONの文字列値にダブルクォーテーションが含まれる場合は、 \" のようにエスケープしてください。
+        JSONの文字列値にダブルクォーテーションが含まれる場合は、必ず \" のようにエスケープしてください。
         "scores"オブジェクトには、各基準に対する0〜100点の整数値を含めてください。
 
         {
@@ -354,9 +350,9 @@ app.post("/evaluate-comments", async (req, res) => {
         }
 
         【レビュー対象のコード】
-        \`\`\`c
+        \
         ${codeWithComments}
-        \`\`\`
+        \
         `;
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
