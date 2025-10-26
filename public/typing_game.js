@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         askButton.disabled = true;
 
         try {
-            const response = await fetch('/ask-gemini', {
+            const response = await fetch('/api/ask-gemini', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code, question, history: historyForAPI })

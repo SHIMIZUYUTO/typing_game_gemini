@@ -273,7 +273,7 @@ async function startRefactorGame() {
     window.editor.getDomNode().addEventListener('mousedown', editorMouseListener);
 
     try {
-        const response = await fetch("/get-refactor-puzzle", { method: "POST" });
+        const response = await fetch("/api/get-refactor-puzzle", { method: "POST" });
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.error || 'お題の取得に失敗しました。');
@@ -414,7 +414,7 @@ async function evaluateComments() {
     const codeWithComments = window.editor.getValue();
 
     try {
-        const response = await fetch("/evaluate-comments", {
+        const response = await fetch("/api/evaluate-comments", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ codeWithComments })
@@ -534,7 +534,7 @@ async function fetchWords(customTheme = "", topMistakeKeys = []) {
     try {
         const lineCount = difficultyLineCounts[currentDifficulty];
         const body = { lineCount, customTheme, topMistakeKeys };
-        const response = await fetch("/get-words", {
+        const response = await fetch("/api/get-words", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)

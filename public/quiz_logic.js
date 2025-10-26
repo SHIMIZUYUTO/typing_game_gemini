@@ -94,7 +94,7 @@ async function startQuiz() {
         const selectedPrograms = Array.from({ length: numQuestions }, () => favoritePrograms[Math.floor(Math.random() * favoritePrograms.length)]);
         
         const questionPromises = selectedPrograms.map(program =>
-            fetch("/generate-quiz-question", {
+            fetch("/api/generate-quiz-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code: program.code, quizType: quizType })
