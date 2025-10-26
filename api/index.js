@@ -1,7 +1,10 @@
 require("dotenv").config(); // APIキーを環境変数から読み込む
 const express = require("express");
 const fetch = require("node-fetch"); // APIリクエストを送るため
+const { getFirestore, collection, getDocs } = require('firebase/firestore');
+const { initializeApp } = require('firebase/app');
 const app = express();
+const db = getFirestore(firebaseApp);
 
 app.use(express.json());
 
@@ -474,6 +477,19 @@ app.post("/get-refactor-puzzle", async (req, res) => {
         console.error("Error fetching refactor puzzle:", error.message);
         res.status(500).json({ error: error.message });
     }
+});
+
+app.post('/api/get-words', async (req, res) => {
+  try {
+    const genre = req.body.genre || 'default'; // リクエストからジャンルを取得、なければ 'default'
+    const wordsCollection = collection(db, 'words', genre, 'details');
+    const querySnapshot = await getDocs(wordsCollection);
+    const words = querySnapshot.docs.map(doc => doc.data().word);
+    res.status(200).json(words);
+  } catch (error) {
+    console.error('Error fetching words:', error);
+    res.status(500).send('Error fetching words');
+  }
 });
 
 module.exports = app;
