@@ -25,7 +25,7 @@ jobs:
 
       # Firebase CLIをセットアップ
       - name: Setup Firebase CLI
-        uses: FirebaseExtended/action-setup-firebase-cli@v2
+        uses: FirebaseExtended/action-setup-firebase-cli@v1
         with:
           # サービスアカウントのシークレットを指定
           serviceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TYPING_GAME_A8239 }}
