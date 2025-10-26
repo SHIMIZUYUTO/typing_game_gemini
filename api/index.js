@@ -3,7 +3,15 @@ const express = require("express");
 const fetch = require("node-fetch"); // APIリクエストを送るため
 const app = express();
 
+console.log("--- API index.js loaded ---"); // デバッグログ1
+
 app.use(express.json());
+
+// デバッグ用ミドルウェア
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] Request received for: ${req.method} ${req.path}`);
+  next();
+});
 
 // MEMO:オープンキャンパス用
 const promptText = `
@@ -28,6 +36,7 @@ const promptText = `
 `;
 
 app.post("/get-words", async (req, res) => {
+    console.log("--- Entered /get-words endpoint. ---"); // デバッグログ3
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
@@ -49,7 +58,7 @@ app.post("/get-words", async (req, res) => {
             prompt = `${prompt}\n            また、プログラムの内容や変数名、処理内容などに「${req.body.customTheme}」という題材を必ず盛り込んでください。題材がジャンルであればプログラムのジャンルを変更してください。関数の作成のようなプログラムに自体に関わる題材の場合は、それが含まれるプログラムを作成してください。いずれの題材にしても、プログラム中に日本語は含まないでください。\n            `;
         }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -134,7 +143,7 @@ app.post("/ask-gemini", async (req, res) => {
         });
 
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -247,7 +256,7 @@ app.post("/generate-quiz-question", async (req, res) => {
 
         const finalPrompt = basePrompt + specificPrompt;
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -355,7 +364,7 @@ app.post("/evaluate-comments", async (req, res) => {
         \
         `;
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -436,7 +445,7 @@ app.post("/get-refactor-puzzle", async (req, res) => {
         }
         `;
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -475,7 +484,5 @@ app.post("/get-refactor-puzzle", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-module.exports = app;
 
 module.exports = app;
