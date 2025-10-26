@@ -23,13 +23,15 @@ jobs:
         run: npm ci
         working-directory: ./functions
 
-      # Firebase CLIをセットアップ
-      - name: Setup Firebase CLI
-        uses: FirebaseExtended/action-setup-firebase-cli@v1
+      # Google Cloudへの認証
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          # サービスアカウントのシークレットを指定
-          serviceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TYPING_GAME_A8239 }}
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TYPING_GAME_A8239 }}
 
       # Firebaseにデプロイ
       - name: Deploy to Firebase
-        run: firebase deploy --only hosting,functions --project typing-game-a8239
+        uses: google-github-actions/deploy-firebase@v0
+        with:
+          project_id: typing-game-a8239
+          args: deploy --only hosting,functions
