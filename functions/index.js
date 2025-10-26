@@ -286,11 +286,7 @@ jsonなど)は一切含めないでください。
         const jsonMatch = rawText.match(/\{.*\}/s);
         if (!jsonMatch) {
             console.error("Could not find JSON in response:", rawText);
-            throw new Error("❌ APIが有効なクイズデータを返しませんでした。");
-        }
-
-        const cleanedJsonString = jsonMatch[0].replace(/,(\s*[}\]])/g, 
-$1);
+            const cleanedJsonString = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
 
         try {
             const quizData = JSON.parse(cleanedJsonString);

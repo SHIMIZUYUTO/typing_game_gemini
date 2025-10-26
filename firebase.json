@@ -52,9 +52,6 @@
     {
       "source": "functions",
       "codebase": "default",
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint"
-      ],
       "ignore": [
         "node_modules",
         ".git",
