@@ -2,34 +2,8 @@ require("dotenv").config(); // APIキーを環境変数から読み込む
 const express = require("express");
 const fetch = require("node-fetch"); // APIリクエストを送るため
 const app = express();
-const PORT = 3000;
 
 app.use(express.json());
-app.use(express.static("public"));
-
-app.get("/", (req, res) => { // /にアクセスしたらindex.htmlを返す
-    res.sendFile(__dirname + "/public/index.html");
-});
-
-// MEMO:卒業研究用
-// const promptText = `
-// プログラムを入力する形式のタイピング練習ゲームを作成しています。
-// プログラミングとタイピング初心者のためのランダムなCプログラミングコードスニペットを正確に1つ生成し、コードのみをテキストとして出力してください。
-// 各スニペットは
-// - 出力内容はプログラムのみ。
-// - マークダウン構文を出力しない。
-// - 10~15行の範囲内のプログラムを出力する。
-// - 毎回異なる内容のプログラムを出力する。（これが一番重要です）
-// - 適切なインデントと改行で適切にフォーマットする。
-// - インデントは半角スペース4つで行うこと。
-// - print文などに日本語を含めないこと。
-// - 説明、コメント、マークダウン構文（  \`\`\`cなど）を出力しないこと。
-// - 各ステートメントがセミコロンで終わり、セミコロンの後にスペースが続かないようにする。
-// - セミコロンの直前に不要な半角ペースを入れないこと。
-// - if、else、for、while、functions などのコードブロックのインデントが適切であることを確認してください。
-// - 二重改行は絶対にしないでください。
-// - 各スニペットでは、文と文の間に適切な改行を入れてください。
-// `; 
 
 // MEMO:オープンキャンパス用
 const promptText = `
@@ -104,12 +78,9 @@ app.post("/get-words", async (req, res) => {
         codeText = codeText.replace(/```/g, "");
         codeText = codeText.replace(/\r\n/g, "\n");
         codeText = codeText.replace(/\n{2,}/g, "\n");
-        // codeText = codeText.replace(/  /g, "    "); // 2つのスペースをスペース4つに変換
-        // codeText = codeText.replace(/        /g, "    "); // スペース8個をスペース4つに変換
 
         const codeSnippets = codeText
           .split("\n")
-        //   .map(line => line.replace(/\s+$/, "")) // 行末のみトリム
         .filter(line => line.length > 0)
           .slice(0, 35);
 
@@ -132,10 +103,8 @@ app.post("/ask-gemini", async (req, res) => {
             return res.status(400).json({ error: "codeとquestionは必須です" });
         }
 
-        // Gemini APIのcontentsを作成
         const contents = [];
 
-        // 1. システムプロンプト的な役割を果たす最初のuserパート
         contents.push({
             role: "user",
             parts: [{
@@ -148,13 +117,11 @@ app.post("/ask-gemini", async (req, res) => {
                 `
             }]
         });
-        // 2. 自己紹介と応答準備完了を伝える最初のmodelパート
         contents.push({
             role: "model",
             parts: [{ text: "承知いたしました。C言語に関するご質問でしたら、何でもお聞きください。" }]
         });
 
-        // 3. 過去の会話履歴をcontentsに追加
         if (Array.isArray(history)) {
             for (const message of history) {
                 contents.push({
@@ -164,7 +131,6 @@ app.post("/ask-gemini", async (req, res) => {
             }
         }
 
-        // 4. 今回の新しい質問を追加
         contents.push({
             role: "user",
             parts: [{ text: question }]
@@ -175,7 +141,7 @@ app.post("/ask-gemini", async (req, res) => {
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents }), // 修正：contentsを直接渡す
+            body: JSON.stringify({ contents }),
         });
 
         if (!response.ok) {
@@ -188,16 +154,15 @@ app.post("/ask-gemini", async (req, res) => {
             answer = data.candidates[0].content.parts[0].text.trim();
         }
 
-        // マークダウンや不要な改行を除去
         answer = answer
-            .replace(/```[\s\S]*?```/g, "") // コードブロック
-            .replace(/`([^`]+)`/g, "$1")    // インラインコード
-            .replace(/\*\*([^*]+)\*\*/g, "$1") // 太字
-            .replace(/\*([^*]+)\*/g, "$1")     // 斜体
-            .replace(/__([^_]+)__/g, "$1")     // 下線
-            .replace(/~~([^~]+)~~/g, "$1")     // 打ち消し
+            .replace(/```[\s\S]*?```/g, "")
+            .replace(/`([^`]+)`/g, "$1")
+            .replace(/\*\*([^*]+)\*\*/g, "$1")
+            .replace(/\*([^*]+)\*/g, "$1")
+            .replace(/__([^_]+)__/g, "$1")
+            .replace(/~~([^~]+)~~/g, "$1")
             .replace(/\r\n/g, "\n")
-            .replace(/\n{3,}/g, "\n\n")        // 3つ以上の連続改行を2つに
+            .replace(/\n{3,}/g, "\n\n")
             .trim();
 
         res.json({ answer });
@@ -217,7 +182,6 @@ app.post("/generate-quiz-question", async (req, res) => {
             return res.status(400).json({ error: "コードとクイズタイプは必須です。" });
         }
 
-        // クイズ生成のための共通指示プロンプト
         const basePrompt = `
         あなたはC言語のクイズを生成するエキスパートです。
         以下のC言語プログラムを題材として、指定された形式の4択クイズを1問作成してください。
@@ -226,8 +190,9 @@ app.post("/generate-quiz-question", async (req, res) => {
         - 回答は必ず以下のJSON形式で、JSONオブジェクトのみを出力してください。
         - 説明やマークダウン(\\\`\\\`\\\`jsonなど)は一切含めないでください。
         - JSONのキーは必ずダブルクォーテーションで囲んでください。
-        - JSONの文字列値の中にダブルクォーテーション(\`\"\`)が含まれる場合は、必ずバックスラッシュでエスケープしてください（例: \`\\\\\"\`）。これは絶対に守ってください。
-        - 選択肢の配列("choices")の要素の順番は必ずランダムにしてください。
+        - JSONの文字列値の中にダブルクォーテーション(\\\"`\\\"\\\`)
+が含まれる場合は、必ずバックスラッシュでエスケープしてください（例: \\\`\\\\\\\"\\\`）。これは絶対に守ってください。
+        - 選択肢の配列(\"choices\")の要素の順番は必ずランダムにしてください。
         - 不正解の選択肢は、学習者が間違いやすいような、もっともらしい選択肢を考えてください。
         - 全く同じ選択肢は絶対に含めないでください。
         - 生成する問題は、プログラムのごく一部に関するものではなく、プログラム全体の動作を理解しないと解けないような、思考力を問う問題にしてください。
@@ -243,7 +208,7 @@ app.post("/generate-quiz-question", async (req, res) => {
         }
 
         【プログラム】
-        \\
+        
         ${code}
         `;
 
@@ -309,13 +274,12 @@ app.post("/generate-quiz-question", async (req, res) => {
         }
 
         const rawText = data.candidates[0].content.parts[0].text;
-        const jsonMatch = rawText.match(/\{.*\}/s);
+        const jsonMatch = rawText.match(/\{\s*.*\s*\}/s);
         if (!jsonMatch) {
             console.error("Could not find JSON in response:", rawText);
             throw new Error("❌ APIが有効なクイズデータを返しませんでした。");
         }
 
-        // JSON文字列から末尾のカンマを削除して整形
         const cleanedJsonString = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
 
         try {
@@ -390,9 +354,9 @@ app.post("/evaluate-comments", async (req, res) => {
         }
 
         【レビュー対象のコード】
-        \`\`\`c
+        ```c
         ${codeWithComments}
-        \`\`\`
+        ```
         `;
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -412,7 +376,7 @@ app.post("/evaluate-comments", async (req, res) => {
 
         const data = await response.json();
         const rawText = data.candidates[0].content.parts[0].text;
-        const jsonMatch = rawText.match(/\{.*\}/s);
+        const jsonMatch = rawText.match(/\{\s*.*\s*\}/s);
         if (!jsonMatch) {
             console.error("Could not find JSON in response:", rawText);
             throw new Error("❌ APIが有効な評価データを返しませんでした。");
@@ -493,7 +457,7 @@ app.post("/get-refactor-puzzle", async (req, res) => {
 
         const data = await response.json();
         const rawText = data.candidates[0].content.parts[0].text;
-        const jsonMatch = rawText.match(/\{.*\}/s);
+        const jsonMatch = rawText.match(/\{\s*.*\s*\}/s);
         if (!jsonMatch) {
             console.error("Could not find JSON in response:", rawText);
             throw new Error("❌ APIが有効なパズルデータを返しませんでした。");
@@ -516,4 +480,4 @@ app.post("/get-refactor-puzzle", async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+module.exports = app;
