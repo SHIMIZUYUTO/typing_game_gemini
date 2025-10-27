@@ -1,5 +1,7 @@
 require("dotenv").config(); // APIキーを環境変数から読み込む
+console.log("DEBUG: GEMINI_API_KEY from .env:", process.env.GEMINI_API_KEY);
 const express = require("express");
+const path = require("path"); // pathモジュールを追加
 const fetch = require("node-fetch"); // APIリクエストを送るため
 const app = express();
 
@@ -482,6 +484,19 @@ app.post("/api/get-refactor-puzzle", async (req, res) => {
         console.error("Error fetching refactor puzzle:", error.message);
         res.status(500).json({ error: error.message });
     }
+});
+
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// Catch-all route to serve index.html for any unmatched routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
+
+// Start the server locally
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Local server running on port ${PORT}`);
 });
 
 module.exports = app;
