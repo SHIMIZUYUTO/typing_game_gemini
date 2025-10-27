@@ -39,7 +39,6 @@ app.post("/api/get-words", async (req, res) => {
     console.log("--- Entered /api/get-words endpoint. ---"); // デバッグログ3
     try {
         const apiKey = process.env.GEMINI_API_KEY;
-        console.log('APIキー:', apiKey);
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
         const lineCount = req.body.lineCount || 18; // デフォルトは18行
