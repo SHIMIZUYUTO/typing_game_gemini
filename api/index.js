@@ -80,7 +80,7 @@ app.post("/api/get-words", async (req, res) => {
         }
 
         let codeText = data.candidates[0].content.parts[0].text.trim();
-        codeText = codeText.replace(/```c\\n/g, "");
+        codeText = codeText.replace(/```c\n/g, "");
         codeText = codeText.replace(/```/g, "");
         codeText = codeText.replace(/\r\n/g, "\n");
         codeText = codeText.replace(/\n{2,}/g, "\n");
@@ -333,7 +333,7 @@ app.post("/api/evaluate-comments", async (req, res) => {
 
         【回答形式】
         以下のJSON形式で、JSONオブジェクトのみを出力してください。説明やマークダウンは一切含めないでください。
-        JSONのキーは必ずダブルクォーテーションで囲んでください。
+        JSONの各キーは必ずダブルクォーテーションで囲んでください。
         JSONの文字列値にダブルクォーテーションが含まれる場合は、必ず \" のようにエスケープしてください。
         "scores"オブジェクトには、各基準に対する0〜100点の整数値を含めてください。
 
