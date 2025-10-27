@@ -35,8 +35,8 @@ const promptText = `
 - 各スニペットでは、文と文の間に適切な改行を入れてください。
 `;
 
-app.post("/get-words", async (req, res) => {
-    console.log("--- Entered /get-words endpoint. ---"); // デバッグログ3
+app.post("/api/get-words", async (req, res) => {
+    console.log("--- Entered /api/get-words endpoint. ---"); // デバッグログ3
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
@@ -80,7 +80,7 @@ app.post("/get-words", async (req, res) => {
         }
 
         let codeText = data.candidates[0].content.parts[0].text.trim();
-        codeText = codeText.replace(/```c\n/g, "");
+        codeText = codeText.replace(/```c\\n/g, "");
         codeText = codeText.replace(/```/g, "");
         codeText = codeText.replace(/\r\n/g, "\n");
         codeText = codeText.replace(/\n{2,}/g, "\n");
@@ -99,7 +99,7 @@ app.post("/get-words", async (req, res) => {
     }
 });
 
-app.post("/ask-gemini", async (req, res) => {
+app.post("/api/ask-gemini", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
@@ -178,7 +178,7 @@ app.post("/ask-gemini", async (req, res) => {
     }
 });
 
-app.post("/generate-quiz-question", async (req, res) => {
+app.post("/api/generate-quiz-question", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
@@ -303,7 +303,7 @@ app.post("/generate-quiz-question", async (req, res) => {
     }
 });
 
-app.post("/evaluate-comments", async (req, res) => {
+app.post("/api/evaluate-comments", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
@@ -333,7 +333,7 @@ app.post("/evaluate-comments", async (req, res) => {
 
         【回答形式】
         以下のJSON形式で、JSONオブジェクトのみを出力してください。説明やマークダウンは一切含めないでください。
-        JSONの各キーは必ずダブルクォーテーションで囲んでください。
+        JSONのキーは必ずダブルクォーテーションで囲んでください。
         JSONの文字列値にダブルクォーテーションが含まれる場合は、必ず \" のようにエスケープしてください。
         "scores"オブジェクトには、各基準に対する0〜100点の整数値を含めてください。
 
@@ -402,7 +402,7 @@ app.post("/evaluate-comments", async (req, res) => {
     }
 });
 
-app.post("/get-refactor-puzzle", async (req, res) => {
+app.post("/api/get-refactor-puzzle", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
