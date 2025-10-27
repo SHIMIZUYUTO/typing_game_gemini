@@ -10,10 +10,10 @@ console.log("--- API index.js loaded ---"); // デバッグログ1
 app.use(express.json());
 
 // デバッグ用ミドルウェア
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] Request received for: ${req.method} ${req.path}`);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(`[${new Date().toISOString()}] Request received for: ${req.method} ${req.path}`);
+//   next();
+// });
 
 // MEMO:オープンキャンパス用
 const promptText = `
