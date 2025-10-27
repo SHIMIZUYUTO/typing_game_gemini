@@ -35,7 +35,7 @@ const promptText = `
 - 各スニペットでは、文と文の間に適切な改行を入れてください。
 `;
 
-app.post("/get-words", async (req, res) => {
+app.post("/api/get-words", async (req, res) => {
     console.log("--- Entered /api/get-words endpoint. ---"); // デバッグログ3
     try {
         const apiKey = process.env.GEMINI_API_KEY;
@@ -99,7 +99,7 @@ app.post("/get-words", async (req, res) => {
     }
 });
 
-app.post("/ask-gemini", async (req, res) => {
+app.post("/api/ask-gemini", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
@@ -178,7 +178,7 @@ app.post("/ask-gemini", async (req, res) => {
     }
 });
 
-app.post("/generate-quiz-question", async (req, res) => {
+app.post("/api/generate-quiz-question", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
@@ -303,7 +303,7 @@ app.post("/generate-quiz-question", async (req, res) => {
     }
 });
 
-app.post("/evaluate-comments", async (req, res) => {
+app.post("/api/evaluate-comments", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
@@ -402,7 +402,7 @@ app.post("/evaluate-comments", async (req, res) => {
     }
 });
 
-app.post("/get-refactor-puzzle", async (req, res) => {
+app.post("/api/get-refactor-puzzle", async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
