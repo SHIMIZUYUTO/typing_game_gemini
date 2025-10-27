@@ -67,7 +67,7 @@ app.post("/api/get-words", async (req, res) => {
         });
 
         if (!response.ok) {
-            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}、apiUrl: ${apiUrl}`);
         }
 
         const data = await response.json();
