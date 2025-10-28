@@ -2,7 +2,7 @@ import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, sav
 import { auth } from './firebase_auth.js';
 
 // Main Buttons
-let startButton, stopButton, customButton, refactorPracticeButton, diffButton, closeDiffBtn, startShortcutPracticeButton;
+let startButton, stopButton, customButton, refactorPracticeButton, diffButton, closeDiffBtn, startShortcutPracticeButton, backToStartMenuFromTyping;
 
 // Main UI Elements
 let incorrectKeysDisplay;
@@ -50,6 +50,7 @@ function initializeDOMElements() {
     startShortcutPracticeButton = document.getElementById('start-shortcut-practice-button');
     diffButton = document.getElementById("diff-button");
     closeDiffBtn = document.getElementById("close-diff");
+    backToStartMenuFromTyping = document.getElementById("back-to-start-menu-from-typing");
 
     // Main UI Elements
     incorrectKeysDisplay = document.getElementById("incorrect-keys-display");
@@ -133,6 +134,7 @@ export function setupGameEvents() {
 // --- Typing Game Flow ---
 
 async function startGame() {
+    if (backToStartMenuFromTyping) backToStartMenuFromTyping.disabled = true;
     currentGameMode = 'typing';
     await setupNewGame();
     const customTheme = document.getElementById("custom-theme-input").value.trim();
@@ -143,6 +145,7 @@ async function startGame() {
 }
 
 async function startCustomGame() {
+    if (backToStartMenuFromTyping) backToStartMenuFromTyping.disabled = true;
     currentGameMode = 'typing';
     await setupNewGame();
     const user = auth.currentUser;
@@ -204,6 +207,7 @@ async function endGame(wasStoppedManually) {
     if (customButton) customButton.disabled = false;
     if (refactorPracticeButton) refactorPracticeButton.disabled = false;
     if (showDiffButton) showDiffButton.disabled = true;
+    if (backToStartMenuFromTyping) backToStartMenuFromTyping.disabled = false;
 
     if (wasStoppedManually) {
         // Game was stopped manually, just hide the typing container and show the start menu.
@@ -216,8 +220,6 @@ async function endGame(wasStoppedManually) {
         const totalMistakes = Object.values(incorrectKeys).reduce((sum, count) => sum + count, 0);
         const correctlyTypedChars = Math.max(0, totalChars - totalMistakes);
         const accuracy = totalChars > 0 ? correctlyTypedChars / totalChars : 0;
-
-        console.log(`Accuracy Debug: totalChars=${totalChars}, correctlyTypedChars=${correctlyTypedChars}, accuracy=${accuracy}`);
 
         const baseScore = (correctlyTypedChars / timeTaken) * 100;
         const accuracyBonus = Math.pow(accuracy, 2);
@@ -264,6 +266,7 @@ async function endGame(wasStoppedManually) {
 // --- Refactor Practice Game Flow ---
 
 async function startRefactorGame() {
+    if (backToStartMenuFromTyping) backToStartMenuFromTyping.disabled = true;
     currentGameMode = 'refactor';
     await setupNewGame();
     // resultDisplay.textContent = "お題を生成中...";
@@ -363,6 +366,7 @@ function endRefactorGame(wasStoppedManually) {
     if (customButton) customButton.disabled = false;
     if (refactorPracticeButton) refactorPracticeButton.disabled = false;
     if (showDiffButton) showDiffButton.disabled = true;
+    if (backToStartMenuFromTyping) backToStartMenuFromTyping.disabled = false;
 }
 // --- Diff Flow ---
 function showDiff() {
