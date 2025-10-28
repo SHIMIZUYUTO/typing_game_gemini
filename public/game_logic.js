@@ -1,4 +1,4 @@
-import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserTypingSpeed, addTypingSession, updateAverageSpeedIfNeeded, saveUserProgram, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage } from './firebase_helper.js';
+import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserTypingSpeed, addTypingSession, updateAverageSpeedIfNeeded, updateDailyAverageSpeed, saveUserProgram, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage } from './firebase_helper.js';
 import { auth } from './firebase_auth.js';
 
 // Main Buttons
@@ -259,6 +259,7 @@ async function endGame(wasStoppedManually) {
         if (typingSpeed) {
             await addTypingSession(user, parseFloat(typingSpeed));
             await updateAverageSpeedIfNeeded(user);
+            await updateDailyAverageSpeed(user, parseFloat(typingSpeed));
         }
     }
 }

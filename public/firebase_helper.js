@@ -1,5 +1,5 @@
 import { auth, db } from './firebase_auth.js';
-import { doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, limit, where } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+import { doc, getDoc, setDoc, collection, addDoc, getDocs, deleteDoc, query, orderBy, limit, where, runTransaction } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
 
 // ユーザープロファイル取得
 export async function getUserProfile(user) {
@@ -78,6 +78,56 @@ export async function updateAverageSpeedIfNeeded(user) {
         for (const docSnap of snapshot.docs) {
             await deleteDoc(docSnap.ref);
         }
+    }
+}
+
+function getTypingDay() {
+    const now = new Date();
+    // A day starts at 6 AM. If it's before 6 AM, it's part of the previous day.
+    if (now.getHours() < 6) {
+        now.setDate(now.getDate() - 1);
+    }
+    // Format as YYYY-MM-DD
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+export async function updateDailyAverageSpeed(user, speed) {
+    if (!user) return;
+
+    const typingDay = getTypingDay();
+    const dailyAverageDocRef = doc(db, 'users', user.uid, 'dailyAverages', typingDay);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const dailyDoc = await transaction.get(dailyAverageDocRef);
+
+            if (!dailyDoc.exists()) {
+                // New day, create a new document
+                transaction.set(dailyAverageDocRef, {
+                    totalSpeed: speed,
+                    sessionCount: 1,
+                    averageSpeed: speed,
+                    date: new Date(typingDay) // Store the date for sorting if needed
+                });
+            } else {
+                // Existing day, update the document
+                const data = dailyDoc.data();
+                const newSessionCount = data.sessionCount + 1;
+                const newTotalSpeed = data.totalSpeed + speed;
+                const newAverageSpeed = newTotalSpeed / newSessionCount;
+
+                transaction.update(dailyAverageDocRef, {
+                    totalSpeed: newTotalSpeed,
+                    sessionCount: newSessionCount,
+                    averageSpeed: newAverageSpeed
+                });
+            }
+        });
+    } catch (e) {
+        console.error("Transaction failed: ", e);
     }
 }
 
