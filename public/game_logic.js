@@ -36,7 +36,7 @@ let userInputLines = [];
 let mistakeFlags = [];
 let incorrectKeys = {};
 let startTime;
-let currentDifficulty = 3;
+let currentDifficulty = 1;
 const difficultyLineCounts = { 1: 7, 2: 10, 3: 15, 4: 20, 5: 25 };
 let currentGameMode = 'typing'; // 'typing' または 'refactor'
 let contentChangeListener = null; // disposableリスナーを保持するため
