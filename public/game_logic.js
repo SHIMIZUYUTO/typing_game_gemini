@@ -358,7 +358,9 @@ function endRefactorGame(wasStoppedManually) {
 
         resultModal.style.display = 'flex';
     } else {
-        // No action needed, the game is just stopped.
+        // Game was stopped manually, hide the typing container and show the shortcut start menu.
+        document.getElementById('typing-container').style.display = 'none';
+        document.getElementById('shortcut-start-menu').style.display = 'flex';
     }
 
     window.editor.updateOptions({ readOnly: true });
