@@ -60,23 +60,28 @@ export async function addTypingSession(user, speed) {
     });
 }
 
-// 5回分溜まったら平均を計算・保存し、記録をリセット
+// 3回以上記録があれば、最新3回の平均を計算・保存し、古い記録は削除
 export async function updateAverageSpeedIfNeeded(user) {
     if (!user) return;
     const sessionsCol = collection(db, 'users', user.uid, 'typingSessions');
-    const q = query(sessionsCol, orderBy('createdAt', 'asc'));
+    const q = query(sessionsCol, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
 
-    if (snapshot.docs.length >= 5) {
-        const speeds = snapshot.docs.map(doc => doc.data().speed);
-        const averageSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+    const sessions = snapshot.docs;
+    
+    if (sessions.length >= 3) {
+        const latest3Speeds = sessions.slice(0, 3).map(doc => doc.data().speed);
+        const averageSpeed = latest3Speeds.reduce((a, b) => a + b, 0) / latest3Speeds.length;
 
         // 平均速度を保存
         await saveUserTypingSpeed(user, Math.round(averageSpeed * 100) / 100);
 
-        // 計算に使ったセッションを削除
-        for (const docSnap of snapshot.docs) {
-            await deleteDoc(docSnap.ref);
+        // 4件目以降の古い記録を削除
+        if (sessions.length > 3) {
+            const sessionsToDelete = sessions.slice(3);
+            for (const docSnap of sessionsToDelete) {
+                await deleteDoc(docSnap.ref);
+            }
         }
     }
 }
