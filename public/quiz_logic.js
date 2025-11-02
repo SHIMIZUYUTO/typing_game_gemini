@@ -98,7 +98,16 @@ async function startQuiz() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code: program.code, quizType: quizType })
-            }).then(res => res.ok ? res.json() : Promise.reject(new Error('問題の生成に失敗しました。')))
+            }).then(res => {
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    if (res.status === 503) {
+                        Toastify({ text: "AIサーバーが混み合っているようです。少し時間をおいてから、もう一度お試しください。", duration: 5000, gravity: "top", position: "center", style: { background: "#ffc107", color: "#000" } }).showToast();
+                    }
+                    return Promise.reject(new Error('問題の生成に失敗しました。'));
+                }
+            })
         );
 
         quizQuestions = await Promise.all(questionPromises);

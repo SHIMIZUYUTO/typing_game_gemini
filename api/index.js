@@ -69,7 +69,9 @@ app.post("/api/get-words", async (req, res) => {
         });
 
         if (!response.ok) {
-            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}、apiUrl: ${apiUrl}`);
+            const errorBody = await response.text();
+            console.error("Gemini API Error in /api/get-words:", response.status, errorBody);
+            return res.status(response.status).json({ error: `Gemini API request failed.` });
         }
 
         const data = await response.json();
@@ -152,7 +154,9 @@ app.post("/api/ask-gemini", async (req, res) => {
         });
 
         if (!response.ok) {
-            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+            const errorBody = await response.text();
+            console.error("Gemini API Error in /api/ask-gemini:", response.status, errorBody);
+            return res.status(response.status).json({ error: 'Gemini API request failed.' });
         }
 
         const data = await response.json();
@@ -268,8 +272,8 @@ app.post("/api/generate-quiz-question", async (req, res) => {
 
         if (!response.ok) {
             const errorBody = await response.text();
-            console.error("Gemini API Error:", response.status, errorBody);
-            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+            console.error("Gemini API Error in /api/generate-quiz-question:", response.status, errorBody);
+            return res.status(response.status).json({ error: 'Gemini API request failed.' });
         }
 
         const data = await response.json();
@@ -376,8 +380,8 @@ app.post("/api/evaluate-comments", async (req, res) => {
 
         if (!response.ok) {
             const errorBody = await response.text();
-            console.error("Gemini API Error:", response.status, errorBody);
-            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+            console.error("Gemini API Error in /api/evaluate-comments:", response.status, errorBody);
+            return res.status(response.status).json({ error: 'Gemini API request failed.' });
         }
 
         const data = await response.json();
@@ -457,8 +461,8 @@ app.post("/api/get-refactor-puzzle", async (req, res) => {
 
         if (!response.ok) {
             const errorBody = await response.text();
-            console.error("Gemini API Error:", response.status, errorBody);
-            throw new Error(`❌ Gemini API リクエスト失敗！ Status: ${response.status}`);
+            console.error("Gemini API Error in /api/get-refactor-puzzle:", response.status, errorBody);
+            return res.status(response.status).json({ error: 'Gemini API request failed.' });
         }
 
         const data = await response.json();

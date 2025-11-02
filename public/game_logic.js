@@ -279,6 +279,9 @@ async function startRefactorGame() {
     try {
         const response = await fetch("/api/get-refactor-puzzle", { method: "POST" });
         if (!response.ok) {
+            if (response.status === 503) {
+                Toastify({ text: "AIサーバーが混み合っているようです。少し時間をおいてから、もう一度お試しください。", duration: 5000, gravity: "top", position: "center", style: { background: "#ffc107", color: "#000" } }).showToast();
+            }
             const err = await response.json();
             throw new Error(err.error || 'お題の取得に失敗しました。');
         }
@@ -428,6 +431,9 @@ async function evaluateComments() {
         });
 
         if (!response.ok) {
+            if (response.status === 503) {
+                Toastify({ text: "AIサーバーが混み合っているようです。少し時間をおいてから、もう一度お試しください。", duration: 5000, gravity: "top", position: "center", style: { background: "#ffc107", color: "#000" } }).showToast();
+            }
             const err = await response.json();
             throw new Error(err.error || '評価に失敗しました。');
         }
@@ -546,6 +552,14 @@ async function fetchWords(customTheme = "", topMistakeKeys = []) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         });
+
+        if (!response.ok) {
+            if (response.status === 503) {
+                Toastify({ text: "AIサーバーが混み合っているようです。少し時間をおいてから、もう一度お試しください。", duration: 5000, gravity: "top", position: "center", style: { background: "#ffc107", color: "#000" } }).showToast();
+            }
+            throw new Error(`Server responded with status ${response.status}`);
+        }
+
         const data = await response.json();
         if (data.error) throw new Error(data.error);
         codeLines = data.codeSnippets || [];

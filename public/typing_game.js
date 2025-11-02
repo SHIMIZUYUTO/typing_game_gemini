@@ -76,7 +76,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code, question, history: historyForAPI })
             });
-            if (!response.ok) throw new Error('API request failed');
+
+            if (!response.ok) {
+                if (response.status === 503) {
+                    Toastify({ text: "AIサーバーが混み合っているようです。少し時間をおいてから、もう一度お試しください。", duration: 5000, gravity: "top", position: "center", style: { background: "#ffc107", color: "#000" } }).showToast();
+                }
+                throw new Error('API request failed');
+            }
+            
             const data = await response.json();
 
             const newAiMessage = { role: 'model', text: data.answer };
