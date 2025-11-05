@@ -78,39 +78,53 @@ async function startQuiz() {
     const quizType = quizTypeSelect.value;
 
     const favoritePrograms = (await getUserPrograms(user)).filter(p => p.favorite);
-    if (favoritePrograms.length < 1) {
-        return alert(`クイズを生成するのに十分な数のお気に入りプログラムがありません。`);
+    if (favoritePrograms.length < numQuestions) {
+        return alert(`クイズを生成するのに十分な数のお気に入りプログラムがありません。最低${numQuestions}個のお気に入りが必要です。`);
+    }
+
+    // Select `numQuestions` unique random programs
+    const selectedPrograms = [];
+    const programsCopy = [...favoritePrograms];
+    for (let i = 0; i < numQuestions; i++) {
+        const randomIndex = Math.floor(Math.random() * programsCopy.length);
+        selectedPrograms.push(programsCopy.splice(randomIndex, 1)[0]);
     }
 
     quizSetup.style.display = 'none';
-    quizMain.style.display = 'flex'; // Use flex
+    quizMain.style.display = 'flex';
     questionCounter.textContent = '問題生成中...';
-    questionText.textContent = 'Geminiが問題を考えています...';
+    questionText.textContent = `Geminiが${numQuestions}問の問題を考えています...`;
     codeSnippet.textContent = '少々お待ちください...';
     choicesContainer.innerHTML = '';
     feedbackContainer.innerHTML = '';
 
     try {
-        const selectedPrograms = Array.from({ length: numQuestions }, () => favoritePrograms[Math.floor(Math.random() * favoritePrograms.length)]);
-        
-        const questionPromises = selectedPrograms.map(program =>
-            fetch("/api/generate-quiz-question", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code: program.code, quizType: quizType })
-            }).then(res => {
-                if (res.ok) {
-                    return res.json();
-                } else {
-                    if (res.status === 503) {
-                        Toastify({ text: "AIサーバーが混み合っているようです。少し時間をおいてから、もう一度お試しください。", duration: 5000, gravity: "top", position: "center", style: { background: "#ffc107", color: "#000" } }).showToast();
-                    }
-                    return Promise.reject(new Error('問題の生成に失敗しました。'));
-                }
-            })
-        );
+        // Prepare the list of programs for the API
+        const programsForApi = selectedPrograms.map((p, index) => ({ id: index, code: p.code }));
 
-        quizQuestions = await Promise.all(questionPromises);
+        const response = await fetch("/api/generate-quiz-question", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                programs: programsForApi,
+                quizType: quizType
+            })
+        });
+
+        if (!response.ok) {
+            if (response.status === 503) {
+                Toastify({ text: "AIサーバーが混み合っているようです。少し時間をおいてから、もう一度お試しください。", duration: 5000, gravity: "top", position: "center", style: { background: "#ffc107", color: "#000" } }).showToast();
+            }
+            throw new Error('問題の生成に失敗しました。');
+        }
+
+        const questions = await response.json();
+        
+        if (!questions || questions.length < numQuestions) {
+            throw new Error(`AIが十分な数の問題を生成できませんでした。(${questions.length}/${numQuestions}問)`);
+        }
+
+        quizQuestions = questions;
         currentQuestionIndex = 0;
         userScore = 0;
         userAnswers = [];

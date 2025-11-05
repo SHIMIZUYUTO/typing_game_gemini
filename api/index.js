@@ -188,39 +188,70 @@ app.post("/api/generate-quiz-question", async (req, res) => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("❌ APIキーが設定されていません！");
 
-        const { code, quizType } = req.body;
-        if (!code || !quizType) {
-            return res.status(400).json({ error: "コードとクイズタイプは必須です。" });
+        const { programs, quizType } = req.body;
+        if (!Array.isArray(programs) || programs.length === 0 || !quizType) {
+            return res.status(400).json({ error: "プログラムのリストとクイズタイプは必須です。" });
         }
 
-        const basePrompt = `
-        あなたはC言語のクイズを生成するエキスパートです。
-        以下のC言語プログラムを題材として、指定された形式の4択クイズを1問作成してください。
+                const basePrompt = `
 
-        【共通の制約】
-        - 回答は必ず以下のJSON形式で、JSONオブジェクトのみを出力してください。
-        - 説明やマークダウン(例: \
-)は一切含めないでください。
-        - JSONのキーは必ずダブルクォーテーションで囲んでください。
-        - JSONの文字列値にダブルクォーテーションが含まれる場合は、 \"のようにエスケープしてください。
-        - 選択肢の配列("choices")の要素の順番は必ずランダムにしてください。
-        - 不正解の選択肢は、学習者が間違いやすいような、もっともらしい選択肢を考えてください。
-        - 全く同じ選択肢は絶対に含めないでください。
-        - 生成する問題は、プログラムのごく一部に関するものではなく、プログラム全体の動作を理解しないと解けないような、思考力を問う問題にしてください。
+                あなたはC言語のクイズを生成するエキスパートです。
 
-        【共通のJSON形式】
-        {
-          "quizType": "（指定されたクイズタイプ）",
-          "questionText": "（ユーザーに問いかける質問文）",
-          "questionCode": "（問題となるプログラムコード）",
-          "choices": [ "（選択肢1）", "（選択肢2）", "（選択肢3）", "（選択肢4）" ],
-          "answer": "（正解の選択肢）",
-          "explanation": "（なぜその答えになるのかの簡単な解説）"
-        }
+                以下のJSON入力に含まれるC言語プログラムのリストそれぞれを題材として、指定された形式の4択クイズを1問ずつ、合計${programs.length}問作成してください。
 
-        【プログラム】
-        ${code}
-        `;
+        
+
+                【共通の制約】
+
+                - 回答は必ず、各クイズオブジェクトが "quizzes" キーの配列に含まれた、単一のJSONオブジェクトとして出力してください。
+
+                - 説明やマークダウン(例: \`\`\`json)は一切含めないでください。
+
+                - JSONのキーは必ずダブルクォーテーションで囲んでください。
+
+                - JSONの文字列値にダブルクォーテーションが含まれる場合は、必ず \\\" のようにエスケープしてください。
+
+                - 生成する問題は、プログラムのごく一部に関するものではなく、プログラム全体の動作を理解しないと解けないような、思考力を問う問題にしてください。
+
+                - 各クイズオブジェクトには、入力JSONのidに対応する "programId" キーを必ず含めてください。
+
+        
+
+                【最終的なJSON形式】
+
+                {
+
+                  "quizzes": [
+
+                    {
+
+                      "programId": 1, // 入力JSONのid
+
+                      "quizType": "（指定されたクイズタイプ）",
+
+                      "questionText": "（ユーザーに問いかける質問文）",
+
+                      "questionCode": "（問題となるプログラムコード）",
+
+                      "choices": [ "（選択肢1）", "（選択肢2）", "（選択肢3）", "（選択肢4）" ],
+
+                      "answer": "（正解の選択肢）",
+
+                      "explanation": "（なぜその答えになるのかの簡単な解説）"
+
+                    }
+
+                  ]
+
+                }
+
+        
+
+                【入力プログラム】
+
+                ${JSON.stringify({ programs })}
+
+                `;
 
         let specificPrompt = "";
         switch (quizType) {
@@ -294,7 +325,7 @@ app.post("/api/generate-quiz-question", async (req, res) => {
 
         try {
             const quizData = JSON.parse(cleanedJsonString);
-            res.json(quizData);
+            res.json(quizData.quizzes || []);
         } catch (parseError) {
             console.error("Failed to parse cleaned JSON:", parseError);
             console.error("Original JSON string was:", jsonMatch[0]);
