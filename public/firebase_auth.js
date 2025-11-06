@@ -15,7 +15,8 @@ export const login = (email, password) => {
   return signInWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       const user = userCredential.user;
-      console.log('ログイン成功:', user);
+      // console.log('ログイン成功:', user);
+      console.log('ログイン成功');
 
       // Firestoreにユーザードキュメントを作成またはスキップ
       const userDocRef = doc(db, 'users', user.uid);
