@@ -136,6 +136,20 @@ export async function updateDailyAverageSpeed(user, speed) {
     }
 }
 
+export async function recordLoginDay(user) {
+    if (!user) return;
+    const dateString = getTypingDay(); // Reuse the existing logic for a consistent definition of a "day"
+    const loginDayRef = doc(db, 'users', user.uid, 'loginDays', dateString);
+    await setDoc(loginDayRef, { loggedInAt: new Date() });
+}
+
+export async function getLoginDayCount(user) {
+    if (!user) return 0;
+    const loginDaysCol = collection(db, 'users', user.uid, 'loginDays');
+    const snapshot = await getDocs(loginDaysCol);
+    return snapshot.size;
+}
+
 // プログラムを保存（最大5つまで、古い順に削除）
 export async function saveUserProgram(user, code) {
     if (!user) return;

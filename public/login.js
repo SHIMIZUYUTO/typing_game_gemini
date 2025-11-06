@@ -1,4 +1,5 @@
 import { login, signUp } from './firebase_auth.js';
+import { recordLoginDay } from './firebase_helper.js';
 // import { createUserProfile } from './firebase_helper.js'; // No longer needed here
 
 const loginForm = document.getElementById('login-form');
@@ -47,9 +48,9 @@ loginForm.addEventListener('submit', async (e) => {
         }
 
         try {
-            // Pass username to the updated signUp function
             const userCredential = await signUp(email, password, username);
             if (userCredential && userCredential.user) {
+                await recordLoginDay(userCredential.user);
                 showHomeScreen();
             }
         } catch (error) {
@@ -59,8 +60,11 @@ loginForm.addEventListener('submit', async (e) => {
     } else {
         // --- Login Flow ---
         try {
-            await login(email, password);
-            showHomeScreen();
+            const userCredential = await login(email, password);
+            if (userCredential && userCredential.user) {
+                await recordLoginDay(userCredential.user);
+                showHomeScreen();
+            }
         } catch (error) {
             alert('メールアドレスもしくはパスワードが間違っています');
         }

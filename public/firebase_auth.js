@@ -29,6 +29,7 @@ export const login = (email, password) => {
         });
         console.log('新しいユーザードキュメントを作成しました');
       }
+      return userCredential;
     })
     .catch((error) => {
       console.error('ログイン失敗:', error);

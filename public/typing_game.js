@@ -1,11 +1,12 @@
 import { auth } from './firebase_auth.js';
-import { getUserProfile, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage } from './firebase_helper.js';
+import { getUserProfile, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage, getLoginDayCount } from './firebase_helper.js';
 import { setupGameEvents } from './game_logic.js';
 
-async function displayUsername() {
+async function updateHeader() {
     const user = auth.currentUser;
     if (!user) return;
 
+    // Update username
     const userWelcome = document.getElementById('user-welcome');
     const profile = await getUserProfile(user);
 
@@ -14,11 +15,18 @@ async function displayUsername() {
     } else {
         userWelcome.textContent = 'no nameさん';
     }
+
+    // Update login day count
+    const loginDayDisplay = document.getElementById('login-day-display');
+    const dayCount = await getLoginDayCount(user);
+    if (loginDayDisplay) {
+        loginDayDisplay.textContent = `${dayCount}日目`;
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     // Listen for the custom event dispatched from login.js
-    document.addEventListener('userLoggedIn', displayUsername);
+    document.addEventListener('userLoggedIn', updateHeader);
 
     // --- Saved Programs Modal Logic ---
     const showProgramsButton = document.getElementById('show-programs-button');
