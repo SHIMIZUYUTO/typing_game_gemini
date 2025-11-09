@@ -136,6 +136,47 @@ export async function updateDailyAverageSpeed(user, speed) {
     }
 }
 
+
+export async function updateDailyQuizStats(user, score, totalQuestions) {
+    if (!user) return;
+
+    const typingDay = getTypingDay();
+    const dailyQuizStatDocRef = doc(db, 'users', user.uid, 'dailyQuizStats', typingDay);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const dailyDoc = await transaction.get(dailyQuizStatDocRef);
+
+            if (!dailyDoc.exists()) {
+                // 新しい日付の場合ドキュメントを作成
+                transaction.set(dailyQuizStatDocRef, {
+                    totalCorrect: score,
+                    totalAttempted: totalQuestions,
+                    accuracy: totalQuestions > 0 ? score / totalQuestions : 0,
+                    quizCount: 1,
+                    date: new Date(typingDay)
+                });
+            } else {
+                // 既存の日付の場合ドキュメントを更新
+                const data = dailyDoc.data();
+                const newQuizCount = data.quizCount + 1;
+                const newTotalCorrect = data.totalCorrect + score;
+                const newTotalAttempted = data.totalAttempted + totalQuestions;
+                const newAccuracy = newTotalAttempted > 0 ? newTotalCorrect / newTotalAttempted : 0;
+
+                transaction.update(dailyQuizStatDocRef, {
+                    totalCorrect: newTotalCorrect,
+                    totalAttempted: newTotalAttempted,
+                    accuracy: newAccuracy,
+                    quizCount: newQuizCount
+                });
+            }
+        });
+    } catch (e) {
+        console.error("Quiz stat transaction failed: ", e);
+    }
+}
+
 export async function recordLoginDay(user) {
     if (!user) return;
     const dateString = getTypingDay(); // Reuse the existing logic for a consistent definition of a "day"

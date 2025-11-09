@@ -1,5 +1,5 @@
 import { auth } from './firebase_auth.js';
-import { getUserPrograms, saveQuizResult, getQuizResults } from './firebase_helper.js';
+import { getUserPrograms, saveQuizResult, getQuizResults, updateDailyQuizStats } from './firebase_helper.js';
 
 // === PAGE CONTAINERS ===
 const homeContainer = document.getElementById('home-container');
@@ -205,9 +205,15 @@ function showResults() {
 
     const user = auth.currentUser;
     if (user) {
+        // クイズの結果を保存
         saveQuizResult(user, fullQuizData)
             .then(() => console.log("Quiz result saved."))
             .catch(err => console.error("Failed to save quiz result:", err));
+
+        // 日にちごとの統計を更新
+        updateDailyQuizStats(user, userScore, quizQuestions.length)
+            .then(() => console.log("Daily quiz stats updated."))
+            .catch(err => console.error("Failed to update daily quiz stats:", err));
     }
 }
 
