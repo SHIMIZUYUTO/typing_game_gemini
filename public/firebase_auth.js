@@ -1,5 +1,5 @@
 // Firebase Authenticationをインポート
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js';
 
 // Firestoreをインポート
 import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
@@ -60,4 +60,14 @@ export const signUp = (email, password, username) => {
       console.error('新規登録失敗:', error);
       throw error;
     });
+};
+
+// パスワード更新機能
+export const updateUserPassword = (newPassword) => {
+  const user = auth.currentUser;
+  if (user) {
+    return updatePassword(user, newPassword);
+  } else {
+    throw new Error("ユーザーがログインしていません。");
+  }
 };

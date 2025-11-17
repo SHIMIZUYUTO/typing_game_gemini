@@ -299,3 +299,9 @@ export async function getRanking() {
     // doc.data()に加えてdoc.idも返すように修正
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
+
+// ユーザー名更新
+export async function updateUsername(user, newUsername) {
+    const userDocRef = doc(db, 'users', user.uid);
+    await setDoc(userDocRef, { username: newUsername }, { merge: true });
+}

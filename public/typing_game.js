@@ -1,5 +1,5 @@
-import { auth } from './firebase_auth.js';
-import { getUserProfile, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage, getLoginDayCount } from './firebase_helper.js';
+import { auth, updateUserPassword } from './firebase_auth.js';
+import { getUserProfile, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage, getLoginDayCount, updateUsername } from './firebase_helper.js';
 import { setupGameEvents } from './game_logic.js';
 
 async function updateHeader() {
@@ -16,6 +16,12 @@ async function updateHeader() {
         userWelcome.textContent = 'no nameさん';
     }
 
+    // Show settings button
+    const settingsButton = document.getElementById('settings-button');
+    if (settingsButton) {
+        settingsButton.style.display = 'block';
+    }
+
     // Update login day count
     const loginDayDisplay = document.getElementById('login-day-display');
     const dayCount = await getLoginDayCount(user);
@@ -27,6 +33,89 @@ async function updateHeader() {
 document.addEventListener("DOMContentLoaded", () => {
     // Listen for the custom event dispatched from login.js
     document.addEventListener('userLoggedIn', updateHeader);
+
+    // --- User Settings Modal Logic ---
+    const settingsButton = document.getElementById('settings-button');
+    const userSettingsModal = document.getElementById('user-settings-modal');
+    const userSettingsForm = document.getElementById('user-settings-form');
+    const cancelSettingsButton = document.getElementById('cancel-settings');
+    const newUsernameInput = document.getElementById('new-username');
+    const newPasswordInput = document.getElementById('new-password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
+
+    if (settingsButton) {
+        settingsButton.addEventListener('click', () => {
+            // Reset form
+            userSettingsForm.reset();
+            // Show modal
+            if (userSettingsModal) {
+                userSettingsModal.style.display = 'block';
+            }
+        });
+    }
+
+    if (cancelSettingsButton) {
+        cancelSettingsButton.addEventListener('click', () => {
+            if (userSettingsModal) {
+                userSettingsModal.style.display = 'none';
+            }
+        });
+    }
+
+    if (userSettingsForm) {
+        userSettingsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = auth.currentUser;
+            if (!user) {
+                alert('ログインしていません。');
+                return;
+            }
+
+            const newUsername = newUsernameInput.value.trim();
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            let promises = [];
+            let successMessages = [];
+
+            // Update username if provided
+            if (newUsername) {
+                promises.push(updateUsername(user, newUsername));
+                successMessages.push('ユーザー名を更新しました。');
+            }
+
+            // Update password if provided and matches confirmation
+            if (newPassword) {
+                if (newPassword.length < 6) {
+                    alert('パスワードは6文字以上で入力してください。');
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    alert('新しいパスワードが一致しません。');
+                    return;
+                }
+                promises.push(updateUserPassword(newPassword));
+                successMessages.push('パスワードを更新しました。');
+            }
+
+            if (promises.length === 0) {
+                alert('変更する情報を入力してください。');
+                return;
+            }
+
+            try {
+                await Promise.all(promises);
+                alert(successMessages.join('\n'));
+                if (userSettingsModal) {
+                    userSettingsModal.style.display = 'none';
+                }
+                await updateHeader(); // Refresh the username display
+            } catch (error) {
+                console.error("ユーザー情報の更新に失敗しました:", error);
+                alert('ユーザー情報の更新に失敗しました。\n' + error.message);
+            }
+        });
+    }
 
     // --- Saved Programs Modal Logic ---
     const showProgramsButton = document.getElementById('show-programs-button');
