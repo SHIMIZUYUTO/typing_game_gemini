@@ -75,12 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const confirmPassword = confirmPasswordInput.value;
 
             let promises = [];
-            let successMessages = [];
+            let usernameUpdated = false;
+            let passwordUpdated = false;
 
             // ユーザーネームを更新
             if (newUsername) {
-                promises.push(updateUsername(user, newUsername));
-                successMessages.push('ユーザー名を更新しました。');
+                promises.push(updateUsername(user, newUsername).then(() => { usernameUpdated = true; }));
             }
 
             // パスワードを更新
@@ -93,8 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     alert('新しいパスワードが一致しません。');
                     return;
                 }
-                promises.push(updateUserPassword(newPassword));
-                successMessages.push('パスワードを更新しました。');
+                promises.push(updateUserPassword(newPassword).then(() => { passwordUpdated = true; }));
             }
 
             if (promises.length === 0) {
@@ -104,7 +103,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 await Promise.all(promises);
-                alert(successMessages.join('\n'));
+                let finalMessage = '';
+                if (usernameUpdated && passwordUpdated) {
+                    finalMessage = 'ユーザー名とパスワードを更新しました。';
+                } else if (usernameUpdated) {
+                    finalMessage = 'ユーザー名を更新しました。';
+                } else if (passwordUpdated) {
+                    finalMessage = 'パスワードを更新しました。';
+                }
+                alert(finalMessage);
                 if (userSettingsModal) {
                     userSettingsModal.style.display = 'none';
                 }
