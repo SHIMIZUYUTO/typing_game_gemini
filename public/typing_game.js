@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Listen for the custom event dispatched from login.js
     document.addEventListener('userLoggedIn', updateHeader);
 
-    // --- User Settings Modal Logic ---
+    // --- 設定ボタン ---
     const settingsButton = document.getElementById('settings-button');
     const userSettingsModal = document.getElementById('user-settings-modal');
     const userSettingsForm = document.getElementById('user-settings-form');
@@ -45,11 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (settingsButton) {
         settingsButton.addEventListener('click', () => {
-            // Reset form
             userSettingsForm.reset();
             // Show modal
             if (userSettingsModal) {
-                userSettingsModal.style.display = 'block';
+                userSettingsModal.style.display = 'flex';
             }
         });
     }
@@ -78,13 +77,13 @@ document.addEventListener("DOMContentLoaded", () => {
             let promises = [];
             let successMessages = [];
 
-            // Update username if provided
+            // ユーザーネームを更新
             if (newUsername) {
                 promises.push(updateUsername(user, newUsername));
                 successMessages.push('ユーザー名を更新しました。');
             }
 
-            // Update password if provided and matches confirmation
+            // パスワードを更新
             if (newPassword) {
                 if (newPassword.length < 6) {
                     alert('パスワードは6文字以上で入力してください。');
@@ -109,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (userSettingsModal) {
                     userSettingsModal.style.display = 'none';
                 }
-                await updateHeader(); // Refresh the username display
+                await updateHeader();
             } catch (error) {
                 console.error("ユーザー情報の更新に失敗しました:", error);
                 alert('ユーザー情報の更新に失敗しました。\n' + error.message);

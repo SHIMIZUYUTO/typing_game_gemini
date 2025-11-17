@@ -211,6 +211,81 @@ body {
     right: 20px;
 }
 
+/* --- User Settings Modal --- */
+#user-settings-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 4000;
+    display: none; /* Initially hidden */
+    justify-content: center;
+    align-items: center;
+}
+
+.user-settings-container {
+    background-color: #282828;
+    color: #cccccc;
+    padding: 20px 40px;
+    border-radius: 8px;
+    border: 1px solid #555555;
+    width: 400px;
+    text-align: center;
+}
+
+.user-settings-container h2 {
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.user-settings-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.user-settings-container p {
+    margin: 10px 0 5px 0;
+    align-self: flex-start;
+}
+
+.user-settings-container input {
+    background-color: #3c3c3c;
+    color: #cccccc;
+    border: 1px solid #555555;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.user-settings-container button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    margin: 5px;
+}
+
+.user-settings-container button:hover {
+    background-color: #444444;
+}
+
+.user-settings-container button[type="button"] {
+    background-color: #555;
+}
+
+.user-settings-container button[type="button"]:hover {
+    background-color: #666;
+}
+
 .editor-flex-container {
     position: relative; /* これが必要！ */
     width: 100%;
