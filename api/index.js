@@ -59,6 +59,12 @@ app.post("/api/get-words", async (req, res) => {
             prompt = `${prompt}\n            また、プログラムの内容や変数名、処理内容などに「${req.body.customTheme}」という題材を必ず盛り込んでください。題材がジャンルであればプログラムのジャンルを変更してください。関数の作成のようなプログラムに自体に関わる題材の場合は、それが含まれるプログラムを作成してください。いずれの題材にしても、プログラム中に日本語は含まないでください。\n            `;
         }
 
+        // 直近のプログラムと被らないようにする
+        if (req.body && Array.isArray(req.body.recentPrograms) && req.body.recentPrograms.length > 0) {
+            const recentProgramsText = req.body.recentPrograms.map((p, i) => `--- 過去のプログラム ${i + 1} ---\n${p}`).join('\n\n');
+            prompt = `${prompt}\n\n重要: 以下は最近使用されたプログラムです。これらとは異なる、ユニークな新しいプログラムを生成してください。\n${recentProgramsText}\n`;
+        }
+
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",

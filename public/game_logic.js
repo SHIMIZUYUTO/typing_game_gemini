@@ -1,6 +1,35 @@
 import { getHighScore, saveHighScore, getTopMistakeKeys, saveTopMistakeKeys, saveUserTypingSpeed, addTypingSession, updateAverageSpeedIfNeeded, updateDailyAverageSpeed, saveUserProgram, getUserPrograms, toggleFavoriteProgram, getProgramMessages, addProgramMessage, deleteProgramMessage } from './firebase_helper.js';
 import { auth } from './firebase_auth.js';
 
+const RECENT_PROGRAMS_KEY = 'typingGame.recentPrograms';
+
+// --- LocalStorage Helpers for Recent Programs ---
+function getRecentPrograms() {
+    try {
+        const stored = localStorage.getItem(RECENT_PROGRAMS_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        console.error("Failed to parse recent programs from localStorage", e);
+        return [];
+    }
+}
+
+function addRecentProgram(program) {
+    if (!program || typeof program !== 'string') return;
+    try {
+        let recent = getRecentPrograms();
+        // Add to the beginning and prevent duplicates
+        recent = [program, ...recent.filter(p => p !== program)];
+        // Keep only the last 2
+        while (recent.length > 2) {
+            recent.pop();
+        }
+        localStorage.setItem(RECENT_PROGRAMS_KEY, JSON.stringify(recent));
+    } catch (e) {
+        console.error("Failed to save recent programs to localStorage", e);
+    }
+}
+
 // Main Buttons
 let startButton, stopButton, customButton, refactorPracticeButton, diffButton, closeDiffBtn, startShortcutPracticeButton, backToStartMenuFromTyping;
 
@@ -546,7 +575,8 @@ function updateIncorrectKeysDisplay() {
 async function fetchWords(customTheme = "", topMistakeKeys = []) {
     try {
         const lineCount = difficultyLineCounts[currentDifficulty];
-        const body = { lineCount, customTheme, topMistakeKeys };
+        const recentPrograms = getRecentPrograms();
+        const body = { lineCount, customTheme, topMistakeKeys, recentPrograms };
         const response = await fetch("/api/get-words", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -563,6 +593,12 @@ async function fetchWords(customTheme = "", topMistakeKeys = []) {
         const data = await response.json();
         if (data.error) throw new Error(data.error);
         codeLines = data.codeSnippets || [];
+        
+        // Add the new program to the recent list
+        if (codeLines.length > 0) {
+            addRecentProgram(codeLines.join('\n'));
+        }
+
     } catch (error) {
         console.error("Error fetching words:", error);
         codeLines = ["// エラー: 問題の取得に失敗しました。リロードしてください"];
