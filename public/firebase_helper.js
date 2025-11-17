@@ -305,3 +305,75 @@ export async function updateUsername(user, newUsername) {
     const userDocRef = doc(db, 'users', user.uid);
     await setDoc(userDocRef, { username: newUsername }, { merge: true });
 }
+
+// --- Recent Programs History in Firestore ---
+
+/**
+ * 指定された難易度の直近のプログラム履歴をFirestoreから取得します。
+ * @param {object} user - Firebaseのユーザーオブジェクト。
+ * @param {number} difficulty - 難易度レベル (1-5)。
+ * @returns {Promise<string[]>} - プログラム文字列の配列。
+ */
+export async function getRecentPrograms(user, difficulty) {
+    if (!user) return [];
+    try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+            const data = userDocSnap.data();
+            // recentProgramsフィールド全体、または特定の難易度の配列を取得
+            const recentProgramsMap = data.recentPrograms || {};
+            return recentProgramsMap[difficulty] || [];
+        }
+        return [];
+    } catch (error) {
+        console.error("Error getting recent programs from Firestore:", error);
+        return [];
+    }
+}
+
+/**
+ * 新しいプログラムをFirestoreの指定された難易度の履歴に追加します。
+ * @param {object} user - Firebaseのユーザーオブジェクト。
+ * @param {number} difficulty - 難易度レベル (1-5)。
+ * @param {string} program - 保存するプログラム文字列。
+ */
+export async function addRecentProgram(user, difficulty, program) {
+    if (!user || !program) return;
+    const userDocRef = doc(db, 'users', user.uid);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const userDoc = await transaction.get(userDocRef);
+            if (!userDoc.exists()) {
+                // 通常は発生しないはずですが、念のため
+                transaction.set(userDocRef, {
+                    recentPrograms: {
+                        [difficulty]: [program]
+                    }
+                });
+                return;
+            }
+
+            const data = userDoc.data();
+            const recentProgramsMap = data.recentPrograms || {};
+            let recentForDifficulty = recentProgramsMap[difficulty] || [];
+
+            // 新しいプログラムを先頭に追加し、重複を削除
+            recentForDifficulty = [program, ...recentForDifficulty.filter(p => p !== program)];
+
+            // 履歴を5件に制限
+            while (recentForDifficulty.length > 5) {
+                recentForDifficulty.pop();
+            }
+
+            // 更新した配列をマップにセット
+            recentProgramsMap[difficulty] = recentForDifficulty;
+
+            // トランザクションで更新
+            transaction.set(userDocRef, { recentPrograms: recentProgramsMap }, { merge: true });
+        });
+    } catch (error) {
+        console.error("Error adding recent program to Firestore:", error);
+    }
+}
