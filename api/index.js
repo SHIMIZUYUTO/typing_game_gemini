@@ -65,7 +65,7 @@ app.post("/api/get-words", async (req, res) => {
             prompt = `${prompt}\n\n重要: 以下は最近使用されたプログラムです。これらとは異なる、ユニークな新しいプログラムを生成してください。\n${recentProgramsText}\n`;
         }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -152,7 +152,7 @@ app.post("/api/ask-gemini", async (req, res) => {
         });
 
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -298,7 +298,7 @@ app.post("/api/generate-quiz-question", async (req, res) => {
 
         const finalPrompt = basePrompt + specificPrompt;
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -488,7 +488,7 @@ app.post("/api/get-refactor-puzzle", async (req, res) => {
         }
         `;
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
